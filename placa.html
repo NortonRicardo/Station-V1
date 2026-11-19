@@ -77,10 +77,22 @@ tbody tr:last-child td, tbody tr:last-child th { border-bottom:0; }
 .legend i { display:inline-block; width:12px; height:12px; border-radius:4px; margin-right:6px; vertical-align:-1px; }
 .legend b { color:var(--tx); margin-right:4px; }
 .dia { display:block; width:100%; height:auto; margin:0 auto; }
-.dia.board { max-width:1060px; min-width:700px; }
+.dia.board { max-width:1100px; min-width:700px; }
 .t-fp { font-size:10.5px; font-weight:700; text-anchor:middle; }
 .arrows { display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--tx2); margin:10px 0 0; padding:0; list-style:none; }
 .arrows b { color:var(--tx); font-weight:600; margin-right:4px; }
+
+.dia.mod { max-width:760px; min-width:560px; }
+.dia.lig { max-width:730px; min-width:600px; }
+.t-row { font-size:12px; font-weight:600; fill:#1c1917; }
+.t-row2 { font-weight:400; fill:#78716C; }
+.t-boxw { font-size:13px; font-weight:700; text-anchor:middle; fill:#fafaf9; letter-spacing:.04em; }
+.t-pinw { font-size:12px; font-weight:600; fill:#e7e5e4; }
+.t-wire2 { font-size:11.5px; font-weight:600; text-anchor:middle; fill:#44403c; }
+.t-nc { font-size:11px; text-anchor:end; fill:#78716C; }
+td.uso b { font-weight:600; }
+.bme { min-width:880px; }
+.bme td:nth-child(-n+2) { white-space:nowrap; }
 .dia.power { max-width:420px; margin:0; }
 .dia text { font-family:inherit; }
 .t-pill { font-size:11px; font-weight:700; text-anchor:middle; }
@@ -152,9 +164,9 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
   <div class="card">
       <h3>Pinagem</h3>
       <p class="sub">Vista de cima, USB embaixo, conferido com a foto. Pílula = nome impresso; número cinza = GPIO. CLK, D0–D3 e CMD (GPIO6–11) vão para a flash: não usar.</p>
-      <div class="scroll"><svg viewBox="0 0 880 730" role="img" aria-label="Pinagem do ESP32 DevKitC 38 pinos" class="dia board">
+      <div class="scroll"><svg viewBox="0 0 960 730" role="img" aria-label="Pinagem do ESP32 DevKitC 38 pinos" class="dia board">
 <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#78716c"/></marker></defs>
-<g transform="translate(260,0)">
+<g transform="translate(300,0)">
 <rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
 <rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
 <rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
@@ -320,86 +332,86 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
 <text x="327" y="652" class="t-pill" fill="#57534e">CLK</text>
 </g>
-<line x1="262" y1="180" x2="234" y2="180" stroke="#78716c" stroke-width="1.6" marker-end="url(#ah)"/>
-<rect x="83" y="171" width="145" height="18" rx="9" fill="#f59e0b"/><text x="155.5" y="183.6" class="t-fp" fill="#1c1917">Saída 3,3 V (ou entrada)</text>
-<line x1="262" y1="206" x2="234" y2="206" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
-<rect x="169" y="197" width="59" height="18" rx="9" fill="#44403c"/><text x="198.5" y="209.6" class="t-fp" fill="#fff">Entrada</text><rect x="87" y="197" width="77" height="18" rx="9" fill="#44403c"/><text x="125.5" y="209.6" class="t-fp" fill="#fff">reset (LOW)</text>
-<line x1="262" y1="232" x2="234" y2="232" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
-<rect x="169" y="223" width="59" height="18" rx="9" fill="#06b6d4"/><text x="198.5" y="235.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="107" y="223" width="57" height="18" rx="9" fill="#06b6d4"/><text x="135.5" y="235.6" class="t-fp" fill="#1c1917">ADC1_0</text>
-<line x1="262" y1="258" x2="234" y2="258" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
-<rect x="169" y="249" width="59" height="18" rx="9" fill="#06b6d4"/><text x="198.5" y="261.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="107" y="249" width="57" height="18" rx="9" fill="#06b6d4"/><text x="135.5" y="261.6" class="t-fp" fill="#1c1917">ADC1_3</text>
-<line x1="262" y1="284" x2="234" y2="284" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
-<rect x="169" y="275" width="59" height="18" rx="9" fill="#06b6d4"/><text x="198.5" y="287.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="107" y="275" width="57" height="18" rx="9" fill="#06b6d4"/><text x="135.5" y="287.6" class="t-fp" fill="#1c1917">ADC1_6</text>
-<line x1="262" y1="310" x2="234" y2="310" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
-<rect x="169" y="301" width="59" height="18" rx="9" fill="#06b6d4"/><text x="198.5" y="313.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="107" y="301" width="57" height="18" rx="9" fill="#06b6d4"/><text x="135.5" y="313.6" class="t-fp" fill="#1c1917">ADC1_7</text>
-<line x1="262" y1="336" x2="234" y2="336" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="327" width="37" height="18" rx="9" fill="#3b82f6"/><text x="209.5" y="339.6" class="t-fp" fill="#fff">E/S</text><rect x="129" y="327" width="57" height="18" rx="9" fill="#06b6d4"/><text x="157.5" y="339.6" class="t-fp" fill="#1c1917">ADC1_4</text><rect x="70" y="327" width="54" height="18" rx="9" fill="#06b6d4"/><text x="97.0" y="339.6" class="t-fp" fill="#1c1917">Touch9</text>
-<line x1="262" y1="362" x2="234" y2="362" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="353" width="37" height="18" rx="9" fill="#3b82f6"/><text x="209.5" y="365.6" class="t-fp" fill="#fff">E/S</text><rect x="129" y="353" width="57" height="18" rx="9" fill="#06b6d4"/><text x="157.5" y="365.6" class="t-fp" fill="#1c1917">ADC1_5</text><rect x="70" y="353" width="54" height="18" rx="9" fill="#06b6d4"/><text x="97.0" y="365.6" class="t-fp" fill="#1c1917">Touch8</text>
-<line x1="262" y1="388" x2="234" y2="388" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="379" width="37" height="18" rx="9" fill="#3b82f6"/><text x="209.5" y="391.6" class="t-fp" fill="#fff">E/S</text><rect x="129" y="379" width="57" height="18" rx="9" fill="#06b6d4"/><text x="157.5" y="391.6" class="t-fp" fill="#1c1917">ADC2_8</text><rect x="80" y="379" width="44" height="18" rx="9" fill="#06b6d4"/><text x="102.0" y="391.6" class="t-fp" fill="#1c1917">DAC1</text>
-<line x1="262" y1="414" x2="234" y2="414" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="405" width="37" height="18" rx="9" fill="#3b82f6"/><text x="209.5" y="417.6" class="t-fp" fill="#fff">E/S</text><rect x="129" y="405" width="57" height="18" rx="9" fill="#06b6d4"/><text x="157.5" y="417.6" class="t-fp" fill="#1c1917">ADC2_9</text><rect x="80" y="405" width="44" height="18" rx="9" fill="#06b6d4"/><text x="102.0" y="417.6" class="t-fp" fill="#1c1917">DAC2</text>
-<line x1="262" y1="440" x2="234" y2="440" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="431" width="37" height="18" rx="9" fill="#3b82f6"/><text x="209.5" y="443.6" class="t-fp" fill="#fff">E/S</text><rect x="129" y="431" width="57" height="18" rx="9" fill="#06b6d4"/><text x="157.5" y="443.6" class="t-fp" fill="#1c1917">ADC2_7</text><rect x="70" y="431" width="54" height="18" rx="9" fill="#06b6d4"/><text x="97.0" y="443.6" class="t-fp" fill="#1c1917">Touch7</text>
-<line x1="262" y1="466" x2="234" y2="466" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="457" width="37" height="18" rx="9" fill="#3b82f6"/><text x="209.5" y="469.6" class="t-fp" fill="#fff">E/S</text><rect x="118" y="457" width="68" height="18" rx="9" fill="#10b981"/><text x="152.0" y="469.6" class="t-fp" fill="#fff">HSPI CLK</text><rect x="56" y="457" width="57" height="18" rx="9" fill="#06b6d4"/><text x="84.5" y="469.6" class="t-fp" fill="#1c1917">ADC2_6</text>
-<line x1="262" y1="492" x2="234" y2="492" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="483" width="37" height="18" rx="9" fill="#ec4899"/><text x="209.5" y="495.6" class="t-fp" fill="#fff">E/S</text><rect x="111" y="483" width="75" height="18" rx="9" fill="#10b981"/><text x="148.5" y="495.6" class="t-fp" fill="#fff">HSPI MISO</text><rect x="42" y="483" width="64" height="18" rx="9" fill="#ec4899"/><text x="74.0" y="495.6" class="t-fp" fill="#fff">boot LOW</text>
-<line x1="262" y1="518" x2="234" y2="518" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="181" y="509" width="47" height="18" rx="9" fill="#a8a29e"/><text x="204.5" y="521.6" class="t-fp" fill="#1c1917">Terra</text>
-<line x1="262" y1="544" x2="234" y2="544" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="191" y="535" width="37" height="18" rx="9" fill="#3b82f6"/><text x="209.5" y="547.6" class="t-fp" fill="#fff">E/S</text><rect x="111" y="535" width="75" height="18" rx="9" fill="#10b981"/><text x="148.5" y="547.6" class="t-fp" fill="#fff">HSPI MOSI</text><rect x="49" y="535" width="57" height="18" rx="9" fill="#06b6d4"/><text x="77.5" y="547.6" class="t-fp" fill="#1c1917">ADC2_4</text>
-<line x1="262" y1="570" x2="234" y2="570" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="157" y="561" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="192.5" y="573.6" class="t-fp" fill="#57534e">Flash SD2</text><rect x="91" y="561" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="121.5" y="573.6" class="t-fp" fill="#57534e">não usar</text>
-<line x1="262" y1="596" x2="234" y2="596" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="157" y="587" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="192.5" y="599.6" class="t-fp" fill="#57534e">Flash SD3</text><rect x="91" y="587" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="121.5" y="599.6" class="t-fp" fill="#57534e">não usar</text>
-<line x1="262" y1="622" x2="234" y2="622" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="157" y="613" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="192.5" y="625.6" class="t-fp" fill="#57534e">Flash CMD</text><rect x="91" y="613" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="121.5" y="625.6" class="t-fp" fill="#57534e">não usar</text>
-<line x1="262" y1="648" x2="234" y2="648" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
-<rect x="149" y="639" width="79" height="18" rx="9" fill="#f97316"/><text x="188.5" y="651.6" class="t-fp" fill="#fff">Entrada 5 V</text>
-<line x1="618" y1="180" x2="646" y2="180" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="652" y="171" width="47" height="18" rx="9" fill="#a8a29e"/><text x="675.5" y="183.6" class="t-fp" fill="#1c1917">Terra</text>
-<line x1="618" y1="206" x2="646" y2="206" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="197" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="209.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="197" width="75" height="18" rx="9" fill="#10b981"/><text x="731.5" y="209.6" class="t-fp" fill="#fff">VSPI MOSI</text>
-<line x1="618" y1="232" x2="646" y2="232" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="223" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="235.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="223" width="61" height="18" rx="9" fill="#10b981"/><text x="724.5" y="235.6" class="t-fp" fill="#fff">I2C SCL</text>
-<line x1="618" y1="258" x2="646" y2="258" stroke="#78716c" stroke-width="1.6" marker-end="url(#ah)"/>
-<rect x="652" y="249" width="47" height="18" rx="9" fill="#8b5cf6"/><text x="675.5" y="261.6" class="t-fp" fill="#fff">Saída</text><rect x="704" y="249" width="99" height="18" rx="9" fill="#8b5cf6"/><text x="753.5" y="261.6" class="t-fp" fill="#fff">UART0 TX (USB)</text>
-<line x1="618" y1="284" x2="646" y2="284" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
-<rect x="652" y="275" width="59" height="18" rx="9" fill="#8b5cf6"/><text x="681.5" y="287.6" class="t-fp" fill="#fff">Entrada</text><rect x="716" y="275" width="99" height="18" rx="9" fill="#8b5cf6"/><text x="765.5" y="287.6" class="t-fp" fill="#fff">UART0 RX (USB)</text>
-<line x1="618" y1="310" x2="646" y2="310" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="301" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="313.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="301" width="61" height="18" rx="9" fill="#10b981"/><text x="724.5" y="313.6" class="t-fp" fill="#fff">I2C SDA</text>
-<line x1="618" y1="336" x2="646" y2="336" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="652" y="327" width="47" height="18" rx="9" fill="#a8a29e"/><text x="675.5" y="339.6" class="t-fp" fill="#1c1917">Terra</text>
-<line x1="618" y1="362" x2="646" y2="362" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="353" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="365.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="353" width="75" height="18" rx="9" fill="#10b981"/><text x="731.5" y="365.6" class="t-fp" fill="#fff">VSPI MISO</text>
-<line x1="618" y1="388" x2="646" y2="388" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="379" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="391.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="379" width="68" height="18" rx="9" fill="#10b981"/><text x="728.0" y="391.6" class="t-fp" fill="#fff">VSPI CLK</text>
-<line x1="618" y1="414" x2="646" y2="414" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="405" width="37" height="18" rx="9" fill="#ec4899"/><text x="670.5" y="417.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="405" width="61" height="18" rx="9" fill="#10b981"/><text x="724.5" y="417.6" class="t-fp" fill="#fff">VSPI CS</text><rect x="760" y="405" width="71" height="18" rx="9" fill="#ec4899"/><text x="795.5" y="417.6" class="t-fp" fill="#fff">boot HIGH</text>
-<line x1="618" y1="440" x2="646" y2="440" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="431" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="443.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="431" width="68" height="18" rx="9" fill="#8b5cf6"/><text x="728.0" y="443.6" class="t-fp" fill="#fff">UART2 TX</text>
-<line x1="618" y1="466" x2="646" y2="466" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="457" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="469.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="457" width="68" height="18" rx="9" fill="#8b5cf6"/><text x="728.0" y="469.6" class="t-fp" fill="#fff">UART2 RX</text>
-<line x1="618" y1="492" x2="646" y2="492" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="483" width="37" height="18" rx="9" fill="#3b82f6"/><text x="670.5" y="495.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="483" width="57" height="18" rx="9" fill="#06b6d4"/><text x="722.5" y="495.6" class="t-fp" fill="#1c1917">ADC2_0</text><rect x="756" y="483" width="54" height="18" rx="9" fill="#06b6d4"/><text x="783.0" y="495.6" class="t-fp" fill="#1c1917">Touch0</text>
-<line x1="618" y1="518" x2="646" y2="518" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="509" width="37" height="18" rx="9" fill="#ec4899"/><text x="670.5" y="521.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="509" width="77" height="18" rx="9" fill="#ec4899"/><text x="732.5" y="521.6" class="t-fp" fill="#fff">botão BOOT</text><rect x="776" y="509" width="57" height="18" rx="9" fill="#06b6d4"/><text x="804.5" y="521.6" class="t-fp" fill="#1c1917">ADC2_1</text>
-<line x1="618" y1="544" x2="646" y2="544" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="535" width="37" height="18" rx="9" fill="#ec4899"/><text x="670.5" y="547.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="535" width="57" height="18" rx="9" fill="#06b6d4"/><text x="722.5" y="547.6" class="t-fp" fill="#1c1917">ADC2_2</text><rect x="756" y="535" width="54" height="18" rx="9" fill="#06b6d4"/><text x="783.0" y="547.6" class="t-fp" fill="#1c1917">Touch2</text><rect x="815" y="535" width="40" height="18" rx="9" fill="#ec4899"/><text x="835.0" y="547.6" class="t-fp" fill="#fff">boot</text>
-<line x1="618" y1="570" x2="646" y2="570" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
-<rect x="652" y="561" width="37" height="18" rx="9" fill="#ec4899"/><text x="670.5" y="573.6" class="t-fp" fill="#fff">E/S</text><rect x="694" y="561" width="61" height="18" rx="9" fill="#10b981"/><text x="724.5" y="573.6" class="t-fp" fill="#fff">HSPI CS</text><rect x="760" y="561" width="57" height="18" rx="9" fill="#06b6d4"/><text x="788.5" y="573.6" class="t-fp" fill="#1c1917">ADC2_3</text><rect x="822" y="561" width="40" height="18" rx="9" fill="#ec4899"/><text x="842.0" y="573.6" class="t-fp" fill="#fff">boot</text>
-<line x1="618" y1="596" x2="646" y2="596" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="652" y="587" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="687.5" y="599.6" class="t-fp" fill="#57534e">Flash SD1</text><rect x="728" y="587" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="758.5" y="599.6" class="t-fp" fill="#57534e">não usar</text>
-<line x1="618" y1="622" x2="646" y2="622" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="652" y="613" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="687.5" y="625.6" class="t-fp" fill="#57534e">Flash SD0</text><rect x="728" y="613" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="758.5" y="625.6" class="t-fp" fill="#57534e">não usar</text>
-<line x1="618" y1="648" x2="646" y2="648" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
-<rect x="652" y="639" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="687.5" y="651.6" class="t-fp" fill="#57534e">Flash CLK</text><rect x="728" y="639" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="758.5" y="651.6" class="t-fp" fill="#57534e">não usar</text>
+<line x1="302" y1="180" x2="274" y2="180" stroke="#78716c" stroke-width="1.6" marker-end="url(#ah)"/>
+<rect x="123" y="171" width="145" height="18" rx="9" fill="#f59e0b"/><text x="195.5" y="183.6" class="t-fp" fill="#1c1917">Saída 3,3 V (ou entrada)</text>
+<line x1="302" y1="206" x2="274" y2="206" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
+<rect x="209" y="197" width="59" height="18" rx="9" fill="#44403c"/><text x="238.5" y="209.6" class="t-fp" fill="#fff">Entrada</text><rect x="127" y="197" width="77" height="18" rx="9" fill="#44403c"/><text x="165.5" y="209.6" class="t-fp" fill="#fff">reset (LOW)</text>
+<line x1="302" y1="232" x2="274" y2="232" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
+<rect x="209" y="223" width="59" height="18" rx="9" fill="#06b6d4"/><text x="238.5" y="235.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="147" y="223" width="57" height="18" rx="9" fill="#06b6d4"/><text x="175.5" y="235.6" class="t-fp" fill="#1c1917">ADC1_0</text>
+<line x1="302" y1="258" x2="274" y2="258" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
+<rect x="209" y="249" width="59" height="18" rx="9" fill="#06b6d4"/><text x="238.5" y="261.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="147" y="249" width="57" height="18" rx="9" fill="#06b6d4"/><text x="175.5" y="261.6" class="t-fp" fill="#1c1917">ADC1_3</text>
+<line x1="302" y1="284" x2="274" y2="284" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
+<rect x="209" y="275" width="59" height="18" rx="9" fill="#06b6d4"/><text x="238.5" y="287.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="147" y="275" width="57" height="18" rx="9" fill="#06b6d4"/><text x="175.5" y="287.6" class="t-fp" fill="#1c1917">ADC1_6</text>
+<line x1="302" y1="310" x2="274" y2="310" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
+<rect x="209" y="301" width="59" height="18" rx="9" fill="#06b6d4"/><text x="238.5" y="313.6" class="t-fp" fill="#1c1917">Entrada</text><rect x="147" y="301" width="57" height="18" rx="9" fill="#06b6d4"/><text x="175.5" y="313.6" class="t-fp" fill="#1c1917">ADC1_7</text>
+<line x1="302" y1="336" x2="274" y2="336" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="327" width="37" height="18" rx="9" fill="#3b82f6"/><text x="249.5" y="339.6" class="t-fp" fill="#fff">E/S</text><rect x="169" y="327" width="57" height="18" rx="9" fill="#06b6d4"/><text x="197.5" y="339.6" class="t-fp" fill="#1c1917">ADC1_4</text><rect x="110" y="327" width="54" height="18" rx="9" fill="#06b6d4"/><text x="137.0" y="339.6" class="t-fp" fill="#1c1917">Touch9</text>
+<line x1="302" y1="362" x2="274" y2="362" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="353" width="37" height="18" rx="9" fill="#3b82f6"/><text x="249.5" y="365.6" class="t-fp" fill="#fff">E/S</text><rect x="169" y="353" width="57" height="18" rx="9" fill="#06b6d4"/><text x="197.5" y="365.6" class="t-fp" fill="#1c1917">ADC1_5</text><rect x="110" y="353" width="54" height="18" rx="9" fill="#06b6d4"/><text x="137.0" y="365.6" class="t-fp" fill="#1c1917">Touch8</text>
+<line x1="302" y1="388" x2="274" y2="388" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="379" width="37" height="18" rx="9" fill="#3b82f6"/><text x="249.5" y="391.6" class="t-fp" fill="#fff">E/S</text><rect x="169" y="379" width="57" height="18" rx="9" fill="#06b6d4"/><text x="197.5" y="391.6" class="t-fp" fill="#1c1917">ADC2_8</text><rect x="120" y="379" width="44" height="18" rx="9" fill="#06b6d4"/><text x="142.0" y="391.6" class="t-fp" fill="#1c1917">DAC1</text>
+<line x1="302" y1="414" x2="274" y2="414" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="405" width="37" height="18" rx="9" fill="#3b82f6"/><text x="249.5" y="417.6" class="t-fp" fill="#fff">E/S</text><rect x="169" y="405" width="57" height="18" rx="9" fill="#06b6d4"/><text x="197.5" y="417.6" class="t-fp" fill="#1c1917">ADC2_9</text><rect x="120" y="405" width="44" height="18" rx="9" fill="#06b6d4"/><text x="142.0" y="417.6" class="t-fp" fill="#1c1917">DAC2</text>
+<line x1="302" y1="440" x2="274" y2="440" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="431" width="37" height="18" rx="9" fill="#3b82f6"/><text x="249.5" y="443.6" class="t-fp" fill="#fff">E/S</text><rect x="169" y="431" width="57" height="18" rx="9" fill="#06b6d4"/><text x="197.5" y="443.6" class="t-fp" fill="#1c1917">ADC2_7</text><rect x="110" y="431" width="54" height="18" rx="9" fill="#06b6d4"/><text x="137.0" y="443.6" class="t-fp" fill="#1c1917">Touch7</text>
+<line x1="302" y1="466" x2="274" y2="466" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="457" width="37" height="18" rx="9" fill="#3b82f6"/><text x="249.5" y="469.6" class="t-fp" fill="#fff">E/S</text><rect x="158" y="457" width="68" height="18" rx="9" fill="#10b981"/><text x="192.0" y="469.6" class="t-fp" fill="#fff">HSPI CLK</text><rect x="96" y="457" width="57" height="18" rx="9" fill="#06b6d4"/><text x="124.5" y="469.6" class="t-fp" fill="#1c1917">ADC2_6</text>
+<line x1="302" y1="492" x2="274" y2="492" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="483" width="37" height="18" rx="9" fill="#ec4899"/><text x="249.5" y="495.6" class="t-fp" fill="#fff">E/S</text><rect x="151" y="483" width="75" height="18" rx="9" fill="#10b981"/><text x="188.5" y="495.6" class="t-fp" fill="#fff">HSPI MISO</text><rect x="82" y="483" width="64" height="18" rx="9" fill="#ec4899"/><text x="114.0" y="495.6" class="t-fp" fill="#fff">boot LOW</text>
+<line x1="302" y1="518" x2="274" y2="518" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="221" y="509" width="47" height="18" rx="9" fill="#a8a29e"/><text x="244.5" y="521.6" class="t-fp" fill="#1c1917">Terra</text>
+<line x1="302" y1="544" x2="274" y2="544" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="231" y="535" width="37" height="18" rx="9" fill="#3b82f6"/><text x="249.5" y="547.6" class="t-fp" fill="#fff">E/S</text><rect x="151" y="535" width="75" height="18" rx="9" fill="#10b981"/><text x="188.5" y="547.6" class="t-fp" fill="#fff">HSPI MOSI</text><rect x="89" y="535" width="57" height="18" rx="9" fill="#06b6d4"/><text x="117.5" y="547.6" class="t-fp" fill="#1c1917">ADC2_4</text>
+<line x1="302" y1="570" x2="274" y2="570" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="197" y="561" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="232.5" y="573.6" class="t-fp" fill="#57534e">Flash SD2</text><rect x="131" y="561" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="161.5" y="573.6" class="t-fp" fill="#57534e">não usar</text>
+<line x1="302" y1="596" x2="274" y2="596" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="197" y="587" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="232.5" y="599.6" class="t-fp" fill="#57534e">Flash SD3</text><rect x="131" y="587" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="161.5" y="599.6" class="t-fp" fill="#57534e">não usar</text>
+<line x1="302" y1="622" x2="274" y2="622" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="197" y="613" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="232.5" y="625.6" class="t-fp" fill="#57534e">Flash CMD</text><rect x="131" y="613" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="161.5" y="625.6" class="t-fp" fill="#57534e">não usar</text>
+<line x1="302" y1="648" x2="274" y2="648" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
+<rect x="189" y="639" width="79" height="18" rx="9" fill="#f97316"/><text x="228.5" y="651.6" class="t-fp" fill="#fff">Entrada 5 V</text>
+<line x1="658" y1="180" x2="686" y2="180" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="692" y="171" width="47" height="18" rx="9" fill="#a8a29e"/><text x="715.5" y="183.6" class="t-fp" fill="#1c1917">Terra</text>
+<line x1="658" y1="206" x2="686" y2="206" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="197" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="209.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="197" width="75" height="18" rx="9" fill="#10b981"/><text x="771.5" y="209.6" class="t-fp" fill="#fff">VSPI MOSI</text>
+<line x1="658" y1="232" x2="686" y2="232" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="223" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="235.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="223" width="61" height="18" rx="9" fill="#10b981"/><text x="764.5" y="235.6" class="t-fp" fill="#fff">I2C SCL</text>
+<line x1="658" y1="258" x2="686" y2="258" stroke="#78716c" stroke-width="1.6" marker-end="url(#ah)"/>
+<rect x="692" y="249" width="47" height="18" rx="9" fill="#8b5cf6"/><text x="715.5" y="261.6" class="t-fp" fill="#fff">Saída</text><rect x="744" y="249" width="99" height="18" rx="9" fill="#8b5cf6"/><text x="793.5" y="261.6" class="t-fp" fill="#fff">UART0 TX (USB)</text>
+<line x1="658" y1="284" x2="686" y2="284" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)"/>
+<rect x="692" y="275" width="59" height="18" rx="9" fill="#8b5cf6"/><text x="721.5" y="287.6" class="t-fp" fill="#fff">Entrada</text><rect x="756" y="275" width="99" height="18" rx="9" fill="#8b5cf6"/><text x="805.5" y="287.6" class="t-fp" fill="#fff">UART0 RX (USB)</text>
+<line x1="658" y1="310" x2="686" y2="310" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="301" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="313.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="301" width="61" height="18" rx="9" fill="#10b981"/><text x="764.5" y="313.6" class="t-fp" fill="#fff">I2C SDA</text>
+<line x1="658" y1="336" x2="686" y2="336" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="692" y="327" width="47" height="18" rx="9" fill="#a8a29e"/><text x="715.5" y="339.6" class="t-fp" fill="#1c1917">Terra</text>
+<line x1="658" y1="362" x2="686" y2="362" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="353" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="365.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="353" width="75" height="18" rx="9" fill="#10b981"/><text x="771.5" y="365.6" class="t-fp" fill="#fff">VSPI MISO</text>
+<line x1="658" y1="388" x2="686" y2="388" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="379" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="391.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="379" width="68" height="18" rx="9" fill="#10b981"/><text x="768.0" y="391.6" class="t-fp" fill="#fff">VSPI CLK</text>
+<line x1="658" y1="414" x2="686" y2="414" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="405" width="37" height="18" rx="9" fill="#ec4899"/><text x="710.5" y="417.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="405" width="61" height="18" rx="9" fill="#10b981"/><text x="764.5" y="417.6" class="t-fp" fill="#fff">VSPI CS</text><rect x="800" y="405" width="71" height="18" rx="9" fill="#ec4899"/><text x="835.5" y="417.6" class="t-fp" fill="#fff">boot HIGH</text>
+<line x1="658" y1="440" x2="686" y2="440" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="431" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="443.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="431" width="68" height="18" rx="9" fill="#8b5cf6"/><text x="768.0" y="443.6" class="t-fp" fill="#fff">UART2 TX</text>
+<line x1="658" y1="466" x2="686" y2="466" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="457" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="469.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="457" width="68" height="18" rx="9" fill="#8b5cf6"/><text x="768.0" y="469.6" class="t-fp" fill="#fff">UART2 RX</text>
+<line x1="658" y1="492" x2="686" y2="492" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="483" width="37" height="18" rx="9" fill="#3b82f6"/><text x="710.5" y="495.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="483" width="57" height="18" rx="9" fill="#06b6d4"/><text x="762.5" y="495.6" class="t-fp" fill="#1c1917">ADC2_0</text><rect x="796" y="483" width="54" height="18" rx="9" fill="#06b6d4"/><text x="823.0" y="495.6" class="t-fp" fill="#1c1917">Touch0</text>
+<line x1="658" y1="518" x2="686" y2="518" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="509" width="37" height="18" rx="9" fill="#ec4899"/><text x="710.5" y="521.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="509" width="77" height="18" rx="9" fill="#ec4899"/><text x="772.5" y="521.6" class="t-fp" fill="#fff">botão BOOT</text><rect x="816" y="509" width="57" height="18" rx="9" fill="#06b6d4"/><text x="844.5" y="521.6" class="t-fp" fill="#1c1917">ADC2_1</text>
+<line x1="658" y1="544" x2="686" y2="544" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="535" width="37" height="18" rx="9" fill="#ec4899"/><text x="710.5" y="547.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="535" width="57" height="18" rx="9" fill="#06b6d4"/><text x="762.5" y="547.6" class="t-fp" fill="#1c1917">ADC2_2</text><rect x="796" y="535" width="54" height="18" rx="9" fill="#06b6d4"/><text x="823.0" y="547.6" class="t-fp" fill="#1c1917">Touch2</text><rect x="855" y="535" width="40" height="18" rx="9" fill="#ec4899"/><text x="875.0" y="547.6" class="t-fp" fill="#fff">boot</text>
+<line x1="658" y1="570" x2="686" y2="570" stroke="#78716c" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)"/>
+<rect x="692" y="561" width="37" height="18" rx="9" fill="#ec4899"/><text x="710.5" y="573.6" class="t-fp" fill="#fff">E/S</text><rect x="734" y="561" width="61" height="18" rx="9" fill="#10b981"/><text x="764.5" y="573.6" class="t-fp" fill="#fff">HSPI CS</text><rect x="800" y="561" width="57" height="18" rx="9" fill="#06b6d4"/><text x="828.5" y="573.6" class="t-fp" fill="#1c1917">ADC2_3</text><rect x="862" y="561" width="40" height="18" rx="9" fill="#ec4899"/><text x="882.0" y="573.6" class="t-fp" fill="#fff">boot</text>
+<line x1="658" y1="596" x2="686" y2="596" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="692" y="587" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="727.5" y="599.6" class="t-fp" fill="#57534e">Flash SD1</text><rect x="768" y="587" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="798.5" y="599.6" class="t-fp" fill="#57534e">não usar</text>
+<line x1="658" y1="622" x2="686" y2="622" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="692" y="613" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="727.5" y="625.6" class="t-fp" fill="#57534e">Flash SD0</text><rect x="768" y="613" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="798.5" y="625.6" class="t-fp" fill="#57534e">não usar</text>
+<line x1="658" y1="648" x2="686" y2="648" stroke="#d6d3d1" stroke-width="1.6" stroke-dasharray="2 3"/>
+<rect x="692" y="639" width="71" height="18" rx="9" fill="#d6d3d1"/><text x="727.5" y="651.6" class="t-fp" fill="#57534e">Flash CLK</text><rect x="768" y="639" width="61" height="18" rx="9" fill="#d6d3d1"/><text x="798.5" y="651.6" class="t-fp" fill="#57534e">não usar</text>
 </svg></div>
       <ul class="legend"><li><i style="background:#f97316"></i>Alimentação 5 V</li><li><i style="background:#f59e0b"></i>Alimentação 3,3 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#3b82f6"></i>GPIO livre</li><li><i style="background:#06b6d4"></i>Só entrada (analógico)</li><li><i style="background:#ec4899"></i>Boot / strapping</li><li><i style="background:#8b5cf6"></i>UART0 (USB, gravação)</li><li><i style="background:#44403c"></i>Controle (reset)</li><li><i style="background:#d6d3d1"></i>Reservado à flash (não usar)</li></ul>
       <ul class="arrows"><li><b>→ placa</b>entrada</li><li><b>← placa</b>saída</li><li><b>↔</b>entrada e saída</li><li><b>┄</b>sem sinal (terra ou flash)</li></ul>
-      <p class="note">Todo pino de E/S também faz PWM e pode receber I2C, SPI ou UART pela matriz de pinos; o desenho mostra a função padrão. Nenhuma peça ligada ainda: sem fios no desenho.</p>
+      <p class="note">Todo pino de E/S também faz PWM e pode receber I2C, SPI ou UART pela matriz de pinos; o desenho mostra a função padrão. Os pinos ocupados pelas peças estão na coluna “Uso” da tabela abaixo e nos desenhos de ligação de cada etapa.</p>
   </div>
 
   <div class="card">
@@ -446,7 +458,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
     <div class="scroll"><table class="pinos">
       <thead><tr><th>Posição</th><th>Nome</th><th>GPIO</th><th>Tensão</th><th>ADC</th><th>Toque</th><th>Outras funções</th><th>Cuidados</th><th>Uso</th></tr></thead>
       <tbody>
-<tr><td>Esq. 1</td><td><span class="dot" style="background:#f59e0b"></span><b>3V3</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Saída do regulador</td><td>Ver Alimentação (corrente disponível).</td><td class="free">livre</td></tr>
+<tr><td>Esq. 1</td><td><span class="dot" style="background:#f59e0b"></span><b>3V3</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Saída do regulador</td><td>Ver Alimentação (corrente disponível).</td><td class="uso"><b>BME280 VCC</b></td></tr>
 <tr><td>Esq. 2</td><td><span class="dot" style="background:#44403c"></span><b>EN</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Reset do chip</td><td>LOW reinicia. Botão EN da placa.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 3</td><td><span class="dot" style="background:#06b6d4"></span><b>VP</b></td><td>36</td><td>3,3 V</td><td>ADC1_0</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 4</td><td><span class="dot" style="background:#06b6d4"></span><b>VN</b></td><td>39</td><td>3,3 V</td><td>ADC1_3</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="free">livre</td></tr>
@@ -465,12 +477,12 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <tr><td>Esq. 17</td><td><span class="dot" style="background:#d6d3d1"></span><b>D3</b></td><td>10</td><td>3,3 V</td><td>—</td><td>—</td><td>SD3 / flash WP</td><td>Ligado à flash do módulo. Não usar: trava o chip.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 18</td><td><span class="dot" style="background:#d6d3d1"></span><b>CMD</b></td><td>11</td><td>3,3 V</td><td>—</td><td>—</td><td>CMD / flash CS</td><td>Ligado à flash do módulo. Não usar: trava o chip.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 19</td><td><span class="dot" style="background:#f97316"></span><b>5V</b></td><td>—</td><td>5 V</td><td>—</td><td>—</td><td>Linha 5 V do USB, entrada do regulador</td><td>Ver Alimentação. Não ligar 5 V em GPIO.</td><td class="free">livre</td></tr>
-<tr><td>Dir. 1</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="free">livre</td></tr>
+<tr><td>Dir. 1</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="uso"><b>BME280 GND</b></td></tr>
 <tr><td>Dir. 2</td><td><span class="dot" style="background:#3b82f6"></span><b>23</b></td><td>23</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI MOSI</td><td>—</td><td class="free">livre</td></tr>
-<tr><td>Dir. 3</td><td><span class="dot" style="background:#3b82f6"></span><b>22</b></td><td>22</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, I2C SCL (padrão)</td><td>—</td><td class="free">livre</td></tr>
+<tr><td>Dir. 3</td><td><span class="dot" style="background:#3b82f6"></span><b>22</b></td><td>22</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, I2C SCL (padrão)</td><td>—</td><td class="uso"><b>BME280 SCL</b></td></tr>
 <tr><td>Dir. 4</td><td><span class="dot" style="background:#8b5cf6"></span><b>TX</b></td><td>1</td><td>3,3 V</td><td>—</td><td>—</td><td>UART0 TX → CP2102</td><td>Log do boot sai aqui. Usado na gravação: evite.</td><td class="free">livre</td></tr>
 <tr><td>Dir. 5</td><td><span class="dot" style="background:#8b5cf6"></span><b>RX</b></td><td>3</td><td>3,3 V</td><td>—</td><td>—</td><td>UART0 RX ← CP2102</td><td>HIGH no boot. Usado na gravação: evite.</td><td class="free">livre</td></tr>
-<tr><td>Dir. 6</td><td><span class="dot" style="background:#3b82f6"></span><b>21</b></td><td>21</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, I2C SDA (padrão)</td><td>—</td><td class="free">livre</td></tr>
+<tr><td>Dir. 6</td><td><span class="dot" style="background:#3b82f6"></span><b>21</b></td><td>21</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, I2C SDA (padrão)</td><td>—</td><td class="uso"><b>BME280 SDA</b></td></tr>
 <tr><td>Dir. 7</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="free">livre</td></tr>
 <tr><td>Dir. 8</td><td><span class="dot" style="background:#3b82f6"></span><b>19</b></td><td>19</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI MISO</td><td>—</td><td class="free">livre</td></tr>
 <tr><td>Dir. 9</td><td><span class="dot" style="background:#3b82f6"></span><b>18</b></td><td>18</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI CLK</td><td>—</td><td class="free">livre</td></tr>
@@ -494,8 +506,303 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
       <thead><tr><th>Peça</th><th>Função</th><th>Tensão</th><th>Corrente</th><th>Pinos usados</th></tr></thead>
       <tbody>
         <tr><td><b>ESP32 DevKitC (WROOM-32U)</b></td><td>Controlador, Wi-Fi e Bluetooth</td><td>5 V no USB/5V · lógica 3,3 V</td><td>≈40–150 mA, picos ≈500 mA</td><td>—</td></tr>
+        <tr><td><b>BME280</b> (módulo 6 pinos)</td><td>Temperatura, umidade e pressão por I2C</td><td>3,3 V</td><td>até ≈0,7 mA medindo · ≈3,6 µA em média</td><td>3V3, GND, GPIO21 (SDA), GPIO22 (SCL)</td></tr>
       </tbody></table></div>
     <p class="note"><b>Como funciona:</b> o CP2102 converte USB em serial na UART0 (GPIO1/3). Dois transistores ligam DTR/RTS do CP2102 ao EN e ao GPIO0, e por isso o esptool reinicia e entra em gravação sozinho. O AMS1117 baixa os 5 V para 3,3 V. O resistor e o capacitor no EN seguram o reset até a tensão estabilizar.</p>
+  </div>
+</section>
+
+<section class="etapa" id="etapa-2">
+  <div class="n">Etapa 2</div>
+  <h2>BME280: temperatura, umidade e pressão</h2>
+  <p>Um único sensor da Bosch mede as três grandezas. O módulo de 6 pinos fala I2C e SPI; aqui ele usa I2C, com 4 fios a um palmo (≈20 cm) da placa.</p>
+
+  <div class="card">
+    <div class="eyebrow">Módulo</div>
+    <h3 class="ft">Pinos em I2C e em SPI</h3>
+    <div class="scroll"><svg viewBox="0 0 640 360" role="img" aria-label="Módulo BME280 de 6 pinos, I2C e SPI" class="dia mod">
+<rect x="150" y="16" width="340" height="176" rx="12" fill="#44403c"/>
+<circle cx="174" cy="40" r="9" fill="#F5F5F3"/>
+<circle cx="466" cy="40" r="9" fill="#F5F5F3"/>
+<rect x="298" y="56" width="44" height="44" rx="3" fill="#d6d3d1"/><circle cx="330" cy="68" r="3.2" fill="#57534e"/>
+<text x="320" y="118" class="t-silk">BME280</text>
+<rect x="236" y="70" width="14" height="8" rx="1.5" fill="#292524"/>
+<rect x="236" y="88" width="14" height="8" rx="1.5" fill="#292524"/>
+<rect x="392" y="70" width="14" height="8" rx="1.5" fill="#292524"/>
+<rect x="392" y="88" width="14" height="8" rx="1.5" fill="#292524"/>
+<text x="243" y="112" class="t-silk">10 kΩ</text><text x="399" y="112" class="t-silk">100 nF</text>
+<circle cx="180" cy="166" r="7" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="155.0" y="207" width="50" height="18" rx="9" fill="#f59e0b"/><text x="180" y="219.6" class="t-fp" fill="#1c1917">VCC</text>
+<rect x="155.0" y="247" width="50" height="18" rx="9" fill="#f59e0b"/><text x="180" y="259.6" class="t-fp" fill="#1c1917">3,3 V</text>
+<rect x="155.0" y="281" width="50" height="18" rx="9" fill="#fafaf8" stroke="#f59e0b" stroke-width="1.2"/><text x="180" y="293.6" class="t-fp" fill="#b45309">3,3 V</text>
+<rect x="153.0" y="321" width="54" height="18" rx="9" fill="#e7e5e4"/><text x="180" y="333.6" class="t-fp" fill="#44403c">3V3</text>
+<circle cx="236" cy="166" r="7" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="211.0" y="207" width="50" height="18" rx="9" fill="#a8a29e"/><text x="236" y="219.6" class="t-fp" fill="#1c1917">GND</text>
+<rect x="211.0" y="247" width="50" height="18" rx="9" fill="#a8a29e"/><text x="236" y="259.6" class="t-fp" fill="#1c1917">GND</text>
+<rect x="211.0" y="281" width="50" height="18" rx="9" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.2"/><text x="236" y="293.6" class="t-fp" fill="#57534e">GND</text>
+<rect x="209.0" y="321" width="54" height="18" rx="9" fill="#e7e5e4"/><text x="236" y="333.6" class="t-fp" fill="#44403c">GND</text>
+<circle cx="292" cy="166" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="267.0" y="207" width="50" height="18" rx="9" fill="#10b981"/><text x="292" y="219.6" class="t-fp" fill="#fff">SCL</text>
+<rect x="267.0" y="247" width="50" height="18" rx="9" fill="#10b981"/><text x="292" y="259.6" class="t-fp" fill="#fff">SCL</text>
+<rect x="267.0" y="281" width="50" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="292" y="293.6" class="t-fp" fill="#047857">SCK</text>
+<rect x="265.0" y="321" width="54" height="18" rx="9" fill="#e7e5e4"/><text x="292" y="333.6" class="t-fp" fill="#44403c">GPIO22</text>
+<circle cx="348" cy="166" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="323.0" y="207" width="50" height="18" rx="9" fill="#10b981"/><text x="348" y="219.6" class="t-fp" fill="#fff">SDA</text>
+<rect x="323.0" y="247" width="50" height="18" rx="9" fill="#10b981"/><text x="348" y="259.6" class="t-fp" fill="#fff">SDA</text>
+<rect x="323.0" y="281" width="50" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="348" y="293.6" class="t-fp" fill="#047857">SDI</text>
+<rect x="321.0" y="321" width="54" height="18" rx="9" fill="#e7e5e4"/><text x="348" y="333.6" class="t-fp" fill="#44403c">GPIO21</text>
+<circle cx="404" cy="166" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="379.0" y="207" width="50" height="18" rx="9" fill="#10b981"/><text x="404" y="219.6" class="t-fp" fill="#fff">CSB</text>
+<rect x="379.0" y="247" width="50" height="18" rx="9" fill="#10b981"/><text x="404" y="259.6" class="t-fp" fill="#fff">alto</text>
+<rect x="379.0" y="281" width="50" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="404" y="293.6" class="t-fp" fill="#047857">CS</text>
+<rect x="377.0" y="321" width="54" height="18" rx="9" fill="#e7e5e4"/><text x="404" y="333.6" class="t-fp" fill="#44403c">—</text>
+<circle cx="460" cy="166" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="435.0" y="207" width="50" height="18" rx="9" fill="#10b981"/><text x="460" y="219.6" class="t-fp" fill="#fff">SDO</text>
+<rect x="435.0" y="247" width="50" height="18" rx="9" fill="#10b981"/><text x="460" y="259.6" class="t-fp" fill="#fff">ADDR</text>
+<rect x="435.0" y="281" width="50" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="460" y="293.6" class="t-fp" fill="#047857">SDO</text>
+<rect x="433.0" y="321" width="54" height="18" rx="9" fill="#e7e5e4"/><text x="460" y="333.6" class="t-fp" fill="#44403c">—</text>
+<text x="18" y="220" class="t-row">Pino<tspan class="t-row2"> </tspan></text>
+<text x="18" y="260" class="t-row">I2C<tspan class="t-row2"> em uso</tspan></text>
+<text x="18" y="294" class="t-row">SPI<tspan class="t-row2"> alternativa</tspan></text>
+<text x="18" y="334" class="t-row">No ESP32<tspan class="t-row2"> </tspan></text>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f59e0b"></i>3,3 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#10b981"></i>I2C/SPI</li><li><i style="background:#fafaf8;border:1.2px solid #10b981"></i>contorno = função em SPI (não usada)</li></ul>
+    <p class="note">Os mesmos fios mudam de papel: SCL vira SCK, SDA vira SDI, SDO vira MISO e CSB vira o CS. Quem escolhe é o CSB no momento em que o sensor liga: alto = I2C, baixo = SPI.</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação</h3>
+    <p class="sub">I2C: 4 fios saindo dos pinos reais da placa. CSB e SDO ficam soltos.</p>
+    <div class="scroll"><svg viewBox="0 0 730 780" role="img" aria-label="Ligação da placa ESP32 com o BME280" class="dia lig">
+<g transform="translate(40,40)"><rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
+<rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
+<rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
+<rect x="206" y="21" width="16" height="16" rx="2" fill="#d4a24c"/><circle cx="214" cy="29" r="4" fill="#a16207"/>
+<text x="196" y="33" class="t-silk" text-anchor="end" style="text-anchor:end;fill:#44403c">U.FL</text>
+<text x="180" y="82" class="t-mod" style="font-size:9.5px">ESP32-WROOM-32U</text>
+<text x="180" y="100" class="t-mod2">D0WD-V3 · 4 MB</text>
+<text x="180" y="115" class="t-mod2">24:dc:c3:cf:fc:30</text>
+<text x="180" y="138" class="t-mod2">antena externa</text>
+<rect x="140" y="330" width="44" height="40" rx="2" fill="#292524"/><rect x="146" y="322" width="32" height="8" fill="#78716c"/><text x="162" y="388" class="t-silk">regulador</text>
+<rect x="212" y="330" width="18" height="14" rx="2" fill="#292524"/>
+<rect x="212" y="362" width="18" height="14" rx="2" fill="#292524"/>
+<text x="221" y="392" class="t-silk">Q1 Q2</text>
+<rect x="155" y="420" width="50" height="50" rx="3" fill="#292524"/><text x="180" y="449" class="t-chip">CP2102</text>
+<circle cx="130" cy="450" r="5" fill="#ef4444"/><text x="130" y="470" class="t-silk">PWR</text>
+<rect x="126" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="137" cy="609" r="5" fill="#78716c"/><text x="137" y="590" class="t-silk">EN</text>
+<rect x="212" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="223" cy="609" r="5" fill="#78716c"/><text x="223" y="590" class="t-silk">BOOT</text>
+<rect x="160" y="660" width="40" height="48" rx="4" fill="#a8a29e"/><text x="180" y="724" class="t-cap">micro-USB</text>
+<circle cx="108" cy="180" r="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="8" y="171" width="50" height="18" rx="9" fill="#f59e0b"/>
+<text x="33" y="184" class="t-pill" fill="#1c1917">3V3</text>
+<circle cx="108" cy="206" r="6" fill="#fafaf8" stroke="#44403c" stroke-width="3.5"/>
+<rect x="8" y="197" width="50" height="18" rx="9" fill="#44403c"/>
+<text x="33" y="210" class="t-pill" fill="#fff">EN</text>
+<circle cx="108" cy="232" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="236" text-anchor="end" class="t-num">36</text>
+<rect x="8" y="223" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="236" class="t-pill" fill="#1c1917">VP</text>
+<circle cx="108" cy="258" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="262" text-anchor="end" class="t-num">39</text>
+<rect x="8" y="249" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="262" class="t-pill" fill="#1c1917">VN</text>
+<circle cx="108" cy="284" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="288" text-anchor="end" class="t-num">34</text>
+<rect x="8" y="275" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="288" class="t-pill" fill="#1c1917">34</text>
+<circle cx="108" cy="310" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="314" text-anchor="end" class="t-num">35</text>
+<rect x="8" y="301" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="314" class="t-pill" fill="#1c1917">35</text>
+<circle cx="108" cy="336" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="340" text-anchor="end" class="t-num">32</text>
+<rect x="8" y="327" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="340" class="t-pill" fill="#fff">32</text>
+<circle cx="108" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="366" text-anchor="end" class="t-num">33</text>
+<rect x="8" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="366" class="t-pill" fill="#fff">33</text>
+<circle cx="108" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="392" text-anchor="end" class="t-num">25</text>
+<rect x="8" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="392" class="t-pill" fill="#fff">25</text>
+<circle cx="108" cy="414" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="418" text-anchor="end" class="t-num">26</text>
+<rect x="8" y="405" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="418" class="t-pill" fill="#fff">26</text>
+<circle cx="108" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="444" text-anchor="end" class="t-num">27</text>
+<rect x="8" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="444" class="t-pill" fill="#fff">27</text>
+<circle cx="108" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="470" text-anchor="end" class="t-num">14</text>
+<rect x="8" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="470" class="t-pill" fill="#fff">14</text>
+<circle cx="108" cy="492" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="88" y="496" text-anchor="end" class="t-num">12</text>
+<rect x="8" y="483" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="33" y="496" class="t-pill" fill="#fff">12</text>
+<circle cx="108" cy="518" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="8" y="509" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="33" y="522" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="108" cy="544" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="548" text-anchor="end" class="t-num">13</text>
+<rect x="8" y="535" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="548" class="t-pill" fill="#fff">13</text>
+<circle cx="108" cy="570" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="574" text-anchor="end" class="t-num">9</text>
+<rect x="8" y="561" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="574" class="t-pill" fill="#57534e">D2</text>
+<circle cx="108" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="600" text-anchor="end" class="t-num">10</text>
+<rect x="8" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="600" class="t-pill" fill="#57534e">D3</text>
+<circle cx="108" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="626" text-anchor="end" class="t-num">11</text>
+<rect x="8" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="626" class="t-pill" fill="#57534e">CMD</text>
+<circle cx="108" cy="648" r="6" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="8" y="639" width="50" height="18" rx="9" fill="#f97316"/>
+<text x="33" y="652" class="t-pill" fill="#fff">5V</text>
+<circle cx="252" cy="180" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="171" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="184" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="206" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="210" text-anchor="start" class="t-num">23</text>
+<rect x="302" y="197" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="210" class="t-pill" fill="#fff">23</text>
+<circle cx="252" cy="232" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="236" text-anchor="start" class="t-num">22</text>
+<rect x="302" y="223" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="236" class="t-pill" fill="#fff">22</text>
+<circle cx="252" cy="258" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="262" text-anchor="start" class="t-num">1</text>
+<rect x="302" y="249" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="262" class="t-pill" fill="#fff">TX</text>
+<circle cx="252" cy="284" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="288" text-anchor="start" class="t-num">3</text>
+<rect x="302" y="275" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="288" class="t-pill" fill="#fff">RX</text>
+<circle cx="252" cy="310" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="314" text-anchor="start" class="t-num">21</text>
+<rect x="302" y="301" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="314" class="t-pill" fill="#fff">21</text>
+<circle cx="252" cy="336" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="327" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="340" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="366" text-anchor="start" class="t-num">19</text>
+<rect x="302" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="366" class="t-pill" fill="#fff">19</text>
+<circle cx="252" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="392" text-anchor="start" class="t-num">18</text>
+<rect x="302" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="392" class="t-pill" fill="#fff">18</text>
+<circle cx="252" cy="414" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="418" text-anchor="start" class="t-num">5</text>
+<rect x="302" y="405" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="418" class="t-pill" fill="#fff">5</text>
+<circle cx="252" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="444" text-anchor="start" class="t-num">17</text>
+<rect x="302" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="444" class="t-pill" fill="#fff">17</text>
+<circle cx="252" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="470" text-anchor="start" class="t-num">16</text>
+<rect x="302" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="470" class="t-pill" fill="#fff">16</text>
+<circle cx="252" cy="492" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="496" text-anchor="start" class="t-num">4</text>
+<rect x="302" y="483" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="496" class="t-pill" fill="#fff">4</text>
+<circle cx="252" cy="518" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="522" text-anchor="start" class="t-num">0</text>
+<rect x="302" y="509" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="522" class="t-pill" fill="#fff">0</text>
+<circle cx="252" cy="544" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="548" text-anchor="start" class="t-num">2</text>
+<rect x="302" y="535" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="548" class="t-pill" fill="#fff">2</text>
+<circle cx="252" cy="570" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="574" text-anchor="start" class="t-num">15</text>
+<rect x="302" y="561" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="574" class="t-pill" fill="#fff">15</text>
+<circle cx="252" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="600" text-anchor="start" class="t-num">8</text>
+<rect x="302" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="600" class="t-pill" fill="#57534e">D1</text>
+<circle cx="252" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="626" text-anchor="start" class="t-num">7</text>
+<rect x="302" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="626" class="t-pill" fill="#57534e">D0</text>
+<circle cx="252" cy="648" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="652" text-anchor="start" class="t-num">6</text>
+<rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="652" class="t-pill" fill="#57534e">CLK</text></g>
+<rect x="560" y="124" width="150" height="340" rx="10" fill="#44403c"/>
+<text x="635" y="148" class="t-boxw">BME280</text>
+<rect x="652" y="260" width="36" height="36" rx="3" fill="#d6d3d1"/><circle cx="680" cy="270" r="3" fill="#57534e"/>
+<path d="M48 220 L22 220 L22 18 L530 18 L530 168 L560 168" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="276" y="12" class="t-wire2">3,3 V · 3V3 → VCC</text>
+<path d="M392 220 L560 220" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="212" class="t-wire2">GND</text>
+<path d="M392 272 L560 272" stroke="#10b981" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="264" class="t-wire2">SCL · GPIO22</text>
+<path d="M392 350 L500 350 L500 324 L560 324" stroke="#10b981" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="446" y="342" class="t-wire2">SDA · GPIO21</text>
+<circle cx="48" cy="220" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="168" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="392" cy="220" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="220" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="392" cy="272" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="272" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="392" cy="350" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="324" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<text x="574" y="172" class="t-pinw">VCC</text>
+<text x="574" y="224" class="t-pinw">GND</text>
+<text x="574" y="276" class="t-pinw">SCL</text>
+<text x="574" y="328" class="t-pinw">SDA</text>
+<text x="574" y="380" class="t-pinw">CSB</text>
+<text x="574" y="432" class="t-pinw">SDO</text>
+<path d="M560 376 H538" stroke="#d6d3d1" stroke-width="2" stroke-dasharray="2 3"/>
+<circle cx="560" cy="376" r="5" fill="#fafaf8" stroke="#a8a29e" stroke-width="2"/>
+<text x="532" y="380" class="t-nc">solto · I2C</text>
+<path d="M560 428 H538" stroke="#d6d3d1" stroke-width="2" stroke-dasharray="2 3"/>
+<circle cx="560" cy="428" r="5" fill="#fafaf8" stroke="#a8a29e" stroke-width="2"/>
+<text x="532" y="432" class="t-nc">solto · 0x76/0x77</text>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f59e0b"></i>3,3 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#10b981"></i>I2C</li><li><b>●</b> ligação</li><li><b>┄</b> não ligado</li></ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>Pino do módulo</th><th>Em I2C (em uso)</th><th>Em SPI (alternativa)</th><th>Ligado no ESP32</th><th>Cuidados</th></tr></thead>
+      <tbody>
+<tr><td><b>VCC</b></td><td>Alimentação</td><td>Alimentação</td><td>3V3 (Esq. 1)</td><td>Não ligar em 5V se o módulo não tiver regulador.</td></tr>
+<tr><td><b>GND</b></td><td>Terra</td><td>Terra</td><td>GND (Dir. 1)</td><td>—</td></tr>
+<tr><td><b>SCL</b></td><td>SCL · clock</td><td>SCK · clock</td><td>GPIO22 (Dir. 3)</td><td>—</td></tr>
+<tr><td><b>SDA</b></td><td>SDA · dados</td><td>SDI · MOSI</td><td>GPIO21 (Dir. 6)</td><td>—</td></tr>
+<tr><td><b>CSB</b></td><td>Em nível alto</td><td>CS · ativo em LOW</td><td>não ligado</td><td>Se estiver LOW ao ligar, o chip fica em SPI até cortar a alimentação.</td></tr>
+<tr><td><b>SDO</b></td><td>Endereço: GND = 0x76, VCC = 0x77</td><td>SDO · MISO</td><td>não ligado</td><td>Solto, o endereço depende do módulo; o firmware testa os dois.</td></tr>
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> o BME280 mede pressão (membrana piezorresistiva), umidade (sensor capacitivo) e temperatura no mesmo chip e corrige tudo com a calibração gravada de fábrica. O I2C precisa de resistores de pull-up no SDA e no SCL: o módulo já traz os de 10 kΩ para o 3,3 V, por isso não há resistor externo. O capacitor de 100 nF junto do chip filtra a alimentação.</p>
+    <p class="note"><b>SPI, se um dia precisar:</b> SCK→GPIO18, SDI→GPIO23, SDO→GPIO19, CSB→GPIO5. O GPIO5 é pino de boot e precisa estar alto ao ligar; o CS em repouso fica alto, então não atrapalha.</p>
+    <p class="note"><b>Para conferir:</b> com a placa ligada, multímetro em DC na escala de 20 V entre VCC e GND do módulo: 3,25–3,35 V. Com tudo desligado, escala de 20 kΩ entre SDA e VCC do módulo (e entre SCL e VCC): ≈10 kΩ indica o pull-up do módulo. No firmware, o cartão Medições mostra “BME280 · 0x76” (ou 0x77) quando o sensor responde.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">BME280</h3>
+    <div class="hero"><div class="tile"><div class="big">−40…85</div><div class="lbl">°C</div></div><div class="tile"><div class="big">0–100</div><div class="lbl">% de umidade</div></div><div class="tile"><div class="big">300–1100</div><div class="lbl">hPa</div></div><div class="tile"><div class="big">3,6 µA</div><div class="lbl">em média</div></div></div>
+    <div class="specs">
+<div class="spec"><div class="k">Chip</div><div class="val">Bosch BME280, ID 0x60 (o BMP280, parecido, responde 0x58 e não mede umidade) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Temperatura</div><div class="val">−40 a 85 °C · ±1 °C (0 a 65 °C) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Umidade</div><div class="val">0 a 100 %UR · ±3 %UR · resposta em 1 s <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Pressão</div><div class="val">300 a 1100 hPa · ±1 hPa absoluta, ±0,12 hPa relativa <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Alimentação</div><div class="val">Chip 1,71–3,6 V. No módulo de 6 pinos sem regulador, ligar só em 3,3 V <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Consumo</div><div class="val">≈3,6 µA em média a 1 leitura/s · até ≈0,7 mA medindo · 0,1 µA dormindo <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">I2C</div><div class="val">Até 3,4 MHz · endereço 0x76 (SDO em GND) ou 0x77 (SDO em VCC) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">SPI</div><div class="val">Até 10 MHz, 3 ou 4 fios · escolhido com CSB em LOW <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Modo usado</div><div class="val">I2C a 100 kHz · modo forçado, 1×, sem filtro (recomendação Bosch para estação meteorológica) · leitura a cada 10 s <span class="src d">no firmware</span></div></div>
+<div class="spec"><div class="k">Calculados</div><div class="val">Ponto de orvalho (Magnus) e umidade absoluta <span class="src d">no firmware</span></div></div>
+<div class="spec"><div class="k">Módulo</div><div class="val">6 pinos: VCC, GND, SCL, SDA, CSB, SDO · se tem regulador de 3,3 V <span class="src c">a confirmar na placa</span></div></div>
+    </div>
   </div>
 </section>
 </main>
