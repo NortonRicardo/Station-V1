@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Climora · Station V1</title>
+<link rel="icon" href="data:image/webp;base64,@@LOGO@@">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#000;color:#fff}
+body{font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;min-height:100dvh}
+#plexus{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand img{width:32px;height:32px}
+.brand b{font-weight:900;letter-spacing:.2em;font-size:16px;color:#fff}
+.tag{font-size:11px;font-weight:300;letter-spacing:.1em;color:rgba(255,255,255,.5);white-space:nowrap}
+main{flex:1;width:100%;max-width:540px;margin:0 auto;padding:24px 16px 40px;display:flex;flex-direction:column;gap:16px}
+.card{border:.5px solid rgba(255,255,255,.25);background:#000;border-radius:10px;padding:28px 22px;box-shadow:0 20px 40px -15px rgba(0,0,0,.9)}
+.top{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:24px}
+.top img{width:64px;height:64px;margin-bottom:14px}
+h1{margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em;color:rgba(255,255,255,.9)}
+.sub{margin:4px 0 0;font-size:14px;color:rgba(255,255,255,.6)}
+.label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.5)}
+h2{margin:2px 0 0;font-size:18px;font-weight:600;letter-spacing:-.01em;color:rgba(255,255,255,.9)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:.5px solid rgba(255,255,255,.1)}
+.row>span:first-child{font-size:12px;color:rgba(255,255,255,.5)}
+.row>span:last-child{font-size:14px;color:rgba(255,255,255,.9);text-align:right;word-break:break-all}
+.pill{display:inline-block;border-radius:980px;padding:2px 8px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.p-ok{background:rgba(16,185,129,.15);color:#6ee7b7}
+.p-wait{background:rgba(245,158,11,.15);color:#fcd34d}
+.p-err{background:rgba(239,68,68,.15);color:#fca5a5}
+.p-off{background:rgba(255,255,255,.1);color:rgba(255,255,255,.5)}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.ghost{font:inherit;font-size:12px;font-weight:500;height:32px;padding:0 12px;border-radius:6px;border:.5px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.9);cursor:pointer;transition:all .2s}
+.ghost:hover{border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.1)}
+.ghost:disabled{opacity:.5;cursor:default}
+ul{list-style:none;margin:0;padding:0}
+li.net{border-top:.5px solid rgba(255,255,255,.1)}
+.netbtn{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;padding:12px 6px;margin:0 -6px;width:calc(100% + 12px);border-radius:8px;cursor:pointer;transition:background .2s}
+.netbtn:hover,.netbtn.on{background:rgba(255,255,255,.05)}
+.netbtn.ativa{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.15)}
+.netbtn.ativa .nome{color:#fff}
+.netbtn .nome{flex:1;font-size:14px;font-weight:500;color:rgba(255,255,255,.9);word-break:break-all}
+.netbtn .meta{font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap}
+.bars{display:inline-flex;align-items:flex-end;gap:2px;height:13px}
+.bars i{width:3px;border-radius:1px;background:rgba(255,255,255,.15)}
+.bars i:nth-child(1){height:4px}.bars i:nth-child(2){height:7px}.bars i:nth-child(3){height:10px}.bars i:nth-child(4){height:13px}
+.bars i.on{background:rgb(163,230,53)}
+form{display:flex;flex-direction:column;gap:12px;padding:4px 0 16px}
+.field{position:relative}
+.field svg{position:absolute;left:10px;top:50%;width:14px;height:14px;transform:translateY(-50%);color:rgba(255,255,255,.4)}
+input{font:inherit;font-size:14px;width:100%;height:44px;padding:0 12px 0 32px;border-radius:8px;border:.5px solid rgba(255,255,255,.25);background:#000;color:#fff;outline:none;box-shadow:0 20px 40px -15px rgba(0,0,0,.9);transition:border-color .2s}
+input::placeholder{color:rgba(255,255,255,.3)}
+input:focus{border:1.5px solid #fff}
+input:disabled{color:rgba(255,255,255,.5)}
+input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 1000px #000 inset;caret-color:#fff}
+.cta{font:inherit;font-size:14px;font-weight:500;height:44px;width:100%;border-radius:6px;border:1px solid rgba(229,229,229,.6);background:rgba(255,255,255,.7);color:#000;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.cta:hover{background:rgba(255,255,255,.8)}
+.cta:disabled{opacity:.5;cursor:default}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-top-color:transparent;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.msg{font-size:12px;color:rgba(255,255,255,.5);margin:0 0 10px}
+.msg.err{border:.5px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#fca5a5;border-radius:10px;padding:10px 12px;font-size:13px}
+.hint{font-size:11px;color:rgba(255,255,255,.4);margin:14px 0 0}
+.ev{margin-top:12px}
+.ev li{display:flex;gap:12px;padding:9px 0;border-top:.5px solid rgba(255,255,255,.1);font-size:13px}
+.ev .q{flex:none;width:132px;font-size:11px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;padding-top:1px}
+.ev .t{color:rgba(255,255,255,.9);word-break:break-word}
+.hint b{color:rgba(255,255,255,.7)}
+.forget{display:block;margin:14px auto 0;font:inherit;font-size:12px;color:rgba(255,255,255,.5);background:none;border:0;cursor:pointer}
+.forget:hover{color:#fff;text-decoration:underline}
+footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16px 24px}
+@media (min-width:560px){header{padding:24px 40px}.brand img{width:36px;height:36px}.brand b{font-size:22px;letter-spacing:6px}.card{padding:32px 48px}}
+</style></head><body>
+<canvas id="plexus" aria-hidden="true"></canvas>
+<div class="wrap">
+<header>
+  <div class="brand"><img src="data:image/webp;base64,@@LOGO@@" alt=""><b>CLIMORA</b></div>
+  <span class="tag">STATION V1</span>
+</header>
+
+<main>
+<section class="card">
+  <div class="top">
+    <img src="data:image/webp;base64,@@LOGO@@" alt="">
+    <h1>Estação</h1>
+    <p class="sub">Acompanhe a conexão da Station V1 em tempo real.</p>
+  </div>
+  <div class="row"><span>Wi-Fi</span><span id="sta">—</span></div>
+  <div class="row"><span>Rede</span><span id="staSsid">—</span></div>
+  <div class="row"><span>IP na rede</span><span id="staIp">—</span></div>
+  <div class="row"><span>Sinal</span><span id="staRssi">—</span></div>
+  <div class="row"><span>Hora</span><span id="hora">—</span></div>
+  <div class="row"><span>Aparelhos conectados</span><span id="cli">—</span></div>
+</section>
+
+<section class="card">
+  <div class="head">
+    <div><div class="label">Configurar</div><h2>Rede Wi-Fi</h2></div>
+    <button class="ghost" id="btnBuscar" type="button">Procurar</button>
+  </div>
+  <p class="msg" id="msg"></p>
+  <ul id="lista"></ul>
+  <p class="hint">Ao conectar, a rede Station-V1 pode cair por alguns segundos enquanto a estação troca de canal. Se o celular sair dela, conecte de novo.</p>
+  <button class="forget" id="btnEsquecer" type="button" hidden>Esquecer rede salva</button>
+</section>
+
+<section class="card">
+  <div class="label">Registro</div>
+  <h2>Eventos</h2>
+  <ul id="eventos" class="ev"></ul>
+  <p class="hint">Horários com <b>+</b> são contados desde que a estação ligou. Quando a internet acerta a hora, eles passam para a hora real: hora atual − (tempo ligado agora − tempo ligado no registro).</p>
+</section>
+</main>
+<footer id="rodape"></footer>
+</div>
+<script>
+// ---------- rede de partículas (PlexusNetwork, modo faint) ----------
+(function(){
+  const c=document.getElementById('plexus'),x=c.getContext('2d'),RGB='163,230,53';
+  const S={min:60,max:100,speed:.18,skew:1.75,reach:.15,sep:.05,line:.1,dot:.18,lw:.6};
+  let P=[],w=0,h=0,d=1,raf=0;
+  function size(){w=innerWidth;h=innerHeight;d=Math.min(devicePixelRatio||1,2);c.width=w*d;c.height=h*d}
+  function init(){
+    size();const m=Math.min(w,h),n=Math.min(S.max,Math.max(S.min,Math.round(S.min*Math.max(1,m/420))));
+    const md=Math.max(w,h)*S.sep;P=[];
+    for(let i=0;i<n;i++){let px=0,py=0,g=0;
+      while(g++<100){px=w*(1-Math.pow(1-Math.random(),S.skew));py=Math.random()*h;if(P.every(p=>Math.hypot(p.x-px,p.y-py)>=md))break}
+      P.push({x:px,y:py,vx:(Math.random()-.5)*S.speed,vy:(Math.random()-.5)*S.speed,s:Math.random()*1.2+1})}
+  }
+  function frame(){
+    const r=Math.max(25,Math.round(Math.max(w,h)*S.reach));
+    x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,c.width,c.height);x.setTransform(d,0,0,d,0,0);
+    for(const p of P){p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>w){p.vx*=-1;p.x=p.x<0?.5:w-.5}
+      if(p.y<0||p.y>h){p.vy*=-1;p.y=p.y<0?.5:h-.5}}
+    x.lineWidth=S.lw;
+    for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){
+      const a=P[i],b=P[j],k=Math.hypot(a.x-b.x,a.y-b.y);
+      if(k<r){x.strokeStyle='rgba('+RGB+','+((1-k/r)*S.line)+')';x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+    x.fillStyle='rgba('+RGB+','+S.dot+')';
+    for(const p of P){x.beginPath();x.arc(p.x,p.y,p.s,0,Math.PI*2);x.fill()}
+    raf=requestAnimationFrame(frame);
+  }
+  init();raf=requestAnimationFrame(frame);
+  addEventListener('resize',init);
+  document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(raf);if(!document.hidden)raf=requestAnimationFrame(frame)});
+})();
+
+// ---------- estação ----------
+const $=id=>document.getElementById(id);
+const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+let aberta=null,redes=[],relo=null,atual={ssid:'',estado:''};
+const p2=n=>String(n).padStart(2,'0');
+function fmtUp(ms){const t=Math.floor(ms/1000);return '+'+p2(Math.floor(t/3600))+':'+p2(Math.floor(t/60)%60)+':'+p2(t%60)}
+function fmtBR(ms){const d=new Date(ms-3*3600e3);return p2(d.getUTCDate())+'/'+p2(d.getUTCMonth()+1)+'/'+d.getUTCFullYear()+' '+p2(d.getUTCHours())+':'+p2(d.getUTCMinutes())+':'+p2(d.getUTCSeconds())}
+function tick(){
+  if(!relo)return;const dt=Date.now()-relo.em,e=$('hora');e.textContent='';
+  if(relo.sync){e.textContent=fmtBR(relo.ep+dt)}
+  else{const t=document.createElement('span');t.textContent=fmtUp(relo.up+dt)+' ';e.append(t,pill('Sem hora','p-off'))}
+}
+setInterval(tick,1000);
+async function eventos(){
+  try{
+    const j=await (await fetch('/api/eventos',{cache:'no-store'})).json(),ul=$('eventos');ul.textContent='';
+    j.eventos.forEach(v=>{const li=document.createElement('li'),q=document.createElement('span'),t=document.createElement('span');
+      q.className='q';q.textContent=v.quando;t.className='t';t.textContent=v.texto;li.append(q,t);ul.appendChild(li)});
+  }catch(_){}
+}
+function pill(t,c){const s=document.createElement('span');s.className='pill '+c;s.textContent=t;return s}
+function nivel(r){return r>=-55?4:r>=-67?3:r>=-78?2:1}
+function bars(r){const b=document.createElement('span');b.className='bars';const n=nivel(r);for(let i=1;i<=4;i++){const e=document.createElement('i');if(i<=n)e.className='on';b.appendChild(e)}return b}
+function set(id,v){const e=$(id);e.textContent='';if(v instanceof Node)e.appendChild(v);else e.textContent=v}
+function msg(t,erro){const m=$('msg');m.textContent=t;m.className='msg'+(erro?' err':'')}
+
+async function status(){
+  try{
+    const s=await (await fetch('/api/status',{cache:'no-store'})).json(),e=s.sta.estado;
+    set('sta',e==='conectado'?pill('Conectado','p-ok'):e==='conectando'?pill('Conectando','p-wait'):e==='falhou'?pill(s.sta.motivo||'Falhou','p-err'):pill('Não configurado','p-off'));
+    set('staSsid',s.sta.ssid||'—');
+    set('staIp',s.sta.ip||'—');
+    set('staRssi',s.sta.rssi!==undefined?s.sta.rssi+' dBm · canal '+s.sta.canal:'—');
+    const novo={ssid:s.sta.ssid||'',estado:(e==='conectado'||e==='conectando')?e:''};
+    if(novo.ssid!==atual.ssid||novo.estado!==atual.estado){atual=novo;if(!aberta)render()}
+    relo={sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
+    set('cli',String(s.ap.clientes));
+    $('btnEsquecer').hidden=!s.sta.ssid;
+    $('rodape').textContent=s.ap.ssid+' · '+s.ap.ip+' · MAC '+s.mac;
+  }catch(_){}
+}
+
+function render(){
+  const ul=$('lista');ul.textContent='';
+  const at=r=>atual.estado&&r.ssid===atual.ssid?1:0;
+  [...redes].sort((a,b)=>at(b)-at(a)).forEach(r=>{
+    const li=document.createElement('li');li.className='net';
+    const ativa=atual.estado&&atual.ssid===r.ssid;
+    const b=document.createElement('button');b.type='button';b.className='netbtn'+(aberta===r.ssid?' on':'')+(ativa?' ativa':'');
+    const nome=document.createElement('span');nome.className='nome';nome.textContent=r.ssid;
+    const meta=document.createElement('span');meta.className='meta';meta.textContent=r.rssi+' dBm'+(r.aberta?' · aberta':'');
+    b.append(bars(r.rssi),nome);
+    if(ativa)b.append(atual.estado==='conectado'?pill('Conectada','p-ok'):pill('Conectando','p-wait'));
+    else b.append(meta);
+    b.onclick=()=>{aberta=(aberta===r.ssid?null:r.ssid);render()};
+    li.appendChild(b);
+    if(aberta===r.ssid){
+      const f=document.createElement('form');
+      const fd=document.createElement('div');fd.className='field';fd.innerHTML=LOCK;
+      const p=document.createElement('input');p.type='password';p.placeholder=r.aberta?'Rede aberta, sem senha':'Senha do Wi-Fi';p.autocomplete='current-password';p.disabled=r.aberta;
+      fd.appendChild(p);
+      const ok=document.createElement('button');ok.className='cta';ok.textContent='Conectar';
+      f.append(fd,ok);
+      f.onsubmit=async ev=>{ev.preventDefault();ok.disabled=true;ok.innerHTML='<span class="spin"></span>Conectando';
+        try{
+          const res=await fetch('/api/conectar',{method:'POST',body:new URLSearchParams({ssid:r.ssid,senha:p.value})});
+          const j=await res.json();
+          if(!res.ok){msg(j.erro||'Erro ao salvar.',true);ok.disabled=false;ok.textContent='Conectar';return}
+          aberta=null;render();msg('Conectando em '+r.ssid+'. Acompanhe no cartão Estação.');
+        }catch(_){msg('A rede Station-V1 caiu durante a troca de canal. Conecte o celular nela de novo e confira o status.')}
+      };
+      li.appendChild(f);setTimeout(()=>{if(!r.aberta)p.focus()},0);
+    }
+    ul.appendChild(li);
+  });
+}
+
+async function buscar(nova){
+  $('btnBuscar').disabled=true;msg('Procurando redes…');
+  try{
+    const j=await (await fetch('/api/redes'+(nova?'?nova=1':''),{cache:'no-store'})).json();
+    redes=j.redes;render();
+    if(j.buscando){setTimeout(()=>buscar(false),1500);return}
+    msg(redes.length?'Toque numa rede para conectar.':'Nenhuma rede encontrada. A antena está no U.FL?');
+  }catch(_){msg('Sem resposta da estação.',true)}
+  $('btnBuscar').disabled=false;
+}
+$('btnBuscar').onclick=()=>buscar(true);
+$('btnEsquecer').onclick=async()=>{if(!confirm('Esquecer a rede salva?'))return;await fetch('/api/esquecer',{method:'POST'});status()};
+status();eventos();buscar(false);setInterval(status,3000);setInterval(eventos,5000);
+</script></body></html>
