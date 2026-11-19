@@ -27,6 +27,7 @@ h2{margin:2px 0 0;font-size:18px;font-weight:600;letter-spacing:-.01em;color:rgb
 .row>span:first-child{font-size:12px;color:rgba(255,255,255,.5)}
 .row>span:last-child{font-size:14px;color:rgba(255,255,255,.9);text-align:right;word-break:break-all}
 .pill{display:inline-block;border-radius:980px;padding:2px 8px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.pill.nc{text-transform:none;letter-spacing:.02em}
 .p-ok{background:rgba(16,185,129,.15);color:#6ee7b7}
 .p-wait{background:rgba(245,158,11,.15);color:#fcd34d}
 .p-err{background:rgba(239,68,68,.15);color:#fca5a5}
@@ -63,6 +64,13 @@ input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 100
 .msg{font-size:12px;color:rgba(255,255,255,.5);margin:0 0 10px}
 .msg.err{border:.5px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:#fca5a5;border-radius:10px;padding:10px 12px;font-size:13px}
 .hint{font-size:11px;color:rgba(255,255,255,.4);margin:14px 0 0}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{border:.5px solid rgba(255,255,255,.15);border-radius:10px;padding:12px 14px;background:#000;display:flex;flex-direction:column;justify-content:space-between}
+.tile .lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5)}
+.tile .val{margin-top:6px;font-size:26px;font-weight:600;letter-spacing:-.02em;color:rgba(255,255,255,.9);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tile .val small{font-size:12px;font-weight:400;color:rgba(255,255,255,.5);margin-left:4px;letter-spacing:0}
+.tiles .tile:first-child{grid-column:1/-1}
+.tiles .tile:first-child .val{font-size:34px}
 .ev{margin-top:12px}
 .ev li{display:flex;gap:12px;padding:9px 0;border-top:.5px solid rgba(255,255,255,.1);font-size:13px}
 .ev .q{flex:none;width:132px;font-size:11px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;padding-top:1px}
@@ -81,6 +89,21 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 </header>
 
 <main>
+<section class="card">
+  <div class="head">
+    <div><div class="label">Agora</div><h2>Medições</h2></div>
+    <span id="sensorEstado"></span>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="lbl">Temperatura</div><div class="val"><span id="mT">—</span><small>°C</small></div></div>
+    <div class="tile"><div class="lbl">Umidade</div><div class="val"><span id="mU">—</span><small>%</small></div></div>
+    <div class="tile"><div class="lbl">Pressão</div><div class="val"><span id="mP">—</span><small>hPa</small></div></div>
+    <div class="tile"><div class="lbl">Ponto de orvalho</div><div class="val"><span id="mO">—</span><small>°C</small></div></div>
+    <div class="tile"><div class="lbl">Umidade absoluta</div><div class="val"><span id="mA">—</span><small>g/m³</small></div></div>
+  </div>
+  <p class="hint" id="mQuando">Sensor BME280 · leitura a cada 10 s</p>
+</section>
+
 <section class="card">
   <div class="top">
     <img src="data:image/webp;base64,@@LOGO@@" alt="">
@@ -161,6 +184,16 @@ function tick(){
   else{const t=document.createElement('span');t.textContent=fmtUp(relo.up+dt)+' ';e.append(t,pill('Sem hora','p-off'))}
 }
 setInterval(tick,1000);
+const fx=(v,c)=>v===null||v===undefined?'—':Number(v).toFixed(c).replace('.',',');
+function sensor(z){
+  const est={ok:['BME280 · '+(z.endereco||''),'p-ok nc'],procurando:['Procurando','p-wait'],ausente:['Sem sensor','p-err'],bmp280:['BMP280: sem umidade','p-err'],erro:['Erro no sensor','p-err']}[z.estado]||['—','p-off'];
+  set('sensorEstado',pill(est[0],est[1]));
+  const l=z.leitura||{};
+  set('mT',fx(l.temperatura,1));set('mU',fx(l.umidade,0));set('mP',fx(l.pressao,1));
+  set('mO',fx(l.orvalho,1));set('mA',fx(l.umidade_abs,1));
+  $('mQuando').textContent=l.quando?'Lida em '+l.quando+' · nova leitura a cada 10 s':
+    (z.estado==='ausente'?'Confira a ligação: VCC→3V3, GND→GND, SDA→GPIO21, SCL→GPIO22.':'Sensor BME280 · leitura a cada 10 s');
+}
 async function eventos(){
   try{
     const j=await (await fetch('/api/eventos',{cache:'no-store'})).json(),ul=$('eventos');ul.textContent='';
@@ -183,6 +216,7 @@ async function status(){
     set('staRssi',s.sta.rssi!==undefined?s.sta.rssi+' dBm · canal '+s.sta.canal:'—');
     const novo={ssid:s.sta.ssid||'',estado:(e==='conectado'||e==='conectando')?e:''};
     if(novo.ssid!==atual.ssid||novo.estado!==atual.estado){atual=novo;if(!aberta)render()}
+    sensor(s.sensor);
     relo={sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
     set('cli',String(s.ap.clientes));
     $('btnEsquecer').hidden=!s.sta.ssid;

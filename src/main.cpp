@@ -20,6 +20,7 @@
 #include <algorithm>
 #include "pagina.h"
 #include "relogio.h"
+#include "sensor_bme280.h"
 
 #ifndef STATION_AP_PASS
 #error "STATION_AP_PASS não definida: crie o .env (veja .env.example)"
@@ -55,7 +56,7 @@ static std::deque<Evento> eventos;
 static std::mutex mtxEventos;
 static const size_t MAX_EVENTOS = 40;
 
-static void registrar(const String &texto) {
+void registrar(const String &texto) {
   int64_t up = relogio::uptimeMs();
   {
     std::lock_guard<std::mutex> lk(mtxEventos);
@@ -214,7 +215,8 @@ static void rotaStatus() {
   j += "\"relogio\":{\"sincronizado\":" + String(relogio::sincronizado() ? "true" : "false") +
        ",\"uptime_ms\":" + String((long long)up);
   if (relogio::sincronizado()) j += ",\"epoch_ms\":" + String((long long)relogio::agoraEpochMs());
-  j += "},\"mac\":\"" + WiFi.macAddress() + "\"}";
+  j += "},\"sensor\":" + bme::statusJson();
+  j += ",\"mac\":\"" + WiFi.macAddress() + "\"}";
   enviarJson(200, j);
 }
 
@@ -304,6 +306,8 @@ void setup() {
   if (staSsid.isEmpty()) registrar("Nenhuma rede salva: configure pela página");
   else conectarSta();
 
+  bme::iniciar();
+
   // gravação pelo Wi-Fi (pio run -e ota -t upload)
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.setPassword(STATION_OTA_PASS);
@@ -323,5 +327,6 @@ void loop() {
   server.handleClient();
   cuidarSta();
   cuidarScan();
+  if (!otaRodando) bme::cuidar();
   delay(2);
 }
