@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -4 384 746" width="384" height="746" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+<style>
+.t-pill { font-size:11px; font-weight:700; text-anchor:middle; }
+.t-num { font-size:11px; fill:#78716C; }
+.t-mod { font-size:12px; font-weight:700; text-anchor:middle; fill:#1c1917; }
+.t-mod2 { font-size:9.5px; text-anchor:middle; fill:#44403c; }
+.t-chip { font-size:9px; font-weight:600; text-anchor:middle; fill:#e7e5e4; }
+.t-silk { font-size:9px; text-anchor:middle; fill:#d6d3d1; }
+.t-cap { font-size:10px; text-anchor:middle; fill:#78716C; }
+</style>
+<rect x="-12" y="-4" width="384" height="746" rx="18" fill="#F5F5F3"/>
+<rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
+<rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
+<rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
+<rect x="206" y="21" width="16" height="16" rx="2" fill="#d4a24c"/><circle cx="214" cy="29" r="4" fill="#a16207"/>
+<text x="196" y="33" class="t-silk" text-anchor="end" style="text-anchor:end;fill:#44403c">U.FL</text>
+<text x="180" y="82" class="t-mod" style="font-size:9.5px">ESP32-WROOM-32U</text>
+<text x="180" y="100" class="t-mod2">D0WD-V3 · 4 MB</text>
+<text x="180" y="115" class="t-mod2">24:dc:c3:cf:fc:30</text>
+<text x="180" y="138" class="t-mod2">antena externa</text>
+<rect x="140" y="330" width="44" height="40" rx="2" fill="#292524"/><rect x="146" y="322" width="32" height="8" fill="#78716c"/><text x="162" y="388" class="t-silk">regulador</text>
+<rect x="212" y="330" width="18" height="14" rx="2" fill="#292524"/>
+<rect x="212" y="362" width="18" height="14" rx="2" fill="#292524"/>
+<text x="221" y="392" class="t-silk">Q1 Q2</text>
+<rect x="155" y="420" width="50" height="50" rx="3" fill="#292524"/><text x="180" y="449" class="t-chip">CP2102</text>
+<circle cx="130" cy="450" r="5" fill="#ef4444"/><text x="130" y="470" class="t-silk">PWR</text>
+<rect x="126" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="137" cy="609" r="5" fill="#78716c"/><text x="137" y="590" class="t-silk">EN</text>
+<rect x="212" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="223" cy="609" r="5" fill="#78716c"/><text x="223" y="590" class="t-silk">BOOT</text>
+<rect x="160" y="660" width="40" height="48" rx="4" fill="#a8a29e"/><text x="180" y="724" class="t-cap">micro-USB</text>
+<circle cx="108" cy="180" r="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="8" y="171" width="50" height="18" rx="9" fill="#f59e0b"/>
+<text x="33" y="184" class="t-pill" fill="#1c1917">3V3</text>
+<circle cx="108" cy="206" r="6" fill="#fafaf8" stroke="#44403c" stroke-width="3.5"/>
+<rect x="8" y="197" width="50" height="18" rx="9" fill="#44403c"/>
+<text x="33" y="210" class="t-pill" fill="#fff">EN</text>
+<circle cx="108" cy="232" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="236" text-anchor="end" class="t-num">36</text>
+<rect x="8" y="223" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="236" class="t-pill" fill="#1c1917">VP</text>
+<circle cx="108" cy="258" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="262" text-anchor="end" class="t-num">39</text>
+<rect x="8" y="249" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="262" class="t-pill" fill="#1c1917">VN</text>
+<circle cx="108" cy="284" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="288" text-anchor="end" class="t-num">34</text>
+<rect x="8" y="275" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="288" class="t-pill" fill="#1c1917">34</text>
+<circle cx="108" cy="310" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="314" text-anchor="end" class="t-num">35</text>
+<rect x="8" y="301" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="314" class="t-pill" fill="#1c1917">35</text>
+<circle cx="108" cy="336" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="340" text-anchor="end" class="t-num">32</text>
+<rect x="8" y="327" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="340" class="t-pill" fill="#fff">32</text>
+<circle cx="108" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="366" text-anchor="end" class="t-num">33</text>
+<rect x="8" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="366" class="t-pill" fill="#fff">33</text>
+<circle cx="108" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="392" text-anchor="end" class="t-num">25</text>
+<rect x="8" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="392" class="t-pill" fill="#fff">25</text>
+<circle cx="108" cy="414" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="418" text-anchor="end" class="t-num">26</text>
+<rect x="8" y="405" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="418" class="t-pill" fill="#fff">26</text>
+<circle cx="108" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="444" text-anchor="end" class="t-num">27</text>
+<rect x="8" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="444" class="t-pill" fill="#fff">27</text>
+<circle cx="108" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="470" text-anchor="end" class="t-num">14</text>
+<rect x="8" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="470" class="t-pill" fill="#fff">14</text>
+<circle cx="108" cy="492" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="88" y="496" text-anchor="end" class="t-num">12</text>
+<rect x="8" y="483" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="33" y="496" class="t-pill" fill="#fff">12</text>
+<circle cx="108" cy="518" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="8" y="509" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="33" y="522" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="108" cy="544" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="548" text-anchor="end" class="t-num">13</text>
+<rect x="8" y="535" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="548" class="t-pill" fill="#fff">13</text>
+<circle cx="108" cy="570" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="574" text-anchor="end" class="t-num">9</text>
+<rect x="8" y="561" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="574" class="t-pill" fill="#57534e">D2</text>
+<circle cx="108" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="600" text-anchor="end" class="t-num">10</text>
+<rect x="8" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="600" class="t-pill" fill="#57534e">D3</text>
+<circle cx="108" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="626" text-anchor="end" class="t-num">11</text>
+<rect x="8" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="626" class="t-pill" fill="#57534e">CMD</text>
+<circle cx="108" cy="648" r="6" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="8" y="639" width="50" height="18" rx="9" fill="#f97316"/>
+<text x="33" y="652" class="t-pill" fill="#fff">5V</text>
+<circle cx="252" cy="180" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="171" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="184" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="206" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="210" text-anchor="start" class="t-num">23</text>
+<rect x="302" y="197" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="210" class="t-pill" fill="#fff">23</text>
+<circle cx="252" cy="232" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="236" text-anchor="start" class="t-num">22</text>
+<rect x="302" y="223" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="236" class="t-pill" fill="#fff">22</text>
+<circle cx="252" cy="258" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="262" text-anchor="start" class="t-num">1</text>
+<rect x="302" y="249" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="262" class="t-pill" fill="#fff">TX</text>
+<circle cx="252" cy="284" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="288" text-anchor="start" class="t-num">3</text>
+<rect x="302" y="275" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="288" class="t-pill" fill="#fff">RX</text>
+<circle cx="252" cy="310" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="314" text-anchor="start" class="t-num">21</text>
+<rect x="302" y="301" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="314" class="t-pill" fill="#fff">21</text>
+<circle cx="252" cy="336" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="327" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="340" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="366" text-anchor="start" class="t-num">19</text>
+<rect x="302" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="366" class="t-pill" fill="#fff">19</text>
+<circle cx="252" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="392" text-anchor="start" class="t-num">18</text>
+<rect x="302" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="392" class="t-pill" fill="#fff">18</text>
+<circle cx="252" cy="414" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="418" text-anchor="start" class="t-num">5</text>
+<rect x="302" y="405" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="418" class="t-pill" fill="#fff">5</text>
+<circle cx="252" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="444" text-anchor="start" class="t-num">17</text>
+<rect x="302" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="444" class="t-pill" fill="#fff">17</text>
+<circle cx="252" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="470" text-anchor="start" class="t-num">16</text>
+<rect x="302" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="470" class="t-pill" fill="#fff">16</text>
+<circle cx="252" cy="492" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="496" text-anchor="start" class="t-num">4</text>
+<rect x="302" y="483" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="496" class="t-pill" fill="#fff">4</text>
+<circle cx="252" cy="518" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="522" text-anchor="start" class="t-num">0</text>
+<rect x="302" y="509" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="522" class="t-pill" fill="#fff">0</text>
+<circle cx="252" cy="544" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="548" text-anchor="start" class="t-num">2</text>
+<rect x="302" y="535" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="548" class="t-pill" fill="#fff">2</text>
+<circle cx="252" cy="570" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="574" text-anchor="start" class="t-num">15</text>
+<rect x="302" y="561" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="574" class="t-pill" fill="#fff">15</text>
+<circle cx="252" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="600" text-anchor="start" class="t-num">8</text>
+<rect x="302" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="600" class="t-pill" fill="#57534e">D1</text>
+<circle cx="252" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="626" text-anchor="start" class="t-num">7</text>
+<rect x="302" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="626" class="t-pill" fill="#57534e">D0</text>
+<circle cx="252" cy="648" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="652" text-anchor="start" class="t-num">6</text>
+<rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="652" class="t-pill" fill="#57534e">CLK</text>
+</svg>

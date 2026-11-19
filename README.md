@@ -24,6 +24,10 @@
 
 ## 🔌 Placa
 
+<p align="center">
+  <img src="docs/placa.svg" alt="Pinagem do ESP32 DevKitC de 38 pinos" width="384">
+</p>
+
 | | |
 |---|---|
 | **Placa** | ESP32 DevKitC, 38 pinos |
@@ -33,4 +37,4 @@
 | **Conexão** | Wi-Fi 2,4 GHz e Bluetooth 4.2 |
 | **USB** | CP2102 (micro-USB) |
 
-A pinagem completa e a alimentação estão em [`placa.html`](placa.html): baixe o arquivo e abra no navegador.
+A função de cada pino e a alimentação estão em [`placa.html`](placa.html): baixe o arquivo e abra no navegador.
