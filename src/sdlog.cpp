@@ -32,7 +32,8 @@ enum Col { C_BOOT, C_UP, C_EPOCH, C_DATA, C_TEMP, C_UMID, C_PRES, C_ORV, C_UABS,
 static bool montado = false;
 static uint32_t boot = 0;
 static int bootDaLinha(const String &l) { int p = l.indexOf(';'); return p > 0 ? l.substring(0, p).toInt() : -1; }
-static uint32_t proximaGravacao = 0, proximaBusca = 0;
+static uint32_t proximaGravacao = 0, proximaBusca = 0;  // sem hora real: a cada INTERVALO desde que ligou
+static int64_t proximoAlinhado = 0;                       // com hora real: próximo horário redondo (epoch ms)
 static uint32_t gravados = 0;    // registros gravados neste boot
 static uint32_t basculadasNoUltimo = 0;  // total do pluviômetro no último registro gravado
 static String ultimoErro;
@@ -97,15 +98,16 @@ static void montar() {
     }
   }
   registrar("Cartão SD pronto: " + String((double)SD.cardSize() / 1e9, 1) + " GB");
-  proximaGravacao = millis() + 2000;  // primeiro registro logo depois de montar
+  proximaGravacao = millis() + INTERVALO_MS;  // sem hora real: 10 min depois de montar
 }
 
 static String num(float v, int casas) { return isnan(v) ? String("") : String(v, casas); }
 
-static void gravar() {
+static void gravar(int64_t epochFixo) {
   const bme::Leitura &l = bme::ultima();
   int64_t up = relogio::uptimeMs();
-  int64_t epoch = relogio::sincronizado() ? relogio::agoraEpochMs() : 0;
+  // com hora real, o registro leva o horário redondo exato (ex.: 23:20:00)
+  int64_t epoch = epochFixo ? epochFixo : (relogio::sincronizado() ? relogio::agoraEpochMs() : 0);
   bool b = l.valida, bat = energia::conectada(), pos = gps::temPosicao();
   String c[N_COLS];
   c[C_BOOT] = String(boot);
@@ -159,8 +161,19 @@ void cuidar() {
     if ((int32_t)(agora - proximaBusca) >= 0) montar();
     return;
   }
-  if ((int32_t)(agora - proximaGravacao) >= 0) {
-    gravar();
+  if (relogio::sincronizado()) {
+    // alinhado ao relógio: xx:00, xx:10, xx:20... (independe de quando a estação ligou)
+    int64_t ep = relogio::agoraEpochMs();
+    int64_t seguinte = (ep / INTERVALO_MS + 1) * INTERVALO_MS;
+    // primeira vez, ou o relógio foi corrigido (pulou para trás ou muito para a frente)
+    if (proximoAlinhado == 0 || proximoAlinhado > seguinte || ep - proximoAlinhado > (int64_t)INTERVALO_MS)
+      proximoAlinhado = seguinte;
+    if (ep >= proximoAlinhado) {
+      gravar(proximoAlinhado);
+      proximoAlinhado += INTERVALO_MS;
+    }
+  } else if ((int32_t)(agora - proximaGravacao) >= 0) {
+    gravar(0);  // ainda sem hora: vai para pendentes.csv e ganha a hora quando ela chegar
     proximaGravacao = agora + INTERVALO_MS;
   }
 }
@@ -303,7 +316,7 @@ String statusJson() {
     if (!primeiro) j += ",";
     primeiro = false;
     j += "{\"quando\":\"" + esc(quando) + "\",\"temperatura\":" + n(c[C_TEMP]) + ",\"umidade\":" + n(c[C_UMID]) +
-         ",\"pressao\":" + n(c[C_PRES]) + ",\"basculadas\":" + n(c[C_BPER]) + ",\"bateria_pct\":" + n(c[C_BATP]) +
+         ",\"pressao\":" + n(c[C_PRES]) + ",\"basculadas\":" + n(c[C_BPER]) + ",\"bateria_pct\":" + n(c[C_BATP]) + ",\"bateria_v\":" + n(c[C_BATV]) +
          ",\"bateria_estado\":\"" + esc(c[C_BATE]) + "\"}";
   }
   return j + "]}";

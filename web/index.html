@@ -80,8 +80,10 @@ input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 100
 .tiles .tile:first-child .val{font-size:34px}
 .bar{height:4px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;margin:2px 0 4px}
 .bar i{display:block;height:100%;width:0;background:rgb(163,230,53);transition:width .4s}
-.tbl{margin-top:8px;overflow-x:auto}
-.tbl table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.tbl{margin-top:8px;overflow-x:auto;min-width:0;max-width:100%;-webkit-overflow-scrolling:touch}
+.g2>.card>*,.gs>.card>*{min-width:0}
+.tbl table{width:100%;min-width:600px;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.tbl th+th,.tbl td+td{padding-left:14px}
 .tbl th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);text-align:right;padding:8px 0 6px;border-bottom:.5px solid rgba(255,255,255,.15)}
 .tbl td{text-align:right;padding:8px 0;border-bottom:.5px solid rgba(255,255,255,.08);color:rgba(255,255,255,.9);white-space:nowrap}
 .tbl th:first-child,.tbl td:first-child{text-align:left;color:rgba(255,255,255,.6)}
@@ -161,21 +163,19 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 <div class="g2">
 <section class="card">
   <div class="head">
-    <div><div class="label">Armazenamento</div><h2>Cartão SD</h2></div>
-    <span id="sdEstado"></span>
+    <div><div class="label">Energia</div><h2>Bateria</h2></div>
+    <span id="batEstado"></span>
   </div>
-  <div class="row"><span>Tipo</span><span id="sdTipo">—</span></div>
-  <div class="row"><span>Tamanho do cartão</span><span id="sdTam">—</span></div>
-  <div class="row"><span>Usado</span><span id="sdUsado">—</span></div>
-  <div class="row"><span>Disponível</span><span id="sdLivre">—</span></div>
-  <div class="bar"><i id="sdBarra"></i></div>
-  <div class="row"><span>Registros</span><span id="sdArq">—</span></div>
-  <div class="label" style="margin-top:18px">Últimos 10 registros</div>
-  <div class="tbl"><table>
-    <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bat.</th><th title="basculadas no intervalo do registro">Basc.</th></tr></thead>
-    <tbody id="sdLista"><tr><td colspan="6" class="vazio">—</td></tr></tbody>
-  </table></div>
-  <button class="danger" id="btnApagar" type="button" disabled>Apagar tudo do cartão</button>
+  <div class="tiles">
+    <div class="tile"><div class="lbl">Carga</div><div class="val"><span id="bPct">—</span><small id="bPctU"></small></div></div>
+    <div class="tile"><div class="lbl">Tensão</div><div class="val"><span id="bV">—</span><small>V</small></div></div>
+    <div class="tile"><div class="lbl">Painel solar</div><div class="val" style="font-size:18px"><span id="bSol">—</span></div></div>
+  </div>
+  <div class="row" style="margin-top:12px"><span>Carregando</span><span id="bCarr">—</span></div>
+  <div class="row"><span>Carga completa (100 %)</span><span id="bCheia">—</span></div>
+  <div class="row"><span>Porcentagem</span><span id="bPct2">—</span></div>
+  <div class="row"><span>Sinal do carregador (pino)</span><span id="bPino">—</span></div>
+  <p class="hint" id="bDica">Lê a tensão da bateria (GPIO35) e o sinal do carregador (GPIO39).</p>
 </section>
 <section class="card" id="cardGps">
   <div class="head">
@@ -202,6 +202,25 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 </section>
 </div>
 
+<section class="card">
+  <div class="head">
+    <div><div class="label">Armazenamento</div><h2>Cartão SD</h2></div>
+    <span id="sdEstado"></span>
+  </div>
+  <div class="row"><span>Tipo</span><span id="sdTipo">—</span></div>
+  <div class="row"><span>Tamanho do cartão</span><span id="sdTam">—</span></div>
+  <div class="row"><span>Usado</span><span id="sdUsado">—</span></div>
+  <div class="row"><span>Disponível</span><span id="sdLivre">—</span></div>
+  <div class="bar"><i id="sdBarra"></i></div>
+  <div class="row"><span>Registros</span><span id="sdArq">—</span></div>
+  <div class="label" style="margin-top:18px">Últimos 10 registros</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bateria</th><th title="basculadas no intervalo do registro">Basc.</th></tr></thead>
+    <tbody id="sdLista"><tr><td colspan="6" class="vazio">—</td></tr></tbody>
+  </table></div>
+  <button class="danger" id="btnApagar" type="button" disabled>Apagar tudo do cartão</button>
+</section>
+
 <div class="secao"><div class="label">Sensores</div><h2>Medições</h2></div>
 <div class="gs">
 <section class="card">
@@ -218,7 +237,6 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   </div>
   <p class="hint" id="mQuando">Sensor BME280 · leitura a cada 10 s</p>
 </section>
-
 <section class="card">
   <div class="head">
     <div><div class="label">Pluviômetro · 49E</div><h2>Basculadas</h2></div>
@@ -232,19 +250,6 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row" style="margin-top:12px"><span>Sinal do sensor (ao vivo)</span><span id="pSinal">—</span></div>
   <div class="hall"><i class="hall-lim" id="pLimA"></i><i class="hall-lim" id="pLimB"></i><i class="hall-centro" id="pCentro"></i><i class="hall-ponto" id="pPonto"></i></div>
   <p class="hint">Cada vez que o ímã da báscula passa pela frente do sensor, conta uma basculada. Milímetros de chuva entram depois da calibração.</p>
-</section>
-
-<section class="card">
-  <div class="head">
-    <div><div class="label">Energia</div><h2>Bateria</h2></div>
-    <span id="batEstado"></span>
-  </div>
-  <div class="tiles">
-    <div class="tile"><div class="lbl">Carga</div><div class="val"><span id="bPct">—</span><small id="bPctU"></small></div></div>
-    <div class="tile"><div class="lbl">Tensão</div><div class="val"><span id="bV">—</span><small>V</small></div></div>
-    <div class="tile"><div class="lbl">Painel solar</div><div class="val" style="font-size:18px"><span id="bSol">—</span></div></div>
-  </div>
-  <p class="hint" id="bDica">Lê a tensão da bateria (GPIO35) e o sinal do carregador (GPIO39).</p>
 </section>
 </div>
 
@@ -379,12 +384,17 @@ function pluvCard(p){
 function batCard(b){
   const sol={carregando:['Carregando','p-wait'],carregada:['Carregada','p-ok'],sem_sol:['Sem sol','p-off']}[b.carga]||['—','p-off'];
   if(!b.conectada){set('batEstado',pill('Não conectada','p-off'));set('bPct','—');set('bPctU','');set('bV','—');set('bSol',sol[0]);
+    ['bCarr','bCheia','bPct2'].forEach(i=>set(i,'—'));set('bPino',fx(b.pino_carregador_mv/1000,2)+' V');
     $('bDica').textContent='Sem leitura de bateria no GPIO35. Confira o divisor R1/R2 (Etapa 5).';return}
   set('batEstado',pill(sol[0],sol[1]));
   if(b.carga==='carregando'){set('bPct','Carregando');set('bPctU','')}
   else{set('bPct',String(b.porcentagem));set('bPctU','%')}
   set('bV',fx(b.tensao,2));set('bSol',b.carga==='sem_sol'?'Sem carga':'Gerando');
-  $('bDica').textContent=b.carga==='sem_sol'?'Painel sem carga: a estação está funcionando na bateria.':'Sinal do carregador: '+fx(b.pino_carregador_mv/1000,2)+' V no pino.';
+  set('bCarr',b.carga==='carregando'?pill('Sim','p-wait'):'Não');
+  set('bCheia',b.carga==='carregada'?pill('Sim','p-ok'):'Não');
+  set('bPct2',b.porcentagem!==undefined?b.porcentagem+' %'+(b.carga==='sem_sol'?' (pela tensão)':''):'—');
+  set('bPino',fx(b.pino_carregador_mv/1000,2)+' V');
+  $('bDica').textContent=b.carga==='sem_sol'?'Painel sem carga: a estação está funcionando na bateria.':'Painel solar carregando as baterias. Tensão lida no GPIO35; estado pelo sinal do carregador no GPIO39.';
 }
 async function cartao(){
   if(document.hidden)return;
@@ -393,14 +403,15 @@ async function cartao(){
     set('sdEstado',ativo?pill('Ativo','p-ok'):pill('Sem cartão','p-err'));
     set('sdTipo',z.tipo||'—');set('sdTam',bytes(z.cartao_bytes));set('sdUsado',bytes(z.usado_bytes));set('sdLivre',bytes(z.livre_bytes));
     $('sdBarra').style.width=ativo&&z.total_bytes?Math.max(1,100*z.usado_bytes/z.total_bytes)+'%':'0';
-    const iv=z.intervalo_s>=60?Math.round(z.intervalo_s/60)+' min':z.intervalo_s+' s';
+    const iv=z.intervalo_s>=60?Math.round(z.intervalo_s/60)+' min (:00, :10, :20…)':z.intervalo_s+' s';
     set('sdArq',ativo?bytes(z.arquivo_bytes)+' · a cada '+iv:(z.erro||'—'));
     $('btnApagar').disabled=!ativo;
     const tb=$('sdLista');tb.textContent='';
     const L=z.ultimos||[];
     if(!L.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=6;td.className='vazio';td.textContent=ativo?'Nenhum registro ainda':'—';tr.appendChild(td);tb.appendChild(tr)}
     L.forEach(r=>{const tr=document.createElement('tr');
-      const bat=r.bateria_estado==='carregando'?'carreg.':(r.bateria_pct===null?'—':r.bateria_pct+' %');
+      const est={carregando:'Carregando',carregada:'Carregada',sem_sol:'Sem sol'}[r.bateria_estado]||'';
+      const bat=r.bateria_v===null||r.bateria_v===undefined?'—':est+' · '+fx(r.bateria_v,2)+' V'+(r.bateria_estado==='carregando'?'':' · '+r.bateria_pct+' %');
       [r.quando,r.temperatura===null?'—':fx(r.temperatura,1)+' °C',r.umidade===null?'—':fx(r.umidade,0)+' %',r.pressao===null?'—':fx(r.pressao,1)+' hPa',bat,r.basculadas===null?'—':String(r.basculadas)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});
       tb.appendChild(tr)});
   }catch(_){}
