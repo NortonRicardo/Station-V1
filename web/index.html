@@ -383,6 +383,9 @@ function pluvCard(p){
 }
 function batCard(b){
   const sol={carregando:['Carregando','p-wait'],carregada:['Carregada','p-ok'],sem_sol:['Sem sol','p-off']}[b.carga]||['—','p-off'];
+  if(b.divisor_solto){set('batEstado',pill('Divisor solto','p-err'));set('bPct','—');set('bPctU','');set('bV','—');set('bSol','—');
+    ['bCarr','bCheia','bPct2'].forEach(i=>set(i,'—'));set('bPino',fx(b.pino_carregador_mv/1000,2)+' V');
+    $('bDica').textContent='O GPIO35 está no teto ('+fx(b.pino_bateria_mv/1000,2)+' V): o resistor do meio do divisor para o B− está solto. Tensão e estado do carregador não são confiáveis até ressoldar.';return}
   if(!b.conectada){set('batEstado',pill('Não conectada','p-off'));set('bPct','—');set('bPctU','');set('bV','—');set('bSol',sol[0]);
     ['bCarr','bCheia','bPct2'].forEach(i=>set(i,'—'));set('bPino',fx(b.pino_carregador_mv/1000,2)+' V');
     $('bDica').textContent='Sem leitura de bateria no GPIO35. Confira o divisor R1/R2 (Etapa 5).';return}

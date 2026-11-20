@@ -125,7 +125,7 @@ static void gravar(int64_t epochFixo) {
   c[C_BTOT] = String(totalAgora);
   c[C_BATV] = bat ? String(energia::tensao(), 2) : "";
   c[C_BATP] = bat ? String(energia::pct()) : "";
-  c[C_BATE] = energia::estadoCarga();
+  c[C_BATE] = bat ? energia::estadoCarga() : "";  // sem leitura confiável, fica vazio
   c[C_LAT] = pos ? String(gps::lat(), 6) : "";
   c[C_LON] = pos ? String(gps::lon(), 6) : "";
   c[C_ALT] = pos ? num(gps::alt(), 1) : "";
