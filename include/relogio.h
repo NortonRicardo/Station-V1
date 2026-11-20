@@ -20,8 +20,10 @@ namespace relogio {
 inline int64_t uptimeMs() { return esp_timer_get_time() / 1000; }
 
 inline bool &sincronizadoRef() { static bool v = false; return v; }
+inline const char *&fonteRef() { static const char *v = ""; return v; }
 inline bool sincronizado() { return sincronizadoRef(); }
-inline void marcarSincronizado() { sincronizadoRef() = true; }
+inline const char *fonte() { return fonteRef(); }  // "internet" ou "gps"
+inline void marcarSincronizado(const char *f) { sincronizadoRef() = true; fonteRef() = f; }
 
 // hora real agora, em ms desde 1970 (só vale se sincronizado)
 inline int64_t agoraEpochMs() {

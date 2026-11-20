@@ -21,6 +21,10 @@
 #include "pagina.h"
 #include "relogio.h"
 #include "sensor_bme280.h"
+#include "sdlog.h"
+#include "gps.h"
+#include "energia.h"
+#include "pluviometro.h"
 
 #ifndef STATION_AP_PASS
 #error "STATION_AP_PASS não definida: crie o .env (veja .env.example)"
@@ -55,6 +59,8 @@ struct Evento { int64_t uptime; String texto; };
 static std::deque<Evento> eventos;
 static std::mutex mtxEventos;
 static const size_t MAX_EVENTOS = 40;
+
+void relogioAcertado(const char *fonte);
 
 void registrar(const String &texto) {
   int64_t up = relogio::uptimeMs();
@@ -161,9 +167,21 @@ static void cuidarSta() {
   }
   if (ntpAcertou) {
     ntpAcertou = false;
-    bool primeira = !relogio::sincronizado();
-    relogio::marcarSincronizado();  // a partir daqui todo registro antigo aparece na hora real
-    if (primeira) registrar("Hora sincronizada pela internet");
+    relogioAcertado("internet");
+  }
+}
+
+// Chamado quando a hora real chega (internet ou GPS). Na primeira vez, corrige o que foi
+// registrado antes; depois só atualiza a fonte (a internet tem prioridade sobre o GPS).
+void relogioAcertado(const char *fonte) {
+  bool primeira = !relogio::sincronizado();
+  String antes = relogio::fonte();
+  relogio::marcarSincronizado(fonte);  // a partir daqui todo registro antigo aparece na hora real
+  if (primeira) {
+    registrar(String("Hora sincronizada pelo ") + (String(fonte) == "gps" ? "GPS" : "servidor da internet"));
+    sdlog::aoSincronizar();  // corrige no cartão os registros feitos antes da hora
+  } else if (antes != fonte && String(fonte) == "internet") {
+    registrar("Hora conferida pela internet (antes vinha do GPS)");
   }
 }
 
@@ -213,9 +231,13 @@ static void rotaStatus() {
   j += ",\"motivo\":\"" + String(textoMotivo(ultimoMotivo)) + "\"},";
   int64_t up = relogio::uptimeMs();
   j += "\"relogio\":{\"sincronizado\":" + String(relogio::sincronizado() ? "true" : "false") +
+       ",\"fonte\":\"" + String(relogio::fonte()) + "\"" +
        ",\"uptime_ms\":" + String((long long)up);
   if (relogio::sincronizado()) j += ",\"epoch_ms\":" + String((long long)relogio::agoraEpochMs());
   j += "},\"sensor\":" + bme::statusJson();
+  j += ",\"gps\":" + gps::statusJson();
+  j += ",\"bateria\":" + energia::statusJson();
+  j += ",\"pluviometro\":" + pluviometro::statusJson();
   j += ",\"mac\":\"" + WiFi.macAddress() + "\"}";
   enviarJson(200, j);
 }
@@ -242,6 +264,14 @@ static void rotaEventos() {
   }
   j += "]}";
   enviarJson(200, j);
+}
+
+static void rotaSd() { enviarJson(200, sdlog::statusJson()); }
+static void rotaPluv() { enviarJson(200, pluviometro::statusJson()); }  // leve: a página consulta a cada 0,5 s
+
+static void rotaSdApagar() {
+  if (sdlog::apagar()) enviarJson(200, "{\"ok\":true}");
+  else enviarJson(409, "{\"erro\":\"Cartão SD não está ativo.\"}");
 }
 
 static void rotaConectar() {
@@ -278,6 +308,8 @@ static void rotaOutras() {
 void setup() {
   Serial.begin(115200);
   delay(300);
+  setenv("TZ", "<-03>3", 1);  // horário de Brasília, mesmo sem internet (hora pelo GPS)
+  tzset();
   registrar("Estação ligada");
 
   WiFi.persistent(false);  // credenciais só no nosso Preferences
@@ -295,6 +327,9 @@ void setup() {
   server.on("/api/status", HTTP_GET, rotaStatus);
   server.on("/api/redes", HTTP_GET, rotaRedes);
   server.on("/api/eventos", HTTP_GET, rotaEventos);
+  server.on("/api/sd", HTTP_GET, rotaSd);
+  server.on("/api/pluviometro", HTTP_GET, rotaPluv);
+  server.on("/api/sd/apagar", HTTP_POST, rotaSdApagar);
   server.on("/api/conectar", HTTP_POST, rotaConectar);
   server.on("/api/esquecer", HTTP_POST, rotaEsquecer);
   server.onNotFound(rotaOutras);
@@ -307,6 +342,10 @@ void setup() {
   else conectarSta();
 
   bme::iniciar();
+  sdlog::iniciar();
+  gps::iniciar();
+  energia::iniciar();
+  pluviometro::iniciar();
 
   // gravação pelo Wi-Fi (pio run -e ota -t upload)
   ArduinoOTA.setHostname(HOSTNAME);
@@ -327,6 +366,12 @@ void loop() {
   server.handleClient();
   cuidarSta();
   cuidarScan();
-  if (!otaRodando) bme::cuidar();
+  if (!otaRodando) {
+    bme::cuidar();
+    sdlog::cuidar();
+  }
+  gps::cuidar();  // só lê o que chegou; sem GPS não faz nada
+  energia::cuidar();
+  pluviometro::cuidar();  // a contagem roda numa tarefa própria; aqui só registra e salva
   delay(2);
 }

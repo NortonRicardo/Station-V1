@@ -15,7 +15,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:16p
 .brand img{width:32px;height:32px}
 .brand b{font-weight:900;letter-spacing:.2em;font-size:16px;color:#fff}
 .tag{font-size:11px;font-weight:300;letter-spacing:.1em;color:rgba(255,255,255,.5);white-space:nowrap}
-main{flex:1;width:100%;max-width:540px;margin:0 auto;padding:24px 16px 40px;display:flex;flex-direction:column;gap:16px}
+main{flex:1;width:100%;max-width:1120px;margin:0 auto;padding:24px 16px 40px;display:flex;flex-direction:column;gap:16px}
+.g2,.gs{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.g2,.gs{align-items:stretch}
+.g2>.card,.gs>.card{display:flex;flex-direction:column}
+@media (min-width:900px){.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.gs{grid-template-columns:repeat(auto-fill,minmax(400px,1fr))}}
+.secao{margin:16px 2px 0}
+.secao h2{font-size:22px;margin-top:2px}
 .card{border:.5px solid rgba(255,255,255,.25);background:#000;border-radius:10px;padding:28px 22px;box-shadow:0 20px 40px -15px rgba(0,0,0,.9)}
 .top{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:24px}
 .top img{width:64px;height:64px;margin-bottom:14px}
@@ -25,7 +31,8 @@ h1{margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em;color:rgba(255,
 h2{margin:2px 0 0;font-size:18px;font-weight:600;letter-spacing:-.01em;color:rgba(255,255,255,.9)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:.5px solid rgba(255,255,255,.1)}
 .row>span:first-child{font-size:12px;color:rgba(255,255,255,.5)}
-.row>span:last-child{font-size:14px;color:rgba(255,255,255,.9);text-align:right;word-break:break-all}
+[hidden]{display:none!important}
+.row>span:last-child{font-size:14px;color:rgba(255,255,255,.9);text-align:right;overflow-wrap:break-word;min-width:0}
 .pill{display:inline-block;border-radius:980px;padding:2px 8px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .pill.nc{text-transform:none;letter-spacing:.02em}
 .p-ok{background:rgba(16,185,129,.15);color:#6ee7b7}
@@ -71,6 +78,40 @@ input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 100
 .tile .val small{font-size:12px;font-weight:400;color:rgba(255,255,255,.5);margin-left:4px;letter-spacing:0}
 .tiles .tile:first-child{grid-column:1/-1}
 .tiles .tile:first-child .val{font-size:34px}
+.bar{height:4px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;margin:2px 0 4px}
+.bar i{display:block;height:100%;width:0;background:rgb(163,230,53);transition:width .4s}
+.tbl{margin-top:8px;overflow-x:auto}
+.tbl table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.tbl th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);text-align:right;padding:8px 0 6px;border-bottom:.5px solid rgba(255,255,255,.15)}
+.tbl td{text-align:right;padding:8px 0;border-bottom:.5px solid rgba(255,255,255,.08);color:rgba(255,255,255,.9);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left;color:rgba(255,255,255,.6)}
+.tbl td.vazio{text-align:center;color:rgba(255,255,255,.4)}
+.danger{margin-top:18px;width:100%;height:40px;font:inherit;font-size:13px;font-weight:500;border-radius:6px;border:.5px solid rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:#fca5a5;cursor:pointer;transition:background .2s}
+.danger:hover{background:rgba(239,68,68,.16)}
+.danger{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.danger:disabled{opacity:.6;cursor:default}
+.mapa{position:relative;flex:1;min-height:220px;margin-top:14px;border-radius:10px;overflow:hidden;border:.5px solid rgba(255,255,255,.15);background:#0a0a0a;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:32px 32px}
+.mapa-tiles{position:absolute;inset:0}
+.mapa-tiles img{position:absolute;width:256px;height:256px;filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6);user-select:none;-webkit-user-drag:none}
+.mapa-ponto{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:rgb(163,230,53);box-shadow:0 0 0 4px rgba(163,230,53,.25)}
+.mapa-ponto::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:1.5px solid rgba(163,230,53,.6);animation:pulso 2s ease-out infinite}
+.mapa-ponto.velha{background:#a8a29e;box-shadow:0 0 0 4px rgba(168,162,158,.25)}.mapa-ponto.velha::after{border-color:rgba(168,162,158,.5)}
+@keyframes pulso{from{transform:scale(.4);opacity:1}to{transform:scale(1.6);opacity:0}}
+.mapa-zoom{position:absolute;top:10px;right:10px;display:flex;flex-direction:column}
+.mapa-zoom button{width:28px;height:28px;font:inherit;font-size:16px;line-height:1;color:rgba(255,255,255,.6);background:rgba(0,0,0,.8);border:.5px solid rgba(255,255,255,.15);cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.mapa-zoom button:first-child{border-radius:6px 6px 0 0;border-bottom:0}.mapa-zoom button:last-child{border-radius:0 0 6px 6px}
+.mapa-zoom button:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.1)}
+.mapa-abrir{position:absolute;left:10px;top:10px;font-size:11px;color:rgba(255,255,255,.8);background:rgba(0,0,0,.8);border:.5px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 8px;text-decoration:none}
+.mapa-abrir:hover{color:#fff;background:rgba(255,255,255,.1)}
+.mapa-aviso{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.6);background:rgba(0,0,0,.8);border:.5px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 9px;white-space:nowrap;max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis}
+.mapa-credito{position:absolute;right:6px;bottom:4px;font-size:9px;color:rgba(255,255,255,.35)}
+.hall{position:relative;height:10px;margin:4px 0 2px;border-radius:5px;background:rgba(255,255,255,.08)}
+.hall i{position:absolute;top:0;height:100%}
+.hall-lim{width:1px;background:rgba(252,211,77,.7)}
+.hall-centro{width:1px;background:rgba(255,255,255,.4)}
+.hall-ponto{width:10px;margin-left:-5px;border-radius:50%;background:rgb(163,230,53);transition:left .2s}
+.hall-ponto.perto{background:#fcd34d}
 .ev{margin-top:12px}
 .ev li{display:flex;gap:12px;padding:9px 0;border-top:.5px solid rgba(255,255,255,.1);font-size:13px}
 .ev .q{flex:none;width:132px;font-size:11px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;padding-top:1px}
@@ -89,21 +130,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 </header>
 
 <main>
-<section class="card">
-  <div class="head">
-    <div><div class="label">Agora</div><h2>Medições</h2></div>
-    <span id="sensorEstado"></span>
-  </div>
-  <div class="tiles">
-    <div class="tile"><div class="lbl">Temperatura</div><div class="val"><span id="mT">—</span><small>°C</small></div></div>
-    <div class="tile"><div class="lbl">Umidade</div><div class="val"><span id="mU">—</span><small>%</small></div></div>
-    <div class="tile"><div class="lbl">Pressão</div><div class="val"><span id="mP">—</span><small>hPa</small></div></div>
-    <div class="tile"><div class="lbl">Ponto de orvalho</div><div class="val"><span id="mO">—</span><small>°C</small></div></div>
-    <div class="tile"><div class="lbl">Umidade absoluta</div><div class="val"><span id="mA">—</span><small>g/m³</small></div></div>
-  </div>
-  <p class="hint" id="mQuando">Sensor BME280 · leitura a cada 10 s</p>
-</section>
-
+<div class="g2">
 <section class="card">
   <div class="top">
     <img src="data:image/webp;base64,@@LOGO@@" alt="">
@@ -117,7 +144,6 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Hora</span><span id="hora">—</span></div>
   <div class="row"><span>Aparelhos conectados</span><span id="cli">—</span></div>
 </section>
-
 <section class="card">
   <div class="head">
     <div><div class="label">Configurar</div><h2>Rede Wi-Fi</h2></div>
@@ -128,6 +154,97 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <p class="hint">Ao conectar, a rede Station-V1 pode cair por alguns segundos enquanto a estação troca de canal. Se o celular sair dela, conecte de novo.</p>
   <button class="forget" id="btnEsquecer" type="button" hidden>Esquecer rede salva</button>
 </section>
+</div>
+
+<div class="g2">
+<section class="card">
+  <div class="head">
+    <div><div class="label">Armazenamento</div><h2>Cartão SD</h2></div>
+    <span id="sdEstado"></span>
+  </div>
+  <div class="row"><span>Tipo</span><span id="sdTipo">—</span></div>
+  <div class="row"><span>Tamanho do cartão</span><span id="sdTam">—</span></div>
+  <div class="row"><span>Usado</span><span id="sdUsado">—</span></div>
+  <div class="row"><span>Disponível</span><span id="sdLivre">—</span></div>
+  <div class="bar"><i id="sdBarra"></i></div>
+  <div class="row"><span>Registros</span><span id="sdArq">—</span></div>
+  <div class="label" style="margin-top:18px">Últimos 10 registros</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bat.</th><th>Basc.</th></tr></thead>
+    <tbody id="sdLista"><tr><td colspan="6" class="vazio">—</td></tr></tbody>
+  </table></div>
+  <button class="danger" id="btnApagar" type="button" disabled>Apagar tudo do cartão</button>
+</section>
+<section class="card" id="cardGps">
+  <div class="head">
+    <div><div class="label">Localização</div><h2>GPS</h2></div>
+    <span id="gpsEstado"></span>
+  </div>
+  <div class="row"><span>Satélites</span><span id="gpsSat">—</span></div>
+  <div class="row"><span>Tipo de posição</span><span id="gpsFix">—</span></div>
+  <div class="row"><span>Latitude</span><span id="gpsLat">—</span></div>
+  <div class="row"><span>Longitude</span><span id="gpsLon">—</span></div>
+  <div class="row"><span>Altitude</span><span id="gpsAlt">—</span></div>
+  <div class="row"><span>Precisão (HDOP)</span><span id="gpsHdop">—</span></div>
+  <div class="row"><span>Hora do satélite (UTC)</span><span id="gpsHora">—</span></div>
+  <div class="row" id="gpsUltRow" hidden><span>Última posição salva</span><span id="gpsUlt">—</span></div>
+  <div class="mapa" id="mapa">
+    <div class="mapa-tiles" id="mapaTiles"></div>
+    <div class="mapa-ponto" id="mapaPonto" hidden></div>
+    <div class="mapa-zoom"><button type="button" id="zMais" aria-label="Aproximar">+</button><button type="button" id="zMenos" aria-label="Afastar">−</button></div>
+    <a class="mapa-abrir" id="mapaAbrir" target="_blank" rel="noopener" hidden>Abrir no mapa ↗</a>
+    <div class="mapa-aviso" id="mapaAviso">Sem posição ainda</div>
+    <div class="mapa-credito">© OpenStreetMap</div>
+  </div>
+  <p class="hint" id="gpsDica">Módulo GP-02 (GPS + BeiDou) pela UART2.</p>
+</section>
+</div>
+
+<div class="secao"><div class="label">Sensores</div><h2>Medições</h2></div>
+<div class="gs">
+<section class="card">
+  <div class="head">
+    <div><div class="label">BME280</div><h2>Temperatura, umidade e pressão</h2></div>
+    <span id="sensorEstado"></span>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="lbl">Temperatura</div><div class="val"><span id="mT">—</span><small>°C</small></div></div>
+    <div class="tile"><div class="lbl">Umidade</div><div class="val"><span id="mU">—</span><small>%</small></div></div>
+    <div class="tile"><div class="lbl">Pressão</div><div class="val"><span id="mP">—</span><small>hPa</small></div></div>
+    <div class="tile"><div class="lbl">Ponto de orvalho</div><div class="val"><span id="mO">—</span><small>°C</small></div></div>
+    <div class="tile"><div class="lbl">Umidade absoluta</div><div class="val"><span id="mA">—</span><small>g/m³</small></div></div>
+  </div>
+  <p class="hint" id="mQuando">Sensor BME280 · leitura a cada 10 s</p>
+</section>
+
+<section class="card">
+  <div class="head">
+    <div><div class="label">Pluviômetro · 49E</div><h2>Basculadas</h2></div>
+    <span id="pluvEstado"></span>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="lbl">Total</div><div class="val"><span id="pTotal">—</span><small>basculadas</small></div></div>
+    <div class="tile"><div class="lbl">Desde que ligou</div><div class="val"><span id="pBoot">—</span></div></div>
+    <div class="tile"><div class="lbl">Última</div><div class="val" style="font-size:15px;white-space:normal"><span id="pUlt">—</span></div></div>
+  </div>
+  <div class="row" style="margin-top:12px"><span>Sinal do sensor (ao vivo)</span><span id="pSinal">—</span></div>
+  <div class="hall"><i class="hall-lim" id="pLimA"></i><i class="hall-lim" id="pLimB"></i><i class="hall-centro" id="pCentro"></i><i class="hall-ponto" id="pPonto"></i></div>
+  <p class="hint">Cada vez que o ímã da báscula passa pela frente do sensor, conta uma basculada. Milímetros de chuva entram depois da calibração.</p>
+</section>
+
+<section class="card">
+  <div class="head">
+    <div><div class="label">Energia</div><h2>Bateria</h2></div>
+    <span id="batEstado"></span>
+  </div>
+  <div class="tiles">
+    <div class="tile"><div class="lbl">Carga</div><div class="val"><span id="bPct">—</span><small id="bPctU"></small></div></div>
+    <div class="tile"><div class="lbl">Tensão</div><div class="val"><span id="bV">—</span><small>V</small></div></div>
+    <div class="tile"><div class="lbl">Painel solar</div><div class="val" style="font-size:18px"><span id="bSol">—</span></div></div>
+  </div>
+  <p class="hint" id="bDica">Lê a tensão da bateria (GPIO35) e o sinal do carregador (GPIO39).</p>
+</section>
+</div>
 
 <section class="card">
   <div class="label">Registro</div>
@@ -180,7 +297,7 @@ function fmtUp(ms){const t=Math.floor(ms/1000);return '+'+p2(Math.floor(t/3600))
 function fmtBR(ms){const d=new Date(ms-3*3600e3);return p2(d.getUTCDate())+'/'+p2(d.getUTCMonth()+1)+'/'+d.getUTCFullYear()+' '+p2(d.getUTCHours())+':'+p2(d.getUTCMinutes())+':'+p2(d.getUTCSeconds())}
 function tick(){
   if(!relo)return;const dt=Date.now()-relo.em,e=$('hora');e.textContent='';
-  if(relo.sync){e.textContent=fmtBR(relo.ep+dt)}
+  if(relo.sync){const t=document.createElement('span');t.textContent=fmtBR(relo.ep+dt)+' ';e.append(t,pill(relo.fonte==='gps'?'GPS':'Internet','p-off nc'))}
   else{const t=document.createElement('span');t.textContent=fmtUp(relo.up+dt)+' ';e.append(t,pill('Sem hora','p-off'))}
 }
 setInterval(tick,1000);
@@ -194,6 +311,106 @@ function sensor(z){
   $('mQuando').textContent=l.quando?'Lida em '+l.quando+' · nova leitura a cada 10 s':
     (z.estado==='ausente'?'Confira a ligação: VCC→3V3, GND→GND, SDA→GPIO21, SCL→GPIO22.':'Sensor BME280 · leitura a cada 10 s');
 }
+function bytes(n){if(n===undefined||n===null)return '—';const u=['B','KB','MB','GB','TB'];let i=0;while(n>=1024&&i<4){n/=1024;i++}return (n>=100||i===0?n.toFixed(0):n.toFixed(1)).replace('.',',')+' '+u[i]}
+function gpsCard(g){
+  const est={sem_modulo:['Sem módulo','p-off'],ilegivel:['Dados ilegíveis','p-err'],sem_sinal:['Procurando satélites','p-wait'],ok:['Com posição','p-ok']}[g.estado]||['—','p-off'];
+  set('gpsEstado',pill(est[0],est[1]));
+  const vis=g.visiveis?' · '+(g.visiveis.gps+g.visiveis.beidou)+' visíveis (GPS '+g.visiveis.gps+' · BeiDou '+g.visiveis.beidou+')':'';
+  set('gpsSat',g.satelites!==undefined?g.satelites+' em uso'+vis:(vis?vis.slice(3):'—'));
+  set('gpsFix',g.qualidade===undefined?'—':({0:'sem posição',1:'GPS / BeiDou',2:'diferencial (DGPS)',6:'estimada'}[g.qualidade]||('código '+g.qualidade)));
+  set('gpsLat',g.lat!==undefined?g.lat.toFixed(6).replace('.',',')+'°':'—');
+  set('gpsLon',g.lon!==undefined?g.lon.toFixed(6).replace('.',',')+'°':'—');
+  set('gpsAlt',g.alt!==undefined?fx(g.alt,1)+' m':'—');
+  set('gpsHdop',g.hdop!==undefined?fx(g.hdop,1)+(g.hdop<=2?' · boa':g.hdop<=5?' · média':' · ruim'):'—');
+  set('gpsHora',g.hora_utc||'—');
+  const u=g.ultima;$('gpsUltRow').hidden=!u;
+  if(g.lat!==undefined)mapaPosicao(g.lat,g.lon,false);else if(u)mapaPosicao(u.lat,u.lon,true);else mapaPosicao(null);
+  if(u)set('gpsUlt',u.lat.toFixed(5).replace('.',',')+', '+u.lon.toFixed(5).replace('.',',')+(u.alt!==undefined?' · '+fx(u.alt,0)+' m':'')+(u.quando?' · '+u.quando:''));
+  $('gpsDica').textContent={
+    sem_modulo:'Nenhum dado chegando. Confira: TX do GPS → GPIO16, RX do GPS → GPIO17, VCC → 5V, GND → GND. A estação continua funcionando sem ele.',
+    ilegivel:'Chegam bytes, mas nenhuma frase válida: confira se TX e RX não estão invertidos e se o módulo está a 9600 baud.',
+    sem_sinal:'Módulo respondendo. A primeira posição pode levar alguns minutos, de preferência com o módulo vendo o céu.',
+    ok:'Posição válida · '+g.frases_ok+' frases recebidas.'}[g.estado]||'';
+  if(g.acertou_relogio)$('gpsDica').textContent+=' O relógio da estação foi acertado pelo GPS.';
+}
+// ---------- mapa (quadros do OpenStreetMap; precisa de internet no celular) ----------
+const MAPA={lat:null,lon:null,velha:false,z:15,falhou:0,chave:''};
+function mapaPosicao(lat,lon,velha){
+  if(lat===null){MAPA.lat=null;$('mapaPonto').hidden=true;$('mapaAbrir').hidden=true;$('mapaTiles').textContent='';$('mapaAviso').hidden=false;$('mapaAviso').textContent='Sem posição ainda';MAPA.chave='';return}
+  MAPA.lat=lat;MAPA.lon=lon;MAPA.velha=velha;desenharMapa();
+}
+function desenharMapa(){
+  if(MAPA.lat===null)return;
+  const el=$('mapa'),W=el.clientWidth,H=el.clientHeight,z=MAPA.z,n=Math.pow(2,z);
+  const r=MAPA.lat*Math.PI/180,px=(MAPA.lon+180)/360*n*256,py=(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n*256;
+  const ponto=$('mapaPonto');ponto.hidden=false;ponto.className='mapa-ponto'+(MAPA.velha?' velha':'');
+  const ab=$('mapaAbrir');ab.hidden=false;ab.href='https://www.openstreetmap.org/?mlat='+MAPA.lat+'&mlon='+MAPA.lon+'#map=17/'+MAPA.lat+'/'+MAPA.lon;
+  const av=$('mapaAviso'),coord=MAPA.lat.toFixed(5).replace('.',',')+', '+MAPA.lon.toFixed(5).replace('.',',');
+  av.hidden=!MAPA.velha;av.textContent='Última posição salva · '+coord;
+  const chave=[Math.round(px),Math.round(py),z,W,H].join(',');
+  if(chave===MAPA.chave)return;
+  if(MAPA.falhou&&Date.now()-MAPA.falhou<60000){av.hidden=false;av.textContent='Mapa sem internet · '+coord;return}
+  MAPA.chave=chave;
+  const box=$('mapaTiles');box.textContent='';
+  const x0=Math.floor((px-W/2)/256),x1=Math.floor((px+W/2)/256),y0=Math.floor((py-H/2)/256),y1=Math.floor((py+H/2)/256);
+  for(let tx=x0;tx<=x1;tx++)for(let ty=y0;ty<=y1;ty++){
+    if(ty<0||ty>=n)continue;
+    const im=new Image();im.alt='';im.decoding='async';
+    im.style.left=Math.round(tx*256-px+W/2)+'px';im.style.top=Math.round(ty*256-py+H/2)+'px';
+    im.onerror=()=>{if(!MAPA.falhou||Date.now()-MAPA.falhou>60000){MAPA.falhou=Date.now();MAPA.chave='';box.textContent='';av.hidden=false;av.textContent='Mapa sem internet · '+coord}};
+    im.onload=()=>{MAPA.falhou=0};
+    im.src='https://tile.openstreetmap.org/'+z+'/'+(((tx%n)+n)%n)+'/'+ty+'.png';
+    box.appendChild(im);
+  }
+}
+$('zMais').onclick=()=>{MAPA.z=Math.min(18,MAPA.z+1);MAPA.chave='';desenharMapa()};
+$('zMenos').onclick=()=>{MAPA.z=Math.max(3,MAPA.z-1);MAPA.chave='';desenharMapa()};
+addEventListener('resize',()=>{MAPA.chave='';desenharMapa()});
+function pluvCard(p){
+  set('pluvEstado',!p.sinal_ok?pill('Sem sinal','p-err'):p.perto?pill('Ímã perto','p-wait'):pill('Pronto','p-ok'));
+  set('pTotal',String(p.total));set('pBoot',String(p.desde_boot));set('pUlt',p.ultima||'—');
+  set('pSinal',fx(p.leitura_mv/1000,2)+' V · centro '+fx(p.centro_mv/1000,2)+' V');
+  const pos=mv=>Math.max(0,Math.min(100,mv/3300*100))+'%';
+  $('pCentro').style.left=pos(p.centro_mv);$('pLimA').style.left=pos(p.centro_mv-p.limiar_mv);$('pLimB').style.left=pos(p.centro_mv+p.limiar_mv);
+  const pt=$('pPonto');pt.style.left=pos(p.leitura_mv);pt.className='hall-ponto'+(p.perto?' perto':'');
+}
+function batCard(b){
+  const sol={carregando:['Carregando','p-wait'],carregada:['Carregada','p-ok'],sem_sol:['Sem sol','p-off']}[b.carga]||['—','p-off'];
+  if(!b.conectada){set('batEstado',pill('Não conectada','p-off'));set('bPct','—');set('bPctU','');set('bV','—');set('bSol',sol[0]);
+    $('bDica').textContent='Sem leitura de bateria no GPIO35. Confira o divisor R1/R2 (Etapa 5).';return}
+  set('batEstado',pill(sol[0],sol[1]));
+  if(b.carga==='carregando'){set('bPct','Carregando');set('bPctU','')}
+  else{set('bPct',String(b.porcentagem));set('bPctU','%')}
+  set('bV',fx(b.tensao,2));set('bSol',b.carga==='sem_sol'?'Sem carga':'Gerando');
+  $('bDica').textContent=b.carga==='sem_sol'?'Painel sem carga: a estação está funcionando na bateria.':'Sinal do carregador: '+fx(b.pino_carregador_mv/1000,2)+' V no pino.';
+}
+async function cartao(){
+  try{
+    const z=await (await fetch('/api/sd',{cache:'no-store'})).json(),ativo=z.estado==='ativo';
+    set('sdEstado',ativo?pill('Ativo','p-ok'):pill('Sem cartão','p-err'));
+    set('sdTipo',z.tipo||'—');set('sdTam',bytes(z.cartao_bytes));set('sdUsado',bytes(z.usado_bytes));set('sdLivre',bytes(z.livre_bytes));
+    $('sdBarra').style.width=ativo&&z.total_bytes?Math.max(1,100*z.usado_bytes/z.total_bytes)+'%':'0';
+    set('sdArq',ativo?bytes(z.arquivo_bytes)+' · a cada '+z.intervalo_s+' s':(z.erro||'—'));
+    $('btnApagar').disabled=!ativo;
+    const tb=$('sdLista');tb.textContent='';
+    const L=z.ultimos||[];
+    if(!L.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=6;td.className='vazio';td.textContent=ativo?'Nenhum registro ainda':'—';tr.appendChild(td);tb.appendChild(tr)}
+    L.forEach(r=>{const tr=document.createElement('tr');
+      const bat=r.bateria_estado==='carregando'?'carreg.':(r.bateria_pct===null?'—':r.bateria_pct+' %');
+      [r.quando,r.temperatura===null?'—':fx(r.temperatura,1)+' °C',r.umidade===null?'—':fx(r.umidade,0)+' %',r.pressao===null?'—':fx(r.pressao,1)+' hPa',bat,r.basculadas===null?'—':String(r.basculadas)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});
+      tb.appendChild(tr)});
+  }catch(_){}
+}
+$('btnApagar').onclick=async()=>{
+  if(!confirm('Apagar TUDO do cartão SD (registros e qualquer outro arquivo ou pasta)? Não dá para desfazer.'))return;
+  const bt=$('btnApagar'),txt=bt.textContent;
+  bt.disabled=true;bt.innerHTML='<span class="spin"></span>Apagando o cartão…';
+  try{
+    const r=await fetch('/api/sd/apagar',{method:'POST'});
+    if(!r.ok)alert('Não foi possível apagar: o cartão não está ativo.');
+  }catch(_){alert('Sem resposta da estação durante o apagamento. Confira o cartão.')}
+  bt.textContent=txt;await cartao();
+};
 async function eventos(){
   try{
     const j=await (await fetch('/api/eventos',{cache:'no-store'})).json(),ul=$('eventos');ul.textContent='';
@@ -217,7 +434,10 @@ async function status(){
     const novo={ssid:s.sta.ssid||'',estado:(e==='conectado'||e==='conectando')?e:''};
     if(novo.ssid!==atual.ssid||novo.estado!==atual.estado){atual=novo;if(!aberta)render()}
     sensor(s.sensor);
-    relo={sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
+    if(s.gps)gpsCard(s.gps);
+    if(s.pluviometro)pluvCard(s.pluviometro);
+    if(s.bateria)batCard(s.bateria);
+    relo={fonte:s.relogio.fonte,sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
     set('cli',String(s.ap.clientes));
     $('btnEsquecer').hidden=!s.sta.ssid;
     $('rodape').textContent=s.ap.ssid+' · '+s.ap.ip+' · MAC '+s.mac;
@@ -271,5 +491,10 @@ async function buscar(nova){
 }
 $('btnBuscar').onclick=()=>buscar(true);
 $('btnEsquecer').onclick=async()=>{if(!confirm('Esquecer a rede salva?'))return;await fetch('/api/esquecer',{method:'POST'});status()};
-status();eventos();buscar(false);setInterval(status,3000);setInterval(eventos,5000);
+async function pluvRapido(){
+  if(document.hidden)return;
+  try{pluvCard(await (await fetch('/api/pluviometro',{cache:'no-store'})).json())}catch(_){}
+}
+setInterval(pluvRapido,500);
+status();eventos();cartao();buscar(false);setInterval(status,3000);setInterval(eventos,5000);setInterval(cartao,10000);
 </script></body></html>
