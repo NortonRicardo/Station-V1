@@ -725,7 +725,7 @@ def resistor_v(x, y1, y2, rot):
 
 def divisor_h(x, y, rot):
     return (f'<rect x="{x}" y="{y-11}" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/>'
-            f'<text x="{x+37}" y="{y+4}" class="t-fp" fill="#44403c">÷ {rot}</text>')
+            f'<text x="{x+37}" y="{y+4}" class="t-fp" fill="#44403c">{rot} série</text>')
 
 # --- caminho da energia (diagrama de blocos) ---
 e = ['<svg viewBox="0 0 760 356" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">']
@@ -755,7 +755,7 @@ e.append('<circle cx="365" cy="200" r="6" fill="#3b82f6"/><text x="352" y="204" 
 e.append('<text x="212" y="70" class="t-nc" style="text-anchor:start">IN</text><text x="368" y="84" class="t-nc">OUT+</text><text x="368" y="129" class="t-nc">OUT−</text>')
 e.append(caixa(200, 250, 180, 60, "2× 18650 em paralelo", "3,0–4,2 V"))
 e.append(caixa(470, 50, 110, 60, "Step-up 5 V", "a instalar", tracejada=True))
-e.append(divisor_h(450, 165, "10k/10k")); e.append(divisor_h(450, 200, "10k/10k"))
+e.append(divisor_h(450, 165, "10 kΩ")); e.append(divisor_h(450, 200, "10 kΩ"))
 e.append(resistor_v(450, 270, 296, "R1")); e.append(resistor_v(450, 304, 330, "R2"))
 e.append('<rect x="630" y="40" width="110" height="290" rx="10" fill="#44403c"/><text x="685" y="62" class="t-boxw">ESP32</text>')
 for y, t in ((80, "5V"), (125, "GND"), (165, "GPIO39"), (200, "GPIO34"), (300, "GPIO35")):
@@ -771,8 +771,8 @@ GX2 = 330
 def py(i): return GY + Y0 + i * P
 XE = GX2 + 8
 TERM = [  # índice do pino (lado esq.), cor, título, detalhe
-    (3, ANA, "LED carregando", "divisor 10k/10k"),
-    (4, ANA, "LED carregado", "divisor 10k/10k"),
+    (3, ANA, "LED carregando", "10 kΩ em série"),
+    (4, ANA, "LED carregado", "10 kΩ em série"),
     (5, ANA, "Bateria", "meio de R1/R2"),
     (13, STN, "GND comum", "OUT− e step-up −"),
     (18, VIN_C, "Step-up 5 V", "saída +"),
@@ -792,9 +792,9 @@ energia_lig_svg = "\n".join(w)
 TAB_E = [  # de, para, por quê
     ("Step-up 5 V · saída +", "5V (Esq. 19)", "Alimenta a placa. O mesmo pino 5V já alimenta o microSD e o GPS: os três ficam no mesmo trilho de 5 V."),
     ("GND (OUT− e step-up −)", "GND (Esq. 14)", "Terra comum. O GPS já usa esse GND: em placa, todos os GND são o mesmo ponto."),
-    ("Bateria: meio de R1/R2", "GPIO35 · ADC1_7 (Esq. 6)", "Medido: bateria 4,10 V → 1,40 V no pino (razão ≈2,93). O firmware multiplica a leitura por 2,93."),
-    ("LED carregando, via divisor", "GPIO39 · VN · ADC1_3 (Esq. 4)", "Medido no fio: carregando 3,10–3,13 V · carregada 2,6 V · sem sol 0 V. No pino fica a metade: ≈1,55 / 1,30 / 0 V."),
-    ("LED carregado, via divisor", "GPIO34 · ADC1_6 (Esq. 5)", "Se um fio só já distingue os três estados, este fica livre (a confirmar)."),
+    ("Bateria: meio de R1/R2", "GPIO35 · ADC1_7 (Esq. 6)", "Medido: bateria 4,10 V → 1,40 V no pino (razão ≈2,93). O firmware multiplica a leitura por ≈2,79 (calibrado com o multímetro)."),
+    ("LED carregando, via 10 kΩ em série", "GPIO39 · VN · ADC1_3 (Esq. 4)", "Sem resistor para o GND: com sol o pino recebe a tensão do fio (carregando ≈3,1 V · carregada ≈2,6 V); sem sol o pino fica solto e lê tensão “fantasma” (visto 0,65–1,30 V), tratada como sem sol."),
+    ("LED carregado, via 10 kΩ em série", "GPIO34 · ADC1_6 (Esq. 5)", "Se um fio só já distingue os três estados, este fica livre (a confirmar)."),
 ]
 tab_e_html = "\n".join(f'<tr><td><b>{esc(a)}</b></td><td>{esc(b)}</td><td>{esc(c)}</td></tr>' for a, b, c in TAB_E)
 
@@ -805,12 +805,12 @@ ficha_e = [
     ("Saída OUT", "É a tensão da bateria (3,0–4,2 V), não 5 V. Por isso o step-up entre o OUT e o pino 5V", "d"),
     ("Corrente de carga", "Até 1 A no padrão. Um painel pequeno não chega a isso; a carga só fica mais lenta", "d"),
     ("LEDs", "Vermelho = carregando · azul ou verde = carregada · os dois apagados = sem sol, a estação está na bateria", "d"),
-    ("Sinal dos LEDs (medido)", "Carregando: 3,10–3,13 V · carregada (LED de 100 % aceso): 2,6 V · nenhum aceso (painel sem carga): 0 V · antes do divisor", "m"),
-    ("No pino, após o divisor 10k/10k", "Carregando ≈1,55 V · carregada ≈1,30 V · sem sol ≈0,65 V à noite (medido)", "k"),
-    ("À noite (medido no pino)", "≈0,65 V, não 0 V: o carregador deixa um resto de tensão no circuito do LED", "m"),
-    ("Limites para o firmware", "Com histerese e 3 leituras seguidas (≈9 s): sem sol → carregada acima de 1,05 V e volta abaixo de 0,90 V · carregada → carregando acima de 1,46 V e volta abaixo de 1,39 V", "f"),
+    ("Sinal dos LEDs (medido)", "Carregando: 3,10–3,13 V · carregada (LED de 100 % aceso): 2,6 V · nenhum aceso (painel sem carga): 0 V · medido no fio", "m"),
+    ("No pino (10 kΩ em série, sem divisor)", "Com sol, a tensão do fio: carregando ≈3,1 V · carregada ≈2,6 V · sem sol: pino solto, leitura “fantasma” de 0,65–1,30 V", "m"),
+    ("Sem sol (pino solto)", "Os pinos 34–39 não têm pull interno: sem o resistor para o GND, à noite o pino lê tensão “fantasma” (0,65–1,30 V) em vez de 0 V; os limites ficam acima dessa faixa", "m"),
+    ("Limites para o firmware", "Com histerese e 3 leituras seguidas (≈9 s): acima de 2,3 V no pino = painel ativo, volta a sem sol abaixo de 2,0 V · carregando acima de 2,85 V, volta abaixo de 2,75 V (a confirmar com leituras de dia) · antes de ler o GPIO39 o firmware lê o GPIO32 (≈1,65 V) para a sobra no pino solto ficar baixa", "f"),
     ("Economia no firmware", "CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-V1 desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min", "f"),
-    ("Divisor da bateria (medido)", "Bateria 4,10 V → 1,40 V no meio de R1/R2: razão ≈2,93 (R1 ≈ 1,9 × R2). Bateria cheia (4,2 V) → ≈1,43 V no pino", "m"),
+    ("Divisor da bateria (medido)", "Bateria 4,10 V → 1,40 V no meio de R1/R2 (multímetro): razão ≈2,93. Calibrado contra o multímetro (4,10 V na bateria): o firmware usa ≈2,79", "m"),
     ("No firmware", "Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria · leitura a cada 3 s", "f"),
 ]
 ficha_e_html = ficha_rows(ficha_e)
@@ -840,8 +840,8 @@ etapa5_html = f'''
       <tbody>
 {tab_e_html}
       </tbody></table></div>
-    <p class="note"><b>Como funciona:</b> o divisor R1/R2 entrega ao ESP32 ≈1/2,93 da tensão da bateria (medido), porque o ADC só mede até ≈3,1 V. No sinal dos LEDs foi medido: 3,10–3,13 V carregando, 2,6 V carregada e 0 V sem sol. O divisor de 10 kΩ + 10 kΩ corta pela metade (≈1,55 / 1,30 / 0 V), que é a faixa em que o ADC do ESP32 mede com mais precisão e deixa folga se o painel subir a tensão.</p>
-    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, ≈1/2,93 da tensão da bateria (medido: 4,10 V → 1,40 V). No fio dos LEDs (já medido): carregando 3,10–3,13 V, carregada 2,6 V, sem sol 0 V. Depois do divisor, no pino: metade desses valores. Na saída do step-up: 5,0–5,2 V, antes de ligar no pino 5V.</p>
+    <p class="note"><b>Como funciona:</b> o divisor R1/R2 entrega ao ESP32 ≈1/2,93 da tensão da bateria (medido), porque o ADC só mede até ≈3,1 V. No sinal dos LEDs foi medido: 3,10–3,13 V carregando, 2,6 V carregada e 0 V sem sol. Na montagem, cada fio passa por um resistor de 10 kΩ em série até o pino, sem resistor para o GND: com sol o pino recebe a tensão do fio (≈3,1 / 2,6 V, abaixo do limite de 3,6 V do ESP32); sem sol o pino fica solto e lê uma tensão “fantasma” baixa (0,65–1,30 V), que o firmware trata como sem sol.</p>
+    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, ≈1/2,93 da tensão da bateria (medido: 4,10 V → 1,40 V). No fio dos LEDs (já medido): carregando 3,10–3,13 V, carregada 2,6 V, sem sol 0 V. No pino (10 kΩ em série, sem divisor): os mesmos valores com sol; à noite, leitura “fantasma” abaixo de ≈1,3 V. Na saída do step-up: 5,0–5,2 V, antes de ligar no pino 5V.</p>
   </div>
 
   <div class="card">
@@ -1171,7 +1171,7 @@ code {{ font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; b
         <tr><td><b>Módulo microSD</b> (6 pinos)</td><td>Guardar o histórico das medições (SPI)</td><td>5 V no VCC · sinais 3,3 V</td><td>≈20–100 mA gravando · ≈1 mA parado</td><td>5V, GND, GPIO18 (SCK), GPIO19 (MISO), GPIO23 (MOSI), GPIO5 (CS)</td></tr>
         <tr><td><b>GPS GP-02-Kit</b> (Ai-Thinker)</td><td>Posição, altitude e hora por satélite (GPS + BeiDou), UART2 a 9600 baud</td><td>5 V no VCC (regulador no kit) · sinais 3,3 V</td><td>≈25–45 mA (a confirmar)</td><td>5V (junto com o microSD), GND (Esq. 14), GPIO16 (RX2 ← TX do GPS), GPIO17 (TX2 → RX do GPS)</td></tr>
         <tr><td><b>2× bateria Li-ion</b> em paralelo</td><td>Energia da estação</td><td>3,0–4,2 V</td><td>Fornece ≈100–200 mA (via step-up)</td><td>— (ligadas ao carregador)</td></tr>
-        <tr><td><b>Carregador</b> (provável TP4056)</td><td>Carrega as baterias pelo painel solar de 5 V</td><td>Entrada 5 V · saída = bateria</td><td>Carga até 1 A</td><td>GPIO39 (LED carregando), GPIO34 (LED carregado), via divisores</td></tr>
+        <tr><td><b>Carregador</b> (provável TP4056)</td><td>Carrega as baterias pelo painel solar de 5 V</td><td>Entrada 5 V · saída = bateria</td><td>Carga até 1 A</td><td>GPIO39 (LED carregando), GPIO34 (LED carregado), cada um via 10 kΩ em série</td></tr>
         <tr><td><b>Divisor R1/R2</b> da bateria</td><td>Leitura da tensão da bateria</td><td>Metade da bateria (≤2,1 V)</td><td>≈21 µA com 100 kΩ + 100 kΩ</td><td>GPIO35</td></tr>
         <tr><td><b>Step-up 5 V</b> (a instalar)</td><td>Sobe a bateria para 5 V</td><td>Entrada 3,0–4,2 V · saída 5 V</td><td>Até ≈1 A na saída</td><td>5V, GND</td></tr>
         <tr><td><b>Sensor Hall SS49E</b> (pluviômetro)</td><td>Conta as viradas da báscula</td><td>3,3 V</td><td>≈6 mA</td><td>3V3 (junto com o BME280), GND (Esq. 14), GPIO32 (OUT, analógico)</td></tr>
