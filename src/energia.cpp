@@ -9,9 +9,13 @@ static const int PINO_CARREGADOR = 39;    // ADC1_3 (VN)
 static const float RAZAO_BATERIA = 4.10f / 1.40f;  // medido: bateria 4,10 V → 1,40 V no meio de R1/R2 (≈2,93)
 static const uint32_t INTERVALO_MS = 3000;
 
-// limites no pino (depois do divisor 10k/10k), a partir das medidas no fio
-static const int LIM_CARREGANDO_MV = 1420;  // acima: carregando (≈1,55 V)
-static const int LIM_SOL_MV = 600;          // entre os dois: carregada (≈1,30 V); abaixo: sem sol (0 V)
+// Sinal do carregador no pino (depois do divisor 10k/10k). Medido:
+//   carregando ≈1,55 V · carregada ≈1,30 V · sem sol (noite) ≈0,65 V (o carregador deixa um resto)
+// Limites no meio de cada par, com histerese: para entrar num estado o sinal precisa passar
+// do limite com folga, e para sair precisa recuar além dele.
+static const int SOL_ENTRA_MV = 1050, SOL_SAI_MV = 900;           // sem sol ↔ carregada (meio ≈0,98 V)
+static const int CARREG_ENTRA_MV = 1460, CARREG_SAI_MV = 1390;    // carregada ↔ carregando (meio ≈1,43 V)
+static const int CONFIRMAR = 3;  // leituras seguidas iguais (≈9 s) antes de trocar o estado
 static const float BATERIA_MIN_V = 2.5f;    // abaixo disso: bateria não conectada
 
 enum Carga { SEM_SOL, CARREGANDO, CARREGADA };
@@ -23,8 +27,17 @@ static uint32_t proxima = 0;
 
 static int lerMv(int pino) {
   uint32_t soma = 0;
-  for (int i = 0; i < 16; i++) soma += analogReadMilliVolts(pino);  // usa a calibração do eFuse
-  return soma / 16;
+  for (int i = 0; i < 32; i++) soma += analogReadMilliVolts(pino);  // usa a calibração do eFuse
+  return soma / 32;
+}
+
+// estado que a leitura indica, partindo do estado atual (histerese)
+static Carga classificar(int mv, Carga atual) {
+  switch (atual) {
+    case SEM_SOL: return mv > CARREG_ENTRA_MV ? CARREGANDO : (mv > SOL_ENTRA_MV ? CARREGADA : SEM_SOL);
+    case CARREGADA: return mv > CARREG_ENTRA_MV ? CARREGANDO : (mv < SOL_SAI_MV ? SEM_SOL : CARREGADA);
+    default: return mv < SOL_SAI_MV ? SEM_SOL : (mv < CARREG_SAI_MV ? CARREGADA : CARREGANDO);
+  }
 }
 
 // % aproximada de uma célula de lítio em repouso
@@ -51,7 +64,13 @@ void cuidar() {
   proxima = millis() + INTERVALO_MS;
   bateriaV = lerMv(PINO_BATERIA) * RAZAO_BATERIA / 1000.0f;
   pinoCarregadorMv = lerMv(PINO_CARREGADOR);
-  Carga nova = pinoCarregadorMv > LIM_CARREGANDO_MV ? CARREGANDO : (pinoCarregadorMv > LIM_SOL_MV ? CARREGADA : SEM_SOL);
+  // confirmação: o estado novo precisa aparecer CONFIRMAR vezes seguidas
+  static Carga candidata = SEM_SOL;
+  static int vezes = 0;
+  Carga lida = classificar(pinoCarregadorMv, carga);
+  if (lida != candidata) { candidata = lida; vezes = 0; }
+  if (++vezes < CONFIRMAR && !primeira) return;
+  Carga nova = candidata;
   if (nova != carga || primeira) {
     if (!primeira || nova != SEM_SOL) {
       static const char *txt[] = {"Painel sem carga: estação na bateria", "Bateria carregando pelo painel",
