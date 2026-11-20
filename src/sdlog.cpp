@@ -124,7 +124,7 @@ static void gravar(int64_t epochFixo) {
   c[C_BPER] = String(totalAgora - basculadasNoUltimo);
   c[C_BTOT] = String(totalAgora);
   c[C_BATV] = bat ? String(energia::tensao(), 2) : "";
-  c[C_BATP] = bat ? String(energia::pct()) : "";
+  c[C_BATP] = (bat && energia::pct() >= 0) ? String(energia::pct()) : "";  // carregando: vazio
   c[C_BATE] = bat ? energia::estadoCarga() : "";  // sem leitura confiável, fica vazio
   c[C_LAT] = pos ? String(gps::lat(), 6) : "";
   c[C_LON] = pos ? String(gps::lon(), 6) : "";

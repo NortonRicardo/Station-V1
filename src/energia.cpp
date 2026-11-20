@@ -21,7 +21,10 @@ static const int SOL_ENTRA_MV = 2300, SOL_SAI_MV = 2000;          // sem sol ↔
 // Carregando ≈3,1 V × carregada ≈2,6 V no fio: limite no meio. A CONFIRMAR com as leituras de
 // dia em "Sinal do carregador (pino)" (os 2,93 V vistos à meia-noite eram sobra, não sinal real).
 static const int CARREG_ENTRA_MV = 2850, CARREG_SAI_MV = 2750;    // carregada ↔ carregando
-static const int CONFIRMAR = 3;  // leituras seguidas iguais (≈9 s) antes de trocar o estado
+// Os pinos de LED do TP4056 são dreno aberto: sem LED aceso o sinal flutua e pode subir por alguns
+// segundos. Por isso, ENTRAR em painel ativo exige 10 leituras seguidas (≈30 s); voltar a sem sol, 3.
+static const int CONFIRMAR = 3;           // sair de painel ativo / trocar carregando ↔ carregada
+static const int CONFIRMAR_ATIVO = 10;    // sem sol → carregando/carregada
 static const float BATERIA_MIN_V = 2.5f;    // abaixo disso: bateria não conectada
 
 enum Carga { SEM_SOL, CARREGANDO, CARREGADA };
@@ -90,7 +93,8 @@ void cuidar() {
   static int vezes = 0;
   Carga lida = classificar(pinoCarregadorMv, carga);
   if (lida != candidata) { candidata = lida; vezes = 0; }
-  if (++vezes < CONFIRMAR && !primeira) return;
+  int precisa = (carga == SEM_SOL && candidata != SEM_SOL) ? CONFIRMAR_ATIVO : CONFIRMAR;
+  if (++vezes < precisa && !primeira) return;
   Carga nova = candidata;
   if (nova != carga || primeira) {
     if (!primeira || nova != SEM_SOL) {
@@ -106,7 +110,8 @@ void cuidar() {
 static const char *NOMES[] = {"sem_sol", "carregando", "carregada"};
 bool conectada() { return !divisorSolto && bateriaV >= BATERIA_MIN_V; }
 float tensao() { return bateriaV; }
-int pct() { return carga == CARREGADA ? 100 : porcentagem(bateriaV); }
+// carregando: o carregador eleva a tensão e a % pela tensão não vale → -1 (sem porcentagem)
+int pct() { return carga == CARREGADA ? 100 : (carga == CARREGANDO ? -1 : porcentagem(bateriaV)); }
 const char *estadoCarga() { return NOMES[carga]; }
 
 String statusJson() {
@@ -115,7 +120,7 @@ String statusJson() {
   String j = "{\"conectada\":" + String(conectada ? "true" : "false") + ",\"tensao\":" + String(bateriaV, 2) +
              ",\"divisor_solto\":" + String(divisorSolto ? "true" : "false") + ",\"pino_bateria_mv\":" + String(bateriaPinoMv) +
              ",\"carga\":\"" + String(nomes[carga]) + "\",\"pino_carregador_mv\":" + String(pinoCarregadorMv);
-  if (conectada) j += ",\"porcentagem\":" + String(carga == CARREGADA ? 100 : porcentagem(bateriaV));
+  if (conectada && pct() >= 0) j += ",\"porcentagem\":" + String(pct());
   return j + "}";
 }
 

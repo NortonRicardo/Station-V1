@@ -395,7 +395,7 @@ function batCard(b){
   set('bV',fx(b.tensao,2));set('bSol',b.carga==='sem_sol'?'Sem carga':'Gerando');
   set('bCarr',b.carga==='carregando'?pill('Sim','p-wait'):'Não');
   set('bCheia',b.carga==='carregada'?pill('Sim','p-ok'):'Não');
-  set('bPct2',b.porcentagem!==undefined?b.porcentagem+' %'+(b.carga==='sem_sol'?' (pela tensão)':''):'—');
+  set('bPct2',b.carga==='carregando'?'— (durante a carga a tensão sobe; a % aparece quando parar)':(b.porcentagem!==undefined?b.porcentagem+' %'+(b.carga==='sem_sol'?' (pela tensão)':''):'—'));
   set('bPino',fx(b.pino_carregador_mv/1000,2)+' V');
   $('bDica').textContent=b.carga==='sem_sol'?'Painel sem carga: a estação está funcionando na bateria.':'Painel solar carregando as baterias. Tensão lida no GPIO35; estado pelo sinal do carregador no GPIO39.';
 }
