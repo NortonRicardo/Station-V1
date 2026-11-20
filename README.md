@@ -46,6 +46,11 @@ A função de cada pino e a alimentação estão em [`placa.html`](placa.html): 
 | 📶 | **Wi-Fi configurado pelo celular**: a estação cria a própria rede e você escolhe o Wi-Fi de casa numa página | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🔄 | **Atualização pelo Wi-Fi (OTA)**: grava o código novo sem cabo USB | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🕒 | **Relógio**: conta a partir de 0 ao ligar e acerta a hora pela internet, corrigindo o que foi registrado antes | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
+| 🌡️ | **BME280**: temperatura, umidade, pressão, ponto de orvalho e umidade absoluta | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
+| 💾 | **Cartão microSD**: registro a cada 30 s com todas as medições, GPS e bateria | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
+| 🛰️ | **GPS**: posição, altitude, mapa e hora sem internet | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
+| 🌧️ | **Pluviômetro**: contagem de basculadas (milímetros depois da calibração) | ![parcial](https://img.shields.io/badge/parcial-f59e0b?style=flat-square) |
+| 🔋 | **Bateria e painel solar**: carga, estado do carregador e modo economia | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 
 ## 📶 Conectar a estação ao Wi-Fi
 
@@ -53,7 +58,14 @@ A função de cada pino e a alimentação estão em [`placa.html`](placa.html): 
 2. Conecte o celular nessa rede. A página abre sozinha; se não abrir, acesse **http://192.168.4.1**.
 3. Toque em **Procurar**, escolha a rede de casa, digite a senha e toque em **Conectar**.
 
-Pronto: a estação grava a rede, conecta na internet e acerta a hora. A rede `Station-V1` continua no ar para você voltar quando quiser. Na rede de casa, a página também abre em **http://station.local**.
+Pronto: a estação grava a rede, conecta na internet e acerta a hora. Na rede de casa, a página também abre em **http://station.local**.
+
+### 🔋 Uma rede ou a outra
+
+- **Conectada no Wi-Fi de casa:** a rede `Station-V1` desliga 2 minutos depois, e a página fica em **http://station.local** (ou no IP), com o celular na mesma rede. O rádio passa a dormir entre os avisos do roteador e gasta bem menos.
+- **Sem Wi-Fi de casa** (não configurado, senha errada, roteador fora): a `Station-V1` liga na hora, para configurar.
+- Para religar a `Station-V1` por 15 minutos: botão **BOOT** da placa, ou o botão no cartão **Estação** da página.
+- O processador roda a 80 MHz, o mínimo para o Wi-Fi.
 
 ## 🛠️ Gravar o código
 
