@@ -1410,7 +1410,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
   <div class="card">
     <h3>Caminho da energia</h3>
     <p class="sub">Do painel até o ESP32. O step-up (tracejado) ainda precisa ser instalado.</p>
-    <div class="scroll"><svg viewBox="0 0 760 356" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">
+    <div class="scroll"><svg viewBox="0 0 760 360" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">
 <path d="M140 66 L200 66" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
 <text x="170" y="58" class="t-wire" style="text-anchor:middle">5 V</text>
 <path d="M380 80 L470 80" stroke="#ef4444" stroke-width="3" fill="none" stroke-linejoin="round"/>
@@ -1442,8 +1442,12 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <rect x="470" y="50" width="110" height="60" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4" stroke-dasharray="5 4"/><text x="525.0" y="70" class="t-box">Step-up 5 V</text><text x="525.0" y="86" class="t-wire" style="font-weight:400">a instalar</text>
 <rect x="450" y="154" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="169" class="t-fp" fill="#44403c">10 kΩ série</text>
 <rect x="450" y="189" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="204" class="t-fp" fill="#44403c">10 kΩ série</text>
-<rect x="443" y="270" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="287.0" class="t-nc" style="text-anchor:start">R1</text>
-<rect x="443" y="304" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="321.0" class="t-nc" style="text-anchor:start">R2</text>
+<rect x="443" y="270" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="287.0" class="t-nc" style="text-anchor:start">R1 100 kΩ</text>
+<rect x="443" y="304" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="321.0" class="t-nc" style="text-anchor:start">R2 100 kΩ</text>
+<path d="M545 300 V318 M531 318 H559 M531 325 H559 M545 325 V340 H450" stroke="#78716c" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+<circle cx="545" cy="300" r="4.5" fill="#1c1917"/>
+<text x="566" y="324" class="t-nc" style="text-anchor:start">100 nF</text>
+<text x="566" y="337" class="t-nc" style="text-anchor:start">opcional</text>
 <rect x="630" y="40" width="110" height="290" rx="10" fill="#44403c"/><text x="685" y="62" class="t-boxw">ESP32</text>
 <text x="642" y="84" class="t-pinw">5V</text>
 <circle cx="630" cy="80" r="4.5" fill="#1c1917"/>
@@ -1686,6 +1690,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <div class="spec"><div class="k">Pull-down recomendado</div><div class="val">Pinos de LED do TP4056 são dreno aberto: sem LED aceso o sinal flutua. Soldar 100 kΩ entre o fio do sinal e o OUT− na placa do carregador fixa 0 V sem sol <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">Limites para o firmware</div><div class="val">Entrar em painel ativo exige 10 leituras seguidas (≈30 s); sair, 3 (≈9 s). Com histerese: acima de 2,3 V no pino = painel ativo, volta a sem sol abaixo de 2,0 V · carregando acima de 2,85 V, volta abaixo de 2,75 V (a confirmar com leituras de dia) · antes de ler o GPIO39 o firmware lê o GPIO32 (≈1,65 V) para a sobra no pino solto ficar baixa <span class="src d">no firmware</span></div></div>
 <div class="spec"><div class="k">Economia no firmware</div><div class="val">CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-V1 desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min <span class="src d">no firmware</span></div></div>
+<div class="spec"><div class="k">Divisor ideal</div><div class="val">R1 = R2 = 100 kΩ: bateria 4,2 → 2,10 V e 3,0 → 1,50 V no pino, gastando ≈21 µA. Capacitor de 100 nF do meio para o GND é OPCIONAL: melhora a leitura (o ADC puxa um pulso a cada amostra e o capacitor segura a tensão; também filtra ruído do Wi-Fi). Sem capacitor funciona, com a calibração e a média de 32 leituras do firmware <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">Divisor da bateria (medido)</div><div class="val">Bateria 4,10 V → 1,40 V no meio de R1/R2 (multímetro): razão ≈2,93. Calibrado contra o multímetro (4,10 V na bateria): o firmware usa ≈2,79 <span class="src v">medido</span></div></div>
 <div class="spec"><div class="k">No firmware</div><div class="val">Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria · leitura a cada 3 s <span class="src d">no firmware</span></div></div>
     </div>

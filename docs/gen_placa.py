@@ -728,7 +728,7 @@ def divisor_h(x, y, rot):
             f'<text x="{x+37}" y="{y+4}" class="t-fp" fill="#44403c">{rot} série</text>')
 
 # --- caminho da energia (diagrama de blocos) ---
-e = ['<svg viewBox="0 0 760 356" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">']
+e = ['<svg viewBox="0 0 760 360" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">']
 def linha(pts, cor, larg=3, tracejada=False):
     d = "M" + " L".join(f"{x} {y}" for x, y in pts)
     st = ' stroke-dasharray="6 5"' if tracejada else ""
@@ -756,7 +756,12 @@ e.append('<text x="212" y="70" class="t-nc" style="text-anchor:start">IN</text><
 e.append(caixa(200, 250, 180, 60, "2× 18650 em paralelo", "3,0–4,2 V"))
 e.append(caixa(470, 50, 110, 60, "Step-up 5 V", "a instalar", tracejada=True))
 e.append(divisor_h(450, 165, "10 kΩ")); e.append(divisor_h(450, 200, "10 kΩ"))
-e.append(resistor_v(450, 270, 296, "R1")); e.append(resistor_v(450, 304, 330, "R2"))
+e.append(resistor_v(450, 270, 296, "R1 100 kΩ")); e.append(resistor_v(450, 304, 330, "R2 100 kΩ"))
+# capacitor de 100 nF do meio do divisor ao GND: OPCIONAL (tracejado)
+e.append('<path d="M545 300 V318 M531 318 H559 M531 325 H559 M545 325 V340 H450" stroke="#78716c" stroke-width="2" fill="none" stroke-dasharray="4 3"/>')
+pt(545, 300)
+e.append('<text x="566" y="324" class="t-nc" style="text-anchor:start">100 nF</text>')
+e.append('<text x="566" y="337" class="t-nc" style="text-anchor:start">opcional</text>')
 e.append('<rect x="630" y="40" width="110" height="290" rx="10" fill="#44403c"/><text x="685" y="62" class="t-boxw">ESP32</text>')
 for y, t in ((80, "5V"), (125, "GND"), (165, "GPIO39"), (200, "GPIO34"), (300, "GPIO35")):
     e.append(f'<text x="642" y="{y+4}" class="t-pinw">{t}</text>'); pt(630, y)
@@ -811,6 +816,7 @@ ficha_e = [
     ("Pull-down recomendado", "Pinos de LED do TP4056 são dreno aberto: sem LED aceso o sinal flutua. Soldar 100 kΩ entre o fio do sinal e o OUT− na placa do carregador fixa 0 V sem sol", "d"),
     ("Limites para o firmware", "Entrar em painel ativo exige 10 leituras seguidas (≈30 s); sair, 3 (≈9 s). Com histerese: acima de 2,3 V no pino = painel ativo, volta a sem sol abaixo de 2,0 V · carregando acima de 2,85 V, volta abaixo de 2,75 V (a confirmar com leituras de dia) · antes de ler o GPIO39 o firmware lê o GPIO32 (≈1,65 V) para a sobra no pino solto ficar baixa", "f"),
     ("Economia no firmware", "CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-V1 desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min", "f"),
+    ("Divisor ideal", "R1 = R2 = 100 kΩ: bateria 4,2 → 2,10 V e 3,0 → 1,50 V no pino, gastando ≈21 µA. Capacitor de 100 nF do meio para o GND é OPCIONAL: melhora a leitura (o ADC puxa um pulso a cada amostra e o capacitor segura a tensão; também filtra ruído do Wi-Fi). Sem capacitor funciona, com a calibração e a média de 32 leituras do firmware", "d"),
     ("Divisor da bateria (medido)", "Bateria 4,10 V → 1,40 V no meio de R1/R2 (multímetro): razão ≈2,93. Calibrado contra o multímetro (4,10 V na bateria): o firmware usa ≈2,79", "m"),
     ("No firmware", "Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria · leitura a cada 3 s", "f"),
 ]

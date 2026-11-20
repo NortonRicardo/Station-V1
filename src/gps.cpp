@@ -179,6 +179,12 @@ String statusJson() {
              nmea.time.hour(), nmea.time.minute(), nmea.time.second());
     j += ",\"hora_utc\":\"" + String(b) + "\"";
   }
+  // última posição válida recebida neste boot: quando chegou e há quanto tempo
+  if (nmea.location.isValid()) {
+    uint32_t idade = nmea.location.age();
+    j += ",\"posicao_quando\":\"" + relogio::formatar(relogio::uptimeMs() - idade) + "\",\"posicao_idade_s\":" +
+         String(idade / 1000);
+  }
   j += ",\"acertou_relogio\":" + String(acertouRelogio ? "true" : "false") +
        ",\"caracteres\":" + String(nmea.charsProcessed()) + ",\"frases_ok\":" + String(nmea.passedChecksum()) +
        ",\"frases_erro\":" + String(nmea.failedChecksum()) + "}";

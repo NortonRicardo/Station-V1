@@ -7,6 +7,7 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;background:#000;color:#fff}
+html{color-scheme:dark}  /* barras de rolagem nativas escuras em qualquer navegador */
 body{font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;min-height:100dvh}
 #plexus{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 .wrap{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column}
@@ -45,7 +46,7 @@ h2{margin:2px 0 0;font-size:18px;font-weight:600;letter-spacing:-.01em;color:rgb
 .ghost:disabled{opacity:.5;cursor:default}
 ul{list-style:none;margin:0;padding:0}
 li.net{border-top:.5px solid rgba(255,255,255,.1)}
-.netbtn{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;padding:12px 6px;margin:0 -6px;width:calc(100% + 12px);border-radius:8px;cursor:pointer;transition:background .2s}
+.netbtn{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;padding:12px 6px;margin:0 -6px;width:auto;border-radius:8px;cursor:pointer;transition:background .2s}
 .netbtn:hover,.netbtn.on{background:rgba(255,255,255,.05)}
 .netbtn.ativa{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.15)}
 .netbtn.ativa .nome{color:#fff}
@@ -114,17 +115,36 @@ input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 100
 .hall-centro{width:1px;background:rgba(255,255,255,.4)}
 .hall-ponto{width:10px;margin-left:-5px;border-radius:50%;background:rgb(163,230,53);transition:left .2s}
 .hall-ponto.perto{background:#fcd34d}
-.rolagem{overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+.rolagem{overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch}
+/* barra de rolagem igual à do Climora (ScrollArea do shadcn): trilho transparente de 10 px,
+   "dedo" arredondado de 6 px em branco 25 % → 45 % no hover → 55 % arrastando */
+.rolagem,.tbl{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+.rolagem::-webkit-scrollbar,.tbl::-webkit-scrollbar{width:10px;height:10px;background:transparent}
+.rolagem::-webkit-scrollbar-track,.tbl::-webkit-scrollbar-track{background:transparent}
+.rolagem::-webkit-scrollbar-corner,.tbl::-webkit-scrollbar-corner{background:transparent}
+.rolagem::-webkit-scrollbar-thumb,.tbl::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border:2px solid transparent;background-clip:padding-box;border-radius:999px;transition:background-color .2s}
+.rolagem::-webkit-scrollbar-thumb:hover,.tbl::-webkit-scrollbar-thumb:hover{background-color:rgba(255,255,255,.45)}
+.rolagem::-webkit-scrollbar-thumb:active,.tbl::-webkit-scrollbar-thumb:active{background-color:rgba(255,255,255,.55)}
+#lista.rolagem{overflow-x:hidden;padding:0 6px;margin:0 -6px}
+#lista.rolagem>li{min-width:0}
+.tbl-rolagem th:last-child,.tbl-rolagem td:last-child{padding-right:18px}  /* espaço para a barra não cobrir "Basc." */
 #lista.rolagem{max-height:360px}
 @media (min-width:900px){
   .card-wifi{contain:size}            /* não define a altura da linha: segue o cartão Estação */
   .card-wifi #lista.rolagem{flex:1;max-height:none}
 }
-.tbl-rolagem{max-height:216px;overflow-y:auto}   /* cabeçalho + 5 linhas */
+.tbl-rolagem{max-height:216px;overflow-y:auto;scrollbar-gutter:stable}   /* cabeçalho + 5 linhas */
 .tbl-rolagem thead th{position:sticky;top:0;background:#000;z-index:1}
 .link-perigo{align-self:flex-start;margin-top:16px;font:inherit;font-size:12px;color:#fca5a5;background:none;border:0;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(252,165,165,.4)}
 .link-perigo:hover{color:#fecaca;text-decoration-color:#fecaca}
 .link-perigo:disabled{opacity:.4;cursor:default;text-decoration:none}
+/* carregando: igual ao Climora (círculo girando, borda de 2 px com o topo aberto) */
+.card{position:relative}
+.card.carregando>*{opacity:.12;transition:opacity .3s;pointer-events:none}
+.card.carregando::after{content:"";position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;
+  border-radius:50%;border:2px solid rgba(255,255,255,.85);border-top-color:transparent;animation:r 1s linear infinite}
+.carga-linha{text-align:center!important;padding:18px 0!important}
+.carga-linha .spin{width:18px;height:18px;color:rgba(255,255,255,.7);display:inline-block}
 .ev{margin-top:12px}
 .ev li{display:flex;gap:12px;padding:9px 0;border-top:.5px solid rgba(255,255,255,.1);font-size:13px}
 .ev .q{flex:none;width:132px;font-size:11px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;padding-top:1px}
@@ -144,7 +164,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 
 <main>
 <div class="g2">
-<section class="card">
+<section data-carga="status" class="carregando card">
   <div class="top">
     <img src="data:image/webp;base64,@@LOGO@@" alt="">
     <h1>Estação</h1>
@@ -159,7 +179,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Aparelhos na Station-V1</span><span id="cli">—</span></div>
   <button class="ghost" id="btnAp" type="button" style="margin-top:14px;align-self:flex-start" hidden>Ligar a rede Station-V1 por 15 min</button>
 </section>
-<section class="card card-wifi">
+<section data-carga="redes" class="carregando card card-wifi">
   <div class="head">
     <div><div class="label">Configurar</div><h2>Rede Wi-Fi</h2></div>
     <button class="ghost" id="btnBuscar" type="button">Procurar</button>
@@ -172,7 +192,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 </div>
 
 <div class="g2">
-<section class="card">
+<section data-carga="status" class="carregando card">
   <div class="head">
     <div><div class="label">Energia</div><h2>Bateria</h2></div>
     <span id="batEstado"></span>
@@ -188,7 +208,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Sinal do carregador (pino)</span><span id="bPino">—</span></div>
   <p class="hint" id="bDica">Lê a tensão da bateria (GPIO35) e o sinal do carregador (GPIO39).</p>
 </section>
-<section class="card" id="cardGps">
+<section data-carga="status" class="carregando card" id="cardGps">
   <div class="head">
     <div><div class="label">Localização</div><h2>GPS</h2></div>
     <span id="gpsEstado"></span>
@@ -200,6 +220,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Altitude</span><span id="gpsAlt">—</span></div>
   <div class="row"><span>Precisão (HDOP)</span><span id="gpsHdop">—</span></div>
   <div class="row"><span>Hora do satélite (UTC)</span><span id="gpsHora">—</span></div>
+  <div class="row"><span>Última atualização</span><span id="gpsAtual">—</span></div>
   <div class="row" id="gpsUltRow" hidden><span>Última posição salva</span><span id="gpsUlt">—</span></div>
   <div class="mapa" id="mapa">
     <div class="mapa-tiles" id="mapaTiles"></div>
@@ -213,7 +234,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 </section>
 </div>
 
-<section class="card">
+<section data-carga="sd" class="carregando card">
   <div class="head">
     <div><div class="label">Armazenamento</div><h2>Cartão SD</h2></div>
     <span id="sdEstado"></span>
@@ -234,7 +255,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 
 <div class="secao"><div class="label">Sensores</div><h2>Medições</h2></div>
 <div class="gs">
-<section class="card">
+<section data-carga="status" class="carregando card">
   <div class="head">
     <div><div class="label">BME280</div><h2>Temperatura, umidade e pressão</h2></div>
     <span id="sensorEstado"></span>
@@ -248,7 +269,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   </div>
   <p class="hint" id="mQuando">Sensor BME280 · leitura a cada 10 s</p>
 </section>
-<section class="card">
+<section data-carga="status" class="carregando card">
   <div class="head">
     <div><div class="label">Pluviômetro · 49E</div><h2>Basculadas</h2></div>
     <span id="pluvEstado"></span>
@@ -264,7 +285,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 </section>
 </div>
 
-<section class="card">
+<section data-carga="eventos" class="carregando card">
   <div class="label">Registro</div>
   <h2>Eventos</h2>
   <ul id="eventos" class="ev"></ul>
@@ -341,6 +362,10 @@ function gpsCard(g){
   set('gpsAlt',g.alt!==undefined?fx(g.alt,1)+' m':'—');
   set('gpsHdop',g.hdop!==undefined?fx(g.hdop,1)+(g.hdop<=2?' · boa':g.hdop<=5?' · média':' · ruim'):'—');
   set('gpsHora',g.hora_utc||'—');
+  if(g.posicao_quando){const t=g.posicao_idade_s,ha=t<60?t+' s':t<3600?Math.floor(t/60)+' min':Math.floor(t/3600)+' h';
+    const e=$('gpsAtual');e.textContent='';const x=document.createElement('span');x.textContent=g.posicao_quando+' ';
+    e.append(x,pill('há '+ha,(t<10?'p-ok':t<300?'p-wait':'p-err')+' nc'))}
+  else set('gpsAtual',g.ultima&&g.ultima.quando?'sem posição neste boot (salva: '+g.ultima.quando+')':'—');
   const u=g.ultima;$('gpsUltRow').hidden=!u;
   if(g.lat!==undefined)mapaPosicao(g.lat,g.lon,false);else if(u)mapaPosicao(u.lat,u.lon,true);else mapaPosicao(null);
   if(u)set('gpsUlt',u.lat.toFixed(5).replace('.',',')+', '+u.lon.toFixed(5).replace('.',',')+(u.alt!==undefined?' · '+fx(u.alt,0)+' m':'')+(u.quando?' · '+u.quando:''));
@@ -420,12 +445,15 @@ async function cartao(){
     const iv=z.intervalo_s>=60?Math.round(z.intervalo_s/60)+' min (:00, :10, :20…)':z.intervalo_s+' s';
     set('sdArq',ativo?bytes(z.arquivo_bytes)+' · a cada '+iv:(z.erro||'—'));
     $('btnApagar').disabled=!ativo;
+    pronto('sd');
     if(!ativo){sdTamanho=-1;preencherTabela([],false);return}
     if(z.arquivo_bytes!==sdTamanho){sdTamanho=z.arquivo_bytes;registros48()}
   }catch(_){}
 }
 let sdTamanho=-1;
 async function registros48(){
+  const tb=$('sdLista');
+  if(!tb.querySelector('tr td:not(.vazio)'))tb.innerHTML='<tr><td colspan="6" class="carga-linha"><span class="spin"></span></td></tr>';
   try{
     const j=await (await fetch('/api/sd/registros',{cache:'no-store'})).json();
     preencherTabela(j.registros||[],true);
@@ -457,8 +485,10 @@ async function eventos(){
     const j=await (await fetch('/api/eventos',{cache:'no-store'})).json(),ul=$('eventos');ul.textContent='';
     j.eventos.forEach(v=>{const li=document.createElement('li'),q=document.createElement('span'),t=document.createElement('span');
       q.className='q';q.textContent=v.quando;t.className='t';t.textContent=v.texto;li.append(q,t);ul.appendChild(li)});
+    pronto('eventos');
   }catch(_){}
 }
+function pronto(k){document.querySelectorAll('[data-carga="'+k+'"].carregando').forEach(c=>c.classList.remove('carregando'))}
 function pill(t,c){const s=document.createElement('span');s.className='pill '+c;s.textContent=t;return s}
 function nivel(r){return r>=-55?4:r>=-67?3:r>=-78?2:1}
 function bars(r){const b=document.createElement('span');b.className='bars';const n=nivel(r);for(let i=1;i<=4;i++){const e=document.createElement('i');if(i<=n)e.className='on';b.appendChild(e)}return b}
@@ -479,6 +509,7 @@ async function status(){
     if(s.gps)gpsCard(s.gps);
     if(s.pluviometro)pluvCard(s.pluviometro);
     if(s.bateria)batCard(s.bateria);
+    pronto('status');
     relo={fonte:s.relogio.fonte,sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
     set('cli',String(s.ap.clientes));
     const ap=s.ap,min=ap.desliga_em_s!==undefined?Math.max(1,Math.ceil(ap.desliga_em_s/60)):null;
@@ -528,10 +559,10 @@ async function buscar(nova){
   $('btnBuscar').disabled=true;msg('Procurando redes…');
   try{
     const j=await (await fetch('/api/redes'+(nova?'?nova=1':''),{cache:'no-store'})).json();
-    redes=j.redes;render();
+    redes=j.redes;render();pronto('redes');
     if(j.buscando){setTimeout(()=>buscar(false),1500);return}
     msg(redes.length?'Toque numa rede para conectar.':'Nenhuma rede encontrada. A antena está no U.FL?');
-  }catch(_){msg('Sem resposta da estação.',true)}
+  }catch(_){msg('Sem resposta da estação.',true);pronto('redes')}
   $('btnBuscar').disabled=false;
 }
 $('btnBuscar').onclick=()=>buscar(true);
