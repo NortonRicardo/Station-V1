@@ -12,5 +12,6 @@ void cuidar();        // no loop: registra e salva as basculadas novas
 String statusJson();  // basculadas, leitura ao vivo, centro e limite
 uint32_t total();       // acumulado (salvo na flash)
 uint32_t desdeBootN();  // desde que ligou
+void pausar(bool p);    // para a leitura durante o upload pelo Wi-Fi
 
 }  // namespace pluviometro

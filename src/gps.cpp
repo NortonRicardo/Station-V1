@@ -174,7 +174,7 @@ String statusJson() {
     j += "}";
   }
   if (estado != SEM_MODULO && nmea.time.isValid() && nmea.date.isValid() && nmea.date.year() >= 2024) {
-    char b[24];
+    char b[32];  // folga para o compilador não acusar truncamento
     snprintf(b, sizeof b, "%02d/%02d/%04d %02d:%02d:%02d", nmea.date.day(), nmea.date.month(), nmea.date.year(),
              nmea.time.hour(), nmea.time.minute(), nmea.time.second());
     j += ",\"hora_utc\":\"" + String(b) + "\"";

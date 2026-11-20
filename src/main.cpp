@@ -15,6 +15,7 @@
 #include <ArduinoOTA.h>
 #include <esp_sntp.h>
 #include <esp_system.h>
+#include <esp_task_wdt.h>
 #include <time.h>
 #include <vector>
 #include <deque>
@@ -326,8 +327,7 @@ static void rotaSd() { enviarJson(200, sdlog::statusJson()); }
 static void rotaPluv() { enviarJson(200, pluviometro::statusJson()); }  // leve: a página consulta a cada 0,5 s
 
 static void rotaApLigar() {
-  apLigar(AP_BOTAO_MS, "pela página");
-  apDesligaEm = millis() + AP_BOTAO_MS;
+  apLigar(AP_BOTAO_MS, "pela página");  // apLigar já marca o prazo de 15 min
   enviarJson(200, "{\"ok\":true}");
 }
 
@@ -441,11 +441,17 @@ void setup() {
     WiFi.scanDelete();
     scanRodando = false;
     WiFi.setSleep(false);
+    pluviometro::pausar(true);  // sem leituras concorrendo com a gravação da flash
+    // a 80 MHz, receber + gravar a flash pode deixar o núcleo 0 sem folga por mais de 5 s e o
+    // watchdog reinicia a placa no meio do upload: durante a atualização ele fica desligado
+    esp_task_wdt_delete(xTaskGetIdleTaskHandleForCPU(0));
     registrar("Atualização pelo Wi-Fi iniciada");
   });
   ArduinoOTA.onEnd([]() { registrar("Atualização concluída, reiniciando"); });
   ArduinoOTA.onError([](ota_error_t e) {
     otaRodando = false;
+    pluviometro::pausar(false);
+    esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
     WiFi.setSleep(true);
     static const char *txt[] = {"senha", "início", "conexão", "recebimento", "fim"};
     registrar(String("Atualização falhou: ") + ((int)e < 5 ? txt[(int)e] : "erro") + " (erro " + String((int)e) + ")");

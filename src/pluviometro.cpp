@@ -43,8 +43,9 @@ static void contar() {
   pendentes++;
 }
 
+static TaskHandle_t tarefaHandle = nullptr;
+
 static void tarefa(void *) {
-  TickType_t t = xTaskGetTickCount();
   for (;;) {
     int mv = lerMedia(4);
     leituraMv = mv;
@@ -56,7 +57,9 @@ static void tarefa(void *) {
       perto = false;
       if (!CONTA_SO_CHEGADA) contar();
     }
-    vTaskDelayUntil(&t, pdMS_TO_TICKS(PERIODO_MS));
+    // vTaskDelay sempre espera (vTaskDelayUntil "recupera o atraso" sem pausa depois de uma
+    // parada longa, ex.: gravação da flash no upload, e isso disparava o watchdog)
+    vTaskDelay(pdMS_TO_TICKS(PERIODO_MS));
   }
 }
 
@@ -71,7 +74,14 @@ void iniciar() {
   sinalOk = c > 1300 && c < 2000;
   centroMv = (c > 1450 && c < 1850) ? c : CENTRO_TEORICO_MV;
   if (!sinalOk) registrar("Pluviômetro: sinal do 49E fora do esperado (" + String(c) + " mV) · confira os fios");
-  xTaskCreatePinnedToCore(tarefa, "pluviometro", 3072, nullptr, 2, nullptr, 0);
+  // núcleo 1: longe do Wi-Fi (núcleo 0), cujo watchdog reinicia a placa se ele não descansar
+  xTaskCreatePinnedToCore(tarefa, "pluviometro", 3072, nullptr, 2, &tarefaHandle, 1);
+}
+
+void pausar(bool p) {
+  if (!tarefaHandle) return;
+  if (p) vTaskSuspend(tarefaHandle);
+  else vTaskResume(tarefaHandle);
 }
 
 void cuidar() {
