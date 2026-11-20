@@ -172,7 +172,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Registros</span><span id="sdArq">—</span></div>
   <div class="label" style="margin-top:18px">Últimos 10 registros</div>
   <div class="tbl"><table>
-    <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bat.</th><th>Basc.</th></tr></thead>
+    <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bat.</th><th title="basculadas no intervalo do registro">Basc.</th></tr></thead>
     <tbody id="sdLista"><tr><td colspan="6" class="vazio">—</td></tr></tbody>
   </table></div>
   <button class="danger" id="btnApagar" type="button" disabled>Apagar tudo do cartão</button>
@@ -393,7 +393,8 @@ async function cartao(){
     set('sdEstado',ativo?pill('Ativo','p-ok'):pill('Sem cartão','p-err'));
     set('sdTipo',z.tipo||'—');set('sdTam',bytes(z.cartao_bytes));set('sdUsado',bytes(z.usado_bytes));set('sdLivre',bytes(z.livre_bytes));
     $('sdBarra').style.width=ativo&&z.total_bytes?Math.max(1,100*z.usado_bytes/z.total_bytes)+'%':'0';
-    set('sdArq',ativo?bytes(z.arquivo_bytes)+' · a cada '+z.intervalo_s+' s':(z.erro||'—'));
+    const iv=z.intervalo_s>=60?Math.round(z.intervalo_s/60)+' min':z.intervalo_s+' s';
+    set('sdArq',ativo?bytes(z.arquivo_bytes)+' · a cada '+iv:(z.erro||'—'));
     $('btnApagar').disabled=!ativo;
     const tb=$('sdLista');tb.textContent='';
     const L=z.ultimos||[];

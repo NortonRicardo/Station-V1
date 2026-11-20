@@ -408,10 +408,10 @@ void setup() {
   else conectarSta();
 
   bme::iniciar();
+  pluviometro::iniciar();  // antes do cartão: o registro usa o total de basculadas
   sdlog::iniciar();
   gps::iniciar();
   energia::iniciar();
-  pluviometro::iniciar();
 
   // gravação pelo Wi-Fi (pio run -e ota -t upload)
   ArduinoOTA.setHostname(HOSTNAME);

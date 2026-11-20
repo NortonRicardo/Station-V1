@@ -18,15 +18,15 @@ namespace sdlog {
 
 static const int PINO_SCK = 18, PINO_MISO = 19, PINO_MOSI = 23, PINO_CS = 5;
 static const uint32_t FREQ_SPI = 10000000;     // 10 MHz: folga para fios curtos
-static const uint32_t INTERVALO_MS = 30000;    // um registro a cada 30 s (teste)
+static const uint32_t INTERVALO_MS = 10UL * 60 * 1000;  // um registro a cada 10 min
 static const uint32_t NOVA_BUSCA_MS = 15000;   // sem cartão: tenta montar de novo
 static const char *ARQUIVO = "/registros.csv";
 static const char *PENDENTES = "/pendentes.csv";  // linhas gravadas antes de a hora sincronizar
 // as 4 primeiras colunas são fixas (a correção de hora depende delas); campos sem dado ficam vazios
 static const char *CABECALHO =
     "boot;uptime_ms;epoch_ms;data_hora;temperatura_c;umidade_pct;pressao_hpa;orvalho_c;umidade_abs_gm3;"
-    "basculadas_total;basculadas_boot;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites";
-enum Col { C_BOOT, C_UP, C_EPOCH, C_DATA, C_TEMP, C_UMID, C_PRES, C_ORV, C_UABS, C_BTOT, C_BBOOT, C_BATV, C_BATP,
+    "basculadas_10min;basculadas_total;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites";
+enum Col { C_BOOT, C_UP, C_EPOCH, C_DATA, C_TEMP, C_UMID, C_PRES, C_ORV, C_UABS, C_BPER, C_BTOT, C_BATV, C_BATP,
            C_BATE, C_LAT, C_LON, C_ALT, C_SATS, N_COLS };
 
 static bool montado = false;
@@ -34,6 +34,7 @@ static uint32_t boot = 0;
 static int bootDaLinha(const String &l) { int p = l.indexOf(';'); return p > 0 ? l.substring(0, p).toInt() : -1; }
 static uint32_t proximaGravacao = 0, proximaBusca = 0;
 static uint32_t gravados = 0;    // registros gravados neste boot
+static uint32_t basculadasNoUltimo = 0;  // total do pluviômetro no último registro gravado
 static String ultimoErro;
 
 static String dataHora(int64_t epochMs) {
@@ -116,8 +117,10 @@ static void gravar() {
   c[C_PRES] = b ? num(l.pressao, 2) : "";
   c[C_ORV] = b ? num(l.orvalho, 1) : "";
   c[C_UABS] = b ? num(l.umidadeAbs, 1) : "";
-  c[C_BTOT] = String(pluviometro::total());
-  c[C_BBOOT] = String(pluviometro::desdeBootN());
+  // basculadas desde o último registro gravado (se um registro falhar, elas entram no próximo)
+  uint32_t totalAgora = pluviometro::total();
+  c[C_BPER] = String(totalAgora - basculadasNoUltimo);
+  c[C_BTOT] = String(totalAgora);
   c[C_BATV] = bat ? String(energia::tensao(), 2) : "";
   c[C_BATP] = bat ? String(energia::pct()) : "";
   c[C_BATE] = energia::estadoCarga();
@@ -136,6 +139,7 @@ static void gravar() {
   }
   f.close();
   gravados++;
+  basculadasNoUltimo = totalAgora;
 }
 
 void iniciar() {
@@ -144,6 +148,7 @@ void iniciar() {
   boot = p.getUInt("boot", 0) + 1;
   p.putUInt("boot", boot);
   p.end();
+  basculadasNoUltimo = pluviometro::total();  // o 1º registro conta as basculadas desde que ligou
   SPI.begin(PINO_SCK, PINO_MISO, PINO_MOSI, PINO_CS);
   montar();
 }
@@ -298,7 +303,7 @@ String statusJson() {
     if (!primeiro) j += ",";
     primeiro = false;
     j += "{\"quando\":\"" + esc(quando) + "\",\"temperatura\":" + n(c[C_TEMP]) + ",\"umidade\":" + n(c[C_UMID]) +
-         ",\"pressao\":" + n(c[C_PRES]) + ",\"basculadas\":" + n(c[C_BTOT]) + ",\"bateria_pct\":" + n(c[C_BATP]) +
+         ",\"pressao\":" + n(c[C_PRES]) + ",\"basculadas\":" + n(c[C_BPER]) + ",\"bateria_pct\":" + n(c[C_BATP]) +
          ",\"bateria_estado\":\"" + esc(c[C_BATE]) + "\"}";
   }
   return j + "]}";
