@@ -528,7 +528,7 @@ etapa3_html = f'''
 <section class="etapa" id="etapa-3">
   <div class="n">Etapa 3</div>
   <h2>Cartão microSD: guardar as medições</h2>
-  <p>Módulo com slot microSD ligado pelo barramento SPI (VSPI). Vai guardar o histórico das medições na estação, mesmo sem internet.</p>
+  <p>Módulo com slot microSD ligado pelo barramento SPI (VSPI). Guarda um registro a cada 10 minutos com todas as medições, GPS e bateria, mesmo sem internet.</p>
 
   <div class="card">
     <div class="eyebrow">Módulo</div>
@@ -929,7 +929,7 @@ ficha_h = [
     ("Face sensível", "A da frente, com o nome e os chanfros", "d"),
     ("Pluviômetro", "Báscula com ímã: cada virada = um pulso no sensor", "v"),
     ("Calibração", "mm por basculada = volume da báscula (mL) ÷ área do funil (cm²) × 10 · confirmar despejando um volume conhecido", "c"),
-    ("No firmware", "200 leituras/s no GPIO32, numa tarefa própria · conta quando a tensão se afasta mais de 0,25 V do centro (solta abaixo de 0,12 V) · ignora repetições por 150 ms · total salvo na flash", "f"),
+    ("No firmware", "200 leituras/s no GPIO32, numa tarefa própria · conta quando a tensão se afasta mais de 0,25 V do centro (solta abaixo de 0,12 V) · ignora repetições por 150 ms · total salvo na flash · no cartão, cada registro (10 min) guarda as basculadas daquele intervalo", "f"),
 ]
 ficha_h_html = ficha_rows(ficha_h)
 

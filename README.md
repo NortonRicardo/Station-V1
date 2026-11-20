@@ -47,7 +47,7 @@ A função de cada pino e a alimentação estão em [`placa.html`](placa.html): 
 | 🔄 | **Atualização pelo Wi-Fi (OTA)**: grava o código novo sem cabo USB | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🕒 | **Relógio**: conta a partir de 0 ao ligar e acerta a hora pela internet, corrigindo o que foi registrado antes | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🌡️ | **BME280**: temperatura, umidade, pressão, ponto de orvalho e umidade absoluta | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
-| 💾 | **Cartão microSD**: registro a cada 30 s com todas as medições, GPS e bateria | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
+| 💾 | **Cartão microSD**: registro a cada 10 minutos com todas as medições, GPS e bateria | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🛰️ | **GPS**: posição, altitude, mapa e hora sem internet | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🌧️ | **Pluviômetro**: contagem de basculadas (milímetros depois da calibração) | ![parcial](https://img.shields.io/badge/parcial-f59e0b?style=flat-square) |
 | 🔋 | **Bateria e painel solar**: carga, estado do carregador e modo economia | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
