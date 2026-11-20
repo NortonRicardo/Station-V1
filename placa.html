@@ -84,6 +84,12 @@ tbody tr:last-child td, tbody tr:last-child th { border-bottom:0; }
 
 .dia.mod { max-width:760px; min-width:560px; }
 .dia.lig { max-width:730px; min-width:600px; }
+.dia.lig2 { max-width:710px; min-width:600px; }
+.dia.hall { max-width:700px; min-width:600px; }
+.dia.energia { max-width:760px; min-width:620px; }
+.t-term { font-size:11.5px; font-weight:600; fill:#1c1917; }
+.t-term2 { font-size:10.5px; fill:#78716C; }
+.t-box2 { }
 .t-row { font-size:12px; font-weight:600; fill:#1c1917; }
 .t-row2 { font-weight:400; fill:#78716C; }
 .t-boxw { font-size:13px; font-weight:700; text-anchor:middle; fill:#fafaf9; letter-spacing:.04em; }
@@ -458,37 +464,37 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
     <div class="scroll"><table class="pinos">
       <thead><tr><th>Posição</th><th>Nome</th><th>GPIO</th><th>Tensão</th><th>ADC</th><th>Toque</th><th>Outras funções</th><th>Cuidados</th><th>Uso</th></tr></thead>
       <tbody>
-<tr><td>Esq. 1</td><td><span class="dot" style="background:#f59e0b"></span><b>3V3</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Saída do regulador</td><td>Ver Alimentação (corrente disponível).</td><td class="uso"><b>BME280 VCC</b></td></tr>
+<tr><td>Esq. 1</td><td><span class="dot" style="background:#f59e0b"></span><b>3V3</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Saída do regulador</td><td>Ver Alimentação (corrente disponível).</td><td class="uso"><b>BME280 VCC + 49E VCC</b></td></tr>
 <tr><td>Esq. 2</td><td><span class="dot" style="background:#44403c"></span><b>EN</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Reset do chip</td><td>LOW reinicia. Botão EN da placa.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 3</td><td><span class="dot" style="background:#06b6d4"></span><b>VP</b></td><td>36</td><td>3,3 V</td><td>ADC1_0</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="free">livre</td></tr>
-<tr><td>Esq. 4</td><td><span class="dot" style="background:#06b6d4"></span><b>VN</b></td><td>39</td><td>3,3 V</td><td>ADC1_3</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="free">livre</td></tr>
-<tr><td>Esq. 5</td><td><span class="dot" style="background:#06b6d4"></span><b>34</b></td><td>34</td><td>3,3 V</td><td>ADC1_6</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="free">livre</td></tr>
-<tr><td>Esq. 6</td><td><span class="dot" style="background:#06b6d4"></span><b>35</b></td><td>35</td><td>3,3 V</td><td>ADC1_7</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="free">livre</td></tr>
-<tr><td>Esq. 7</td><td><span class="dot" style="background:#3b82f6"></span><b>32</b></td><td>32</td><td>3,3 V</td><td>ADC1_4</td><td>T9</td><td>PWM, RTC</td><td>—</td><td class="free">livre</td></tr>
+<tr><td>Esq. 4</td><td><span class="dot" style="background:#06b6d4"></span><b>VN</b></td><td>39</td><td>3,3 V</td><td>ADC1_3</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>LED carregando (divisor)</b></td></tr>
+<tr><td>Esq. 5</td><td><span class="dot" style="background:#06b6d4"></span><b>34</b></td><td>34</td><td>3,3 V</td><td>ADC1_6</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>LED carregado (divisor)</b></td></tr>
+<tr><td>Esq. 6</td><td><span class="dot" style="background:#06b6d4"></span><b>35</b></td><td>35</td><td>3,3 V</td><td>ADC1_7</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>Tensão da bateria</b></td></tr>
+<tr><td>Esq. 7</td><td><span class="dot" style="background:#3b82f6"></span><b>32</b></td><td>32</td><td>3,3 V</td><td>ADC1_4</td><td>T9</td><td>PWM, RTC</td><td>—</td><td class="uso"><b>Pluviômetro (49E OUT)</b></td></tr>
 <tr><td>Esq. 8</td><td><span class="dot" style="background:#3b82f6"></span><b>33</b></td><td>33</td><td>3,3 V</td><td>ADC1_5</td><td>T8</td><td>PWM, RTC</td><td>—</td><td class="free">livre</td></tr>
 <tr><td>Esq. 9</td><td><span class="dot" style="background:#3b82f6"></span><b>25</b></td><td>25</td><td>3,3 V</td><td>ADC2_8</td><td>—</td><td>PWM, DAC1</td><td>ADC2 não lê com Wi-Fi ligado.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 10</td><td><span class="dot" style="background:#3b82f6"></span><b>26</b></td><td>26</td><td>3,3 V</td><td>ADC2_9</td><td>—</td><td>PWM, DAC2</td><td>ADC2 não lê com Wi-Fi ligado.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 11</td><td><span class="dot" style="background:#3b82f6"></span><b>27</b></td><td>27</td><td>3,3 V</td><td>ADC2_7</td><td>T7</td><td>PWM</td><td>ADC2 não lê com Wi-Fi ligado.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 12</td><td><span class="dot" style="background:#3b82f6"></span><b>14</b></td><td>14</td><td>3,3 V</td><td>ADC2_6</td><td>T6</td><td>PWM, HSPI CLK</td><td>Emite pulsos PWM no boot.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 13</td><td><span class="dot" style="background:#ec4899"></span><b>12</b></td><td>12</td><td>3,3 V</td><td>ADC2_5</td><td>T5</td><td>PWM, HSPI MISO</td><td>Strapping (MTDI): tem que estar LOW no boot. HIGH põe a flash em 1,8 V e a placa não liga (eFuse XPD_SDIO_FORCE = 0, lido).</td><td class="free">livre</td></tr>
-<tr><td>Esq. 14</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="free">livre</td></tr>
+<tr><td>Esq. 14</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="uso"><b>GND: GPS + energia + 49E</b></td></tr>
 <tr><td>Esq. 15</td><td><span class="dot" style="background:#3b82f6"></span><b>13</b></td><td>13</td><td>3,3 V</td><td>ADC2_4</td><td>T4</td><td>PWM, HSPI MOSI</td><td>ADC2 não lê com Wi-Fi ligado.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 16</td><td><span class="dot" style="background:#d6d3d1"></span><b>D2</b></td><td>9</td><td>3,3 V</td><td>—</td><td>—</td><td>SD2 / flash HD</td><td>Ligado à flash do módulo. Não usar: trava o chip.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 17</td><td><span class="dot" style="background:#d6d3d1"></span><b>D3</b></td><td>10</td><td>3,3 V</td><td>—</td><td>—</td><td>SD3 / flash WP</td><td>Ligado à flash do módulo. Não usar: trava o chip.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 18</td><td><span class="dot" style="background:#d6d3d1"></span><b>CMD</b></td><td>11</td><td>3,3 V</td><td>—</td><td>—</td><td>CMD / flash CS</td><td>Ligado à flash do módulo. Não usar: trava o chip.</td><td class="free">livre</td></tr>
-<tr><td>Esq. 19</td><td><span class="dot" style="background:#f97316"></span><b>5V</b></td><td>—</td><td>5 V</td><td>—</td><td>—</td><td>Linha 5 V do USB, entrada do regulador</td><td>Ver Alimentação. Não ligar 5 V em GPIO.</td><td class="free">livre</td></tr>
+<tr><td>Esq. 19</td><td><span class="dot" style="background:#f97316"></span><b>5V</b></td><td>—</td><td>5 V</td><td>—</td><td>—</td><td>Linha 5 V do USB, entrada do regulador</td><td>Ver Alimentação. Não ligar 5 V em GPIO.</td><td class="uso"><b>Step-up 5 V + microSD + GPS</b></td></tr>
 <tr><td>Dir. 1</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="uso"><b>BME280 GND</b></td></tr>
-<tr><td>Dir. 2</td><td><span class="dot" style="background:#3b82f6"></span><b>23</b></td><td>23</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI MOSI</td><td>—</td><td class="free">livre</td></tr>
+<tr><td>Dir. 2</td><td><span class="dot" style="background:#3b82f6"></span><b>23</b></td><td>23</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI MOSI</td><td>—</td><td class="uso"><b>microSD MOSI</b></td></tr>
 <tr><td>Dir. 3</td><td><span class="dot" style="background:#3b82f6"></span><b>22</b></td><td>22</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, I2C SCL (padrão)</td><td>—</td><td class="uso"><b>BME280 SCL</b></td></tr>
 <tr><td>Dir. 4</td><td><span class="dot" style="background:#8b5cf6"></span><b>TX</b></td><td>1</td><td>3,3 V</td><td>—</td><td>—</td><td>UART0 TX → CP2102</td><td>Log do boot sai aqui. Usado na gravação: evite.</td><td class="free">livre</td></tr>
 <tr><td>Dir. 5</td><td><span class="dot" style="background:#8b5cf6"></span><b>RX</b></td><td>3</td><td>3,3 V</td><td>—</td><td>—</td><td>UART0 RX ← CP2102</td><td>HIGH no boot. Usado na gravação: evite.</td><td class="free">livre</td></tr>
 <tr><td>Dir. 6</td><td><span class="dot" style="background:#3b82f6"></span><b>21</b></td><td>21</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, I2C SDA (padrão)</td><td>—</td><td class="uso"><b>BME280 SDA</b></td></tr>
-<tr><td>Dir. 7</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="free">livre</td></tr>
-<tr><td>Dir. 8</td><td><span class="dot" style="background:#3b82f6"></span><b>19</b></td><td>19</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI MISO</td><td>—</td><td class="free">livre</td></tr>
-<tr><td>Dir. 9</td><td><span class="dot" style="background:#3b82f6"></span><b>18</b></td><td>18</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI CLK</td><td>—</td><td class="free">livre</td></tr>
-<tr><td>Dir. 10</td><td><span class="dot" style="background:#ec4899"></span><b>5</b></td><td>5</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI CS</td><td>Strapping: precisa estar HIGH no boot (pull-up interno). Emite PWM no boot.</td><td class="free">livre</td></tr>
-<tr><td>Dir. 11</td><td><span class="dot" style="background:#3b82f6"></span><b>17</b></td><td>17</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, UART2 TX</td><td>—</td><td class="free">livre</td></tr>
-<tr><td>Dir. 12</td><td><span class="dot" style="background:#3b82f6"></span><b>16</b></td><td>16</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, UART2 RX</td><td>—</td><td class="free">livre</td></tr>
+<tr><td>Dir. 7</td><td><span class="dot" style="background:#a8a29e"></span><b>GND</b></td><td>—</td><td>0 V</td><td>—</td><td>—</td><td>Terra</td><td>—</td><td class="uso"><b>microSD GND</b></td></tr>
+<tr><td>Dir. 8</td><td><span class="dot" style="background:#3b82f6"></span><b>19</b></td><td>19</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI MISO</td><td>—</td><td class="uso"><b>microSD MISO</b></td></tr>
+<tr><td>Dir. 9</td><td><span class="dot" style="background:#3b82f6"></span><b>18</b></td><td>18</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI CLK</td><td>—</td><td class="uso"><b>microSD SCK</b></td></tr>
+<tr><td>Dir. 10</td><td><span class="dot" style="background:#ec4899"></span><b>5</b></td><td>5</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, VSPI CS</td><td>Strapping: precisa estar HIGH no boot (pull-up interno). Emite PWM no boot.</td><td class="uso"><b>microSD CS</b></td></tr>
+<tr><td>Dir. 11</td><td><span class="dot" style="background:#3b82f6"></span><b>17</b></td><td>17</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, UART2 TX</td><td>—</td><td class="uso"><b>GPS RX (TX2)</b></td></tr>
+<tr><td>Dir. 12</td><td><span class="dot" style="background:#3b82f6"></span><b>16</b></td><td>16</td><td>3,3 V</td><td>—</td><td>—</td><td>PWM, UART2 RX</td><td>—</td><td class="uso"><b>GPS TX (RX2)</b></td></tr>
 <tr><td>Dir. 13</td><td><span class="dot" style="background:#3b82f6"></span><b>4</b></td><td>4</td><td>3,3 V</td><td>ADC2_0</td><td>T0</td><td>PWM</td><td>ADC2 não lê com Wi-Fi ligado.</td><td class="free">livre</td></tr>
 <tr><td>Dir. 14</td><td><span class="dot" style="background:#ec4899"></span><b>0</b></td><td>0</td><td>3,3 V</td><td>ADC2_1</td><td>T1</td><td>PWM, botão BOOT</td><td>Strapping: LOW no boot entra em gravação. Ligado ao botão BOOT e ao auto-reset (DTR/RTS).</td><td class="free">livre</td></tr>
 <tr><td>Dir. 15</td><td><span class="dot" style="background:#ec4899"></span><b>2</b></td><td>2</td><td>3,3 V</td><td>ADC2_2</td><td>T2</td><td>PWM</td><td>Strapping: LOW ou solto para gravar.</td><td class="free">livre</td></tr>
@@ -507,6 +513,13 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
       <tbody>
         <tr><td><b>ESP32 DevKitC (WROOM-32U)</b></td><td>Controlador, Wi-Fi e Bluetooth</td><td>5 V no USB/5V · lógica 3,3 V</td><td>≈40–150 mA, picos ≈500 mA</td><td>—</td></tr>
         <tr><td><b>BME280</b> (módulo 6 pinos)</td><td>Temperatura, umidade e pressão por I2C</td><td>3,3 V</td><td>até ≈0,7 mA medindo · ≈3,6 µA em média</td><td>3V3, GND, GPIO21 (SDA), GPIO22 (SCL)</td></tr>
+        <tr><td><b>Módulo microSD</b> (6 pinos)</td><td>Guardar o histórico das medições (SPI)</td><td>5 V no VCC · sinais 3,3 V</td><td>≈20–100 mA gravando · ≈1 mA parado</td><td>5V, GND, GPIO18 (SCK), GPIO19 (MISO), GPIO23 (MOSI), GPIO5 (CS)</td></tr>
+        <tr><td><b>GPS GP-02-Kit</b> (Ai-Thinker)</td><td>Posição, altitude e hora por satélite (GPS + BeiDou), UART2 a 9600 baud</td><td>5 V no VCC (regulador no kit) · sinais 3,3 V</td><td>≈25–45 mA (a confirmar)</td><td>5V (junto com o microSD), GND (Esq. 14), GPIO16 (RX2 ← TX do GPS), GPIO17 (TX2 → RX do GPS)</td></tr>
+        <tr><td><b>2× bateria Li-ion</b> em paralelo</td><td>Energia da estação</td><td>3,0–4,2 V</td><td>Fornece ≈100–200 mA (via step-up)</td><td>— (ligadas ao carregador)</td></tr>
+        <tr><td><b>Carregador</b> (provável TP4056)</td><td>Carrega as baterias pelo painel solar de 5 V</td><td>Entrada 5 V · saída = bateria</td><td>Carga até 1 A</td><td>GPIO39 (LED carregando), GPIO34 (LED carregado), via divisores</td></tr>
+        <tr><td><b>Divisor R1/R2</b> da bateria</td><td>Leitura da tensão da bateria</td><td>Metade da bateria (≤2,1 V)</td><td>≈21 µA com 100 kΩ + 100 kΩ</td><td>GPIO35</td></tr>
+        <tr><td><b>Step-up 5 V</b> (a instalar)</td><td>Sobe a bateria para 5 V</td><td>Entrada 3,0–4,2 V · saída 5 V</td><td>Até ≈1 A na saída</td><td>5V, GND</td></tr>
+        <tr><td><b>Sensor Hall SS49E</b> (pluviômetro)</td><td>Conta as viradas da báscula</td><td>3,3 V</td><td>≈6 mA</td><td>3V3 (junto com o BME280), GND (Esq. 14), GPIO32 (OUT, analógico)</td></tr>
       </tbody></table></div>
     <p class="note"><b>Como funciona:</b> o CP2102 converte USB em serial na UART0 (GPIO1/3). Dois transistores ligam DTR/RTS do CP2102 ao EN e ao GPIO0, e por isso o esptool reinicia e entra em gravação sozinho. O AMS1117 baixa os 5 V para 3,3 V. O resistor e o capacitor no EN seguram o reset até a tensão estabilizar.</p>
   </div>
@@ -802,6 +815,1146 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <div class="spec"><div class="k">Modo usado</div><div class="val">I2C a 100 kHz · modo forçado, 1×, sem filtro (recomendação Bosch para estação meteorológica) · leitura a cada 10 s <span class="src d">no firmware</span></div></div>
 <div class="spec"><div class="k">Calculados</div><div class="val">Ponto de orvalho (Magnus) e umidade absoluta <span class="src d">no firmware</span></div></div>
 <div class="spec"><div class="k">Módulo</div><div class="val">6 pinos: VCC, GND, SCL, SDA, CSB, SDO · se tem regulador de 3,3 V <span class="src c">a confirmar na placa</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="etapa" id="etapa-3">
+  <div class="n">Etapa 3</div>
+  <h2>Cartão microSD: guardar as medições</h2>
+  <p>Módulo com slot microSD ligado pelo barramento SPI (VSPI). Vai guardar o histórico das medições na estação, mesmo sem internet.</p>
+
+  <div class="card">
+    <div class="eyebrow">Módulo</div>
+    <h3 class="ft">Pinos do adaptador microSD</h3>
+    <div class="scroll"><svg viewBox="0 0 640 400" role="img" aria-label="Módulo microSD de 6 pinos (SPI)" class="dia mod">
+<rect x="110" y="16" width="420" height="226" rx="12" fill="#44403c"/>
+<circle cx="134" cy="40" r="8" fill="#F5F5F3"/>
+<circle cx="506" cy="40" r="8" fill="#F5F5F3"/>
+<rect x="250" y="30" width="140" height="96" rx="4" fill="#d6d3d1"/><rect x="262" y="42" width="116" height="72" rx="3" fill="none" stroke="#a8a29e" stroke-width="1.5"/>
+<text x="320" y="84" class="t-mod2">microSD</text>
+<rect x="196" y="150" width="40" height="34" rx="2" fill="#292524"/><rect x="204" y="143" width="24" height="7" fill="#78716c"/>
+<text x="216" y="198" class="t-silk">regulador</text><text x="216" y="209" class="t-silk">3,3 V</text>
+<rect x="372" y="146" width="46" height="34" rx="2" fill="#292524"/>
+<rect x="375" y="141" width="3" height="5" fill="#a8a29e"/><rect x="375" y="180" width="3" height="5" fill="#a8a29e"/>
+<rect x="381" y="141" width="3" height="5" fill="#a8a29e"/><rect x="381" y="180" width="3" height="5" fill="#a8a29e"/>
+<rect x="387" y="141" width="3" height="5" fill="#a8a29e"/><rect x="387" y="180" width="3" height="5" fill="#a8a29e"/>
+<rect x="393" y="141" width="3" height="5" fill="#a8a29e"/><rect x="393" y="180" width="3" height="5" fill="#a8a29e"/>
+<rect x="399" y="141" width="3" height="5" fill="#a8a29e"/><rect x="399" y="180" width="3" height="5" fill="#a8a29e"/>
+<rect x="405" y="141" width="3" height="5" fill="#a8a29e"/><rect x="405" y="180" width="3" height="5" fill="#a8a29e"/>
+<rect x="411" y="141" width="3" height="5" fill="#a8a29e"/><rect x="411" y="180" width="3" height="5" fill="#a8a29e"/>
+<text x="395" y="198" class="t-silk">conversor</text><text x="395" y="209" class="t-silk">de nível</text>
+<rect x="262" y="152" width="14" height="8" rx="1.5" fill="#292524"/>
+<rect x="290" y="152" width="14" height="8" rx="1.5" fill="#292524"/>
+<rect x="440" y="120" width="14" height="8" rx="1.5" fill="#292524"/>
+<rect x="440" y="136" width="14" height="8" rx="1.5" fill="#292524"/>
+<circle cx="145" cy="226" r="7" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="114.0" y="267" width="62" height="18" rx="9" fill="#a8a29e"/><text x="145" y="279.6" class="t-fp" fill="#1c1917">GND</text>
+<rect x="113.0" y="305" width="64" height="18" rx="9" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.2"/><text x="145" y="317.6" class="t-fp" fill="#57534e">terra</text>
+<rect x="113.0" y="343" width="64" height="18" rx="9" fill="#e7e5e4"/><text x="145" y="355.6" class="t-fp" fill="#44403c">GND</text>
+<circle cx="215" cy="226" r="7" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="184.0" y="267" width="62" height="18" rx="9" fill="#f97316"/><text x="215" y="279.6" class="t-fp" fill="#fff">VCC</text>
+<rect x="183.0" y="305" width="64" height="18" rx="9" fill="#fafaf8" stroke="#f97316" stroke-width="1.2"/><text x="215" y="317.6" class="t-fp" fill="#c2410c">5 V</text>
+<rect x="183.0" y="343" width="64" height="18" rx="9" fill="#e7e5e4"/><text x="215" y="355.6" class="t-fp" fill="#44403c">5V</text>
+<circle cx="285" cy="226" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="254.0" y="267" width="62" height="18" rx="9" fill="#10b981"/><text x="285" y="279.6" class="t-fp" fill="#fff">MOSO</text>
+<rect x="253.0" y="305" width="64" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="285" y="317.6" class="t-fp" fill="#047857">SD → ESP</text>
+<rect x="253.0" y="343" width="64" height="18" rx="9" fill="#e7e5e4"/><text x="285" y="355.6" class="t-fp" fill="#44403c">GPIO19</text>
+<circle cx="355" cy="226" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="324.0" y="267" width="62" height="18" rx="9" fill="#10b981"/><text x="355" y="279.6" class="t-fp" fill="#fff">MOSI</text>
+<rect x="323.0" y="305" width="64" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="355" y="317.6" class="t-fp" fill="#047857">ESP → SD</text>
+<rect x="323.0" y="343" width="64" height="18" rx="9" fill="#e7e5e4"/><text x="355" y="355.6" class="t-fp" fill="#44403c">GPIO23</text>
+<circle cx="425" cy="226" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="394.0" y="267" width="62" height="18" rx="9" fill="#10b981"/><text x="425" y="279.6" class="t-fp" fill="#fff">SCK</text>
+<rect x="393.0" y="305" width="64" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="425" y="317.6" class="t-fp" fill="#047857">clock</text>
+<rect x="393.0" y="343" width="64" height="18" rx="9" fill="#e7e5e4"/><text x="425" y="355.6" class="t-fp" fill="#44403c">GPIO18</text>
+<circle cx="495" cy="226" r="7" fill="#fafaf8" stroke="#10b981" stroke-width="3.5"/>
+<rect x="464.0" y="267" width="62" height="18" rx="9" fill="#10b981"/><text x="495" y="279.6" class="t-fp" fill="#fff">CS</text>
+<rect x="463.0" y="305" width="64" height="18" rx="9" fill="#fafaf8" stroke="#10b981" stroke-width="1.2"/><text x="495" y="317.6" class="t-fp" fill="#047857">seleção</text>
+<rect x="463.0" y="343" width="64" height="18" rx="9" fill="#e7e5e4"/><text x="495" y="355.6" class="t-fp" fill="#44403c">GPIO5</text>
+<text x="18" y="280" class="t-row">Pino<tspan class="t-row2"> </tspan></text>
+<text x="18" y="318" class="t-row">Função<tspan class="t-row2"> </tspan></text>
+<text x="18" y="356" class="t-row">No ESP32<tspan class="t-row2"> </tspan></text>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#10b981"></i>SPI</li></ul>
+    <p class="note">No módulo está impresso <b>MOSO</b>: é erro de fabricação, o pino é o <b>MISO</b> (dados do cartão para o ESP32). Só SPI: este módulo não tem modo I2C. O regulador e o conversor de nível ficam entre os pinos e o cartão.</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação</h3>
+    <p class="sub">SPI: 6 fios saindo dos pinos reais da placa. VCC no 5V; os sinais no VSPI (18, 19, 23 e 5).</p>
+    <div class="scroll"><svg viewBox="0 0 730 824" role="img" aria-label="Ligação da placa ESP32 com o módulo microSD" class="dia lig">
+<g transform="translate(40,40)"><rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
+<rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
+<rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
+<rect x="206" y="21" width="16" height="16" rx="2" fill="#d4a24c"/><circle cx="214" cy="29" r="4" fill="#a16207"/>
+<text x="196" y="33" class="t-silk" text-anchor="end" style="text-anchor:end;fill:#44403c">U.FL</text>
+<text x="180" y="82" class="t-mod" style="font-size:9.5px">ESP32-WROOM-32U</text>
+<text x="180" y="100" class="t-mod2">D0WD-V3 · 4 MB</text>
+<text x="180" y="115" class="t-mod2">24:dc:c3:cf:fc:30</text>
+<text x="180" y="138" class="t-mod2">antena externa</text>
+<rect x="140" y="330" width="44" height="40" rx="2" fill="#292524"/><rect x="146" y="322" width="32" height="8" fill="#78716c"/><text x="162" y="388" class="t-silk">regulador</text>
+<rect x="212" y="330" width="18" height="14" rx="2" fill="#292524"/>
+<rect x="212" y="362" width="18" height="14" rx="2" fill="#292524"/>
+<text x="221" y="392" class="t-silk">Q1 Q2</text>
+<rect x="155" y="420" width="50" height="50" rx="3" fill="#292524"/><text x="180" y="449" class="t-chip">CP2102</text>
+<circle cx="130" cy="450" r="5" fill="#ef4444"/><text x="130" y="470" class="t-silk">PWR</text>
+<rect x="126" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="137" cy="609" r="5" fill="#78716c"/><text x="137" y="590" class="t-silk">EN</text>
+<rect x="212" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="223" cy="609" r="5" fill="#78716c"/><text x="223" y="590" class="t-silk">BOOT</text>
+<rect x="160" y="660" width="40" height="48" rx="4" fill="#a8a29e"/><text x="180" y="724" class="t-cap">micro-USB</text>
+<circle cx="108" cy="180" r="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="8" y="171" width="50" height="18" rx="9" fill="#f59e0b"/>
+<text x="33" y="184" class="t-pill" fill="#1c1917">3V3</text>
+<circle cx="108" cy="206" r="6" fill="#fafaf8" stroke="#44403c" stroke-width="3.5"/>
+<rect x="8" y="197" width="50" height="18" rx="9" fill="#44403c"/>
+<text x="33" y="210" class="t-pill" fill="#fff">EN</text>
+<circle cx="108" cy="232" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="236" text-anchor="end" class="t-num">36</text>
+<rect x="8" y="223" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="236" class="t-pill" fill="#1c1917">VP</text>
+<circle cx="108" cy="258" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="262" text-anchor="end" class="t-num">39</text>
+<rect x="8" y="249" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="262" class="t-pill" fill="#1c1917">VN</text>
+<circle cx="108" cy="284" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="288" text-anchor="end" class="t-num">34</text>
+<rect x="8" y="275" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="288" class="t-pill" fill="#1c1917">34</text>
+<circle cx="108" cy="310" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="314" text-anchor="end" class="t-num">35</text>
+<rect x="8" y="301" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="314" class="t-pill" fill="#1c1917">35</text>
+<circle cx="108" cy="336" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="340" text-anchor="end" class="t-num">32</text>
+<rect x="8" y="327" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="340" class="t-pill" fill="#fff">32</text>
+<circle cx="108" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="366" text-anchor="end" class="t-num">33</text>
+<rect x="8" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="366" class="t-pill" fill="#fff">33</text>
+<circle cx="108" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="392" text-anchor="end" class="t-num">25</text>
+<rect x="8" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="392" class="t-pill" fill="#fff">25</text>
+<circle cx="108" cy="414" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="418" text-anchor="end" class="t-num">26</text>
+<rect x="8" y="405" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="418" class="t-pill" fill="#fff">26</text>
+<circle cx="108" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="444" text-anchor="end" class="t-num">27</text>
+<rect x="8" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="444" class="t-pill" fill="#fff">27</text>
+<circle cx="108" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="470" text-anchor="end" class="t-num">14</text>
+<rect x="8" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="470" class="t-pill" fill="#fff">14</text>
+<circle cx="108" cy="492" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="88" y="496" text-anchor="end" class="t-num">12</text>
+<rect x="8" y="483" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="33" y="496" class="t-pill" fill="#fff">12</text>
+<circle cx="108" cy="518" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="8" y="509" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="33" y="522" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="108" cy="544" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="548" text-anchor="end" class="t-num">13</text>
+<rect x="8" y="535" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="548" class="t-pill" fill="#fff">13</text>
+<circle cx="108" cy="570" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="574" text-anchor="end" class="t-num">9</text>
+<rect x="8" y="561" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="574" class="t-pill" fill="#57534e">D2</text>
+<circle cx="108" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="600" text-anchor="end" class="t-num">10</text>
+<rect x="8" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="600" class="t-pill" fill="#57534e">D3</text>
+<circle cx="108" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="626" text-anchor="end" class="t-num">11</text>
+<rect x="8" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="626" class="t-pill" fill="#57534e">CMD</text>
+<circle cx="108" cy="648" r="6" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="8" y="639" width="50" height="18" rx="9" fill="#f97316"/>
+<text x="33" y="652" class="t-pill" fill="#fff">5V</text>
+<circle cx="252" cy="180" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="171" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="184" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="206" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="210" text-anchor="start" class="t-num">23</text>
+<rect x="302" y="197" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="210" class="t-pill" fill="#fff">23</text>
+<circle cx="252" cy="232" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="236" text-anchor="start" class="t-num">22</text>
+<rect x="302" y="223" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="236" class="t-pill" fill="#fff">22</text>
+<circle cx="252" cy="258" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="262" text-anchor="start" class="t-num">1</text>
+<rect x="302" y="249" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="262" class="t-pill" fill="#fff">TX</text>
+<circle cx="252" cy="284" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="288" text-anchor="start" class="t-num">3</text>
+<rect x="302" y="275" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="288" class="t-pill" fill="#fff">RX</text>
+<circle cx="252" cy="310" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="314" text-anchor="start" class="t-num">21</text>
+<rect x="302" y="301" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="314" class="t-pill" fill="#fff">21</text>
+<circle cx="252" cy="336" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="327" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="340" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="366" text-anchor="start" class="t-num">19</text>
+<rect x="302" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="366" class="t-pill" fill="#fff">19</text>
+<circle cx="252" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="392" text-anchor="start" class="t-num">18</text>
+<rect x="302" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="392" class="t-pill" fill="#fff">18</text>
+<circle cx="252" cy="414" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="418" text-anchor="start" class="t-num">5</text>
+<rect x="302" y="405" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="418" class="t-pill" fill="#fff">5</text>
+<circle cx="252" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="444" text-anchor="start" class="t-num">17</text>
+<rect x="302" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="444" class="t-pill" fill="#fff">17</text>
+<circle cx="252" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="470" text-anchor="start" class="t-num">16</text>
+<rect x="302" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="470" class="t-pill" fill="#fff">16</text>
+<circle cx="252" cy="492" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="496" text-anchor="start" class="t-num">4</text>
+<rect x="302" y="483" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="496" class="t-pill" fill="#fff">4</text>
+<circle cx="252" cy="518" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="522" text-anchor="start" class="t-num">0</text>
+<rect x="302" y="509" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="522" class="t-pill" fill="#fff">0</text>
+<circle cx="252" cy="544" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="548" text-anchor="start" class="t-num">2</text>
+<rect x="302" y="535" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="548" class="t-pill" fill="#fff">2</text>
+<circle cx="252" cy="570" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="574" text-anchor="start" class="t-num">15</text>
+<rect x="302" y="561" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="574" class="t-pill" fill="#fff">15</text>
+<circle cx="252" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="600" text-anchor="start" class="t-num">8</text>
+<rect x="302" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="600" class="t-pill" fill="#57534e">D1</text>
+<circle cx="252" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="626" text-anchor="start" class="t-num">7</text>
+<rect x="302" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="626" class="t-pill" fill="#57534e">D0</text>
+<circle cx="252" cy="648" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="652" text-anchor="start" class="t-num">6</text>
+<rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="652" class="t-pill" fill="#57534e">CLK</text></g>
+<rect x="560" y="202" width="150" height="358" rx="10" fill="#44403c"/>
+<text x="635" y="226" class="t-boxw">microSD</text>
+<rect x="638" y="366" width="56" height="40" rx="3" fill="#d6d3d1"/>
+<path d="M392 246 L560 246" stroke="#10b981" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="239" class="t-wire2">MOSI · GPIO23</text>
+<circle cx="392" cy="246" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="246" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<path d="M392 376 L560 376" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="369" class="t-wire2">GND</text>
+<circle cx="392" cy="376" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="376" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<path d="M392 402 L560 402" stroke="#10b981" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="395" class="t-wire2">MOSO (MISO) · GPIO19</text>
+<circle cx="392" cy="402" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="402" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<path d="M392 428 L560 428" stroke="#10b981" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="421" class="t-wire2">SCK · GPIO18</text>
+<circle cx="392" cy="428" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="428" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<path d="M392 454 L560 454" stroke="#10b981" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="447" class="t-wire2">CS · GPIO5</text>
+<circle cx="392" cy="454" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="454" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<path d="M48 688 L22 688 L22 800 L530 800 L530 524 L560 524" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="276" y="792" class="t-wire2">5 V · 5V → VCC</text>
+<circle cx="48" cy="688" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="524" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<text x="574" y="250" class="t-pinw">MOSI</text>
+<text x="574" y="380" class="t-pinw">GND</text>
+<text x="574" y="406" class="t-pinw">MOSO</text>
+<text x="574" y="432" class="t-pinw">SCK</text>
+<text x="574" y="458" class="t-pinw">CS</text>
+<text x="574" y="528" class="t-pinw">VCC</text>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#10b981"></i>SPI</li><li><b>●</b> ligação</li></ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>Pino do módulo</th><th>Função</th><th>Ligado no ESP32</th><th>Cuidados</th></tr></thead>
+      <tbody>
+<tr><td><b>GND</b></td><td>Terra</td><td>GND (Dir. 7)</td><td>—</td></tr>
+<tr><td><b>VCC</b></td><td>5 V para o regulador do módulo</td><td>5V (Esq. 19)</td><td>Não ligar em 3V3: o regulador perde ≈1,1 V e o cartão fica com ≈2,2 V.</td></tr>
+<tr><td><b>MOSO</b></td><td>É o MISO (erro de impressão do módulo): dados do cartão para o ESP32, em 3,3 V</td><td>GPIO19 (Dir. 8)</td><td>Neste tipo de módulo o MISO não se desliga com CS alto: no barramento SPI ele precisa ficar sozinho.</td></tr>
+<tr><td><b>MOSI</b></td><td>Dados do ESP32 para o cartão</td><td>GPIO23 (Dir. 2)</td><td>—</td></tr>
+<tr><td><b>SCK</b></td><td>Clock do SPI</td><td>GPIO18 (Dir. 9)</td><td>—</td></tr>
+<tr><td><b>CS</b></td><td>Seleção do cartão, ativo em LOW</td><td>GPIO5 (Dir. 10)</td><td>GPIO5 é pino de boot e precisa estar alto ao ligar: o pull-up interno garante e o módulo não puxa para baixo.</td></tr>
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> o cartão conversa por SPI em 3,3 V. O regulador do módulo baixa os 5 V para 3,3 V e o conversor de nível adapta os sinais; como ele é alimentado em 3,3 V, o MISO chega ao ESP32 em 3,3 V, seguro para o pino. Os capacitores do módulo seguram os picos de corrente do cartão na hora de gravar.</p>
+    <p class="note"><b>Para conferir:</b> placa no USB, multímetro em DC na escala de 20 V. Entre VCC e GND do módulo: ≈4,6–5,0 V. Na aba larga do regulador do módulo (saída) contra GND: 3,25–3,35 V. Se o VCC estiver abaixo de 4,5 V, o cartão pode falhar ao gravar.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">Módulo microSD</h3>
+    <div class="hero"><div class="tile"><div class="big">SPI</div><div class="lbl">6 pinos</div></div><div class="tile"><div class="big">5 V</div><div class="lbl">no VCC</div></div><div class="tile"><div class="big">32 GB</div><div class="lbl">FAT32</div></div><div class="tile"><div class="big">≤100 mA</div><div class="lbl">gravando</div></div></div>
+    <div class="specs">
+<div class="spec"><div class="k">Módulo</div><div class="val">Adaptador microSD por SPI, 6 pinos: GND, VCC, MOSO, MOSI, SCK, CS · o “MOSO” impresso é o MISO <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Regulador</div><div class="val">SOT-223 no módulo (provável AMS1117-3.3): baixa os 5 V para 3,3 V <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Conversor de nível</div><div class="val">CI de 14 pinos ao lado do slot (provável 74LVC125A): adapta os sinais e protege o cartão <span class="src c">a confirmar na placa</span></div></div>
+<div class="spec"><div class="k">Alimentação</div><div class="val">VCC de 4,5 a 5,5 V (o regulador precisa de ≈1,1 V de folga) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Corrente</div><div class="val">≈20–100 mA lendo ou gravando, com picos curtos · ≈1 mA parado (depende do cartão) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Cartão</div><div class="val">microSD ou microSDHC, até 32 GB, formatado em FAT32 <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">SPI</div><div class="val">O cartão aceita até 25 MHz; com fios curtos, 4 a 20 MHz funcionam bem <span class="src d">datasheet</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="etapa" id="etapa-4">
+  <div class="n">Etapa 4</div>
+  <h2>GPS: posição, altitude e hora</h2>
+  <p>Módulo GP-02 (GPS + BeiDou) ligado na UART2. Dá a localização e a altitude da estação e a hora dos satélites, mesmo sem internet.</p>
+
+  <div class="card">
+    <div class="eyebrow">Módulo</div>
+    <h3 class="ft">Pinos do GP-02-Kit</h3>
+    <div class="scroll"><svg viewBox="0 0 680 440" role="img" aria-label="Módulo GPS GP-02-Kit de 6 pinos" class="dia mod">
+<rect x="128" y="16" width="464" height="230" rx="12" fill="#292524"/>
+<rect x="300" y="30" width="170" height="130" rx="6" fill="#d6d3d1"/><rect x="300" y="30" width="170" height="130" rx="6" fill="none" stroke="#a8a29e" stroke-width="2" stroke-dasharray="3 4"/>
+<text x="385" y="88" class="t-mod">GP-02</text><text x="385" y="106" class="t-mod2">BDS + GPS</text>
+<circle cx="190" cy="78" r="30" fill="#a8a29e"/><circle cx="190" cy="78" r="22" fill="#d6d3d1"/>
+<text x="190" y="128" class="t-silk">bateria</text><text x="190" y="139" class="t-silk">de backup</text>
+<rect x="420" y="178" width="34" height="22" rx="2" fill="#0c0a09"/><text x="437" y="214" class="t-silk">regulador WLDO</text>
+<text x="150" y="190" class="t-silk" style="text-anchor:start">GP-02-Kit · A602</text>
+<circle cx="160" cy="230" r="7" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<rect x="123.0" y="269" width="74" height="18" rx="9" fill="#d6d3d1"/><text x="160" y="281.6" class="t-fp" fill="#1c1917">N/F</text>
+<rect x="123.0" y="307" width="74" height="18" rx="9" fill="#fafaf8" stroke="#e7e5e4" stroke-width="1.2"/><text x="160" y="319.6" class="t-fp" fill="#a8a29e">—</text>
+<rect x="122.0" y="345" width="76" height="18" rx="9" fill="#fafaf8" stroke="#d6d3d1" stroke-width="1.2"/><text x="160" y="357.6" class="t-fp" fill="#a8a29e">não usado</text>
+<rect x="122.0" y="383" width="76" height="18" rx="9" fill="#e7e5e4"/><text x="160" y="395.6" class="t-fp" fill="#44403c">—</text>
+<circle cx="240" cy="230" r="7" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<rect x="203.0" y="269" width="74" height="18" rx="9" fill="#8b5cf6"/><text x="240" y="281.6" class="t-fp" fill="#fff">RX</text>
+<rect x="203" y="307" width="74" height="18" rx="9" fill="#fafaf8" stroke="#d6d3d1"/><circle cx="214" cy="316" r="5" fill="#2563eb"/><text x="246" y="319.6" class="t-fp" fill="#44403c">azul</text>
+<rect x="202.0" y="345" width="76" height="18" rx="9" fill="#fafaf8" stroke="#8b5cf6" stroke-width="1.2"/><text x="240" y="357.6" class="t-fp" fill="#6d28d9">recebe</text>
+<rect x="202.0" y="383" width="76" height="18" rx="9" fill="#e7e5e4"/><text x="240" y="395.6" class="t-fp" fill="#44403c">GPIO17</text>
+<circle cx="320" cy="230" r="7" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<rect x="283.0" y="269" width="74" height="18" rx="9" fill="#8b5cf6"/><text x="320" y="281.6" class="t-fp" fill="#fff">TX</text>
+<rect x="283" y="307" width="74" height="18" rx="9" fill="#fafaf8" stroke="#d6d3d1"/><circle cx="294" cy="316" r="5" fill="#78350f"/><text x="326" y="319.6" class="t-fp" fill="#44403c">marrom</text>
+<rect x="282.0" y="345" width="76" height="18" rx="9" fill="#fafaf8" stroke="#8b5cf6" stroke-width="1.2"/><text x="320" y="357.6" class="t-fp" fill="#6d28d9">envia NMEA</text>
+<rect x="282.0" y="383" width="76" height="18" rx="9" fill="#e7e5e4"/><text x="320" y="395.6" class="t-fp" fill="#44403c">GPIO16</text>
+<circle cx="400" cy="230" r="7" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="363.0" y="269" width="74" height="18" rx="9" fill="#a8a29e"/><text x="400" y="281.6" class="t-fp" fill="#1c1917">GND</text>
+<rect x="363" y="307" width="74" height="18" rx="9" fill="#fafaf8" stroke="#d6d3d1"/><circle cx="374" cy="316" r="5" fill="#1c1917"/><text x="406" y="319.6" class="t-fp" fill="#44403c">preto</text>
+<rect x="362.0" y="345" width="76" height="18" rx="9" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.2"/><text x="400" y="357.6" class="t-fp" fill="#57534e">terra</text>
+<rect x="362.0" y="383" width="76" height="18" rx="9" fill="#e7e5e4"/><text x="400" y="395.6" class="t-fp" fill="#44403c">GND</text>
+<circle cx="480" cy="230" r="7" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="443.0" y="269" width="74" height="18" rx="9" fill="#f97316"/><text x="480" y="281.6" class="t-fp" fill="#fff">VCC</text>
+<rect x="443" y="307" width="74" height="18" rx="9" fill="#fafaf8" stroke="#d6d3d1"/><circle cx="454" cy="316" r="5" fill="#dc2626"/><text x="486" y="319.6" class="t-fp" fill="#44403c">vermelho</text>
+<rect x="442.0" y="345" width="76" height="18" rx="9" fill="#fafaf8" stroke="#f97316" stroke-width="1.2"/><text x="480" y="357.6" class="t-fp" fill="#c2410c">5 V</text>
+<rect x="442.0" y="383" width="76" height="18" rx="9" fill="#e7e5e4"/><text x="480" y="395.6" class="t-fp" fill="#44403c">5V</text>
+<circle cx="560" cy="230" r="7" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<rect x="523.0" y="269" width="74" height="18" rx="9" fill="#3b82f6"/><text x="560" y="281.6" class="t-fp" fill="#fff">PPS</text>
+<rect x="523.0" y="307" width="74" height="18" rx="9" fill="#fafaf8" stroke="#e7e5e4" stroke-width="1.2"/><text x="560" y="319.6" class="t-fp" fill="#a8a29e">—</text>
+<rect x="522.0" y="345" width="76" height="18" rx="9" fill="#fafaf8" stroke="#3b82f6" stroke-width="1.2"/><text x="560" y="357.6" class="t-fp" fill="#1d4ed8">1 pulso/s</text>
+<rect x="522.0" y="383" width="76" height="18" rx="9" fill="#e7e5e4"/><text x="560" y="395.6" class="t-fp" fill="#44403c">—</text>
+<text x="18" y="282" class="t-row">Pino</text>
+<text x="18" y="320" class="t-row">Fio</text>
+<text x="18" y="358" class="t-row">Função</text>
+<text x="18" y="396" class="t-row">No ESP32</text>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#8b5cf6"></i>UART</li><li><i style="background:#3b82f6"></i>sinal (PPS, não ligado)</li><li><i style="background:#d6d3d1"></i>sem uso</li></ul>
+    <p class="note">Cores dos fios como na foto: azul no RX, marrom no TX, preto no GND e vermelho no VCC. N/F e PPS ficam sem fio.</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação</h3>
+    <p class="sub">UART2: 4 fios. O TX de um vai no RX do outro. O VCC vai no 5V, o mesmo pino do microSD.</p>
+    <div class="scroll"><svg viewBox="0 0 730 858" role="img" aria-label="Ligação da placa ESP32 com o GPS" class="dia lig">
+<g transform="translate(40,40)"><rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
+<rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
+<rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
+<rect x="206" y="21" width="16" height="16" rx="2" fill="#d4a24c"/><circle cx="214" cy="29" r="4" fill="#a16207"/>
+<text x="196" y="33" class="t-silk" text-anchor="end" style="text-anchor:end;fill:#44403c">U.FL</text>
+<text x="180" y="82" class="t-mod" style="font-size:9.5px">ESP32-WROOM-32U</text>
+<text x="180" y="100" class="t-mod2">D0WD-V3 · 4 MB</text>
+<text x="180" y="115" class="t-mod2">24:dc:c3:cf:fc:30</text>
+<text x="180" y="138" class="t-mod2">antena externa</text>
+<rect x="140" y="330" width="44" height="40" rx="2" fill="#292524"/><rect x="146" y="322" width="32" height="8" fill="#78716c"/><text x="162" y="388" class="t-silk">regulador</text>
+<rect x="212" y="330" width="18" height="14" rx="2" fill="#292524"/>
+<rect x="212" y="362" width="18" height="14" rx="2" fill="#292524"/>
+<text x="221" y="392" class="t-silk">Q1 Q2</text>
+<rect x="155" y="420" width="50" height="50" rx="3" fill="#292524"/><text x="180" y="449" class="t-chip">CP2102</text>
+<circle cx="130" cy="450" r="5" fill="#ef4444"/><text x="130" y="470" class="t-silk">PWR</text>
+<rect x="126" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="137" cy="609" r="5" fill="#78716c"/><text x="137" y="590" class="t-silk">EN</text>
+<rect x="212" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="223" cy="609" r="5" fill="#78716c"/><text x="223" y="590" class="t-silk">BOOT</text>
+<rect x="160" y="660" width="40" height="48" rx="4" fill="#a8a29e"/><text x="180" y="724" class="t-cap">micro-USB</text>
+<circle cx="108" cy="180" r="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="8" y="171" width="50" height="18" rx="9" fill="#f59e0b"/>
+<text x="33" y="184" class="t-pill" fill="#1c1917">3V3</text>
+<circle cx="108" cy="206" r="6" fill="#fafaf8" stroke="#44403c" stroke-width="3.5"/>
+<rect x="8" y="197" width="50" height="18" rx="9" fill="#44403c"/>
+<text x="33" y="210" class="t-pill" fill="#fff">EN</text>
+<circle cx="108" cy="232" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="236" text-anchor="end" class="t-num">36</text>
+<rect x="8" y="223" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="236" class="t-pill" fill="#1c1917">VP</text>
+<circle cx="108" cy="258" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="262" text-anchor="end" class="t-num">39</text>
+<rect x="8" y="249" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="262" class="t-pill" fill="#1c1917">VN</text>
+<circle cx="108" cy="284" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="288" text-anchor="end" class="t-num">34</text>
+<rect x="8" y="275" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="288" class="t-pill" fill="#1c1917">34</text>
+<circle cx="108" cy="310" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="314" text-anchor="end" class="t-num">35</text>
+<rect x="8" y="301" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="314" class="t-pill" fill="#1c1917">35</text>
+<circle cx="108" cy="336" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="340" text-anchor="end" class="t-num">32</text>
+<rect x="8" y="327" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="340" class="t-pill" fill="#fff">32</text>
+<circle cx="108" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="366" text-anchor="end" class="t-num">33</text>
+<rect x="8" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="366" class="t-pill" fill="#fff">33</text>
+<circle cx="108" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="392" text-anchor="end" class="t-num">25</text>
+<rect x="8" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="392" class="t-pill" fill="#fff">25</text>
+<circle cx="108" cy="414" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="418" text-anchor="end" class="t-num">26</text>
+<rect x="8" y="405" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="418" class="t-pill" fill="#fff">26</text>
+<circle cx="108" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="444" text-anchor="end" class="t-num">27</text>
+<rect x="8" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="444" class="t-pill" fill="#fff">27</text>
+<circle cx="108" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="470" text-anchor="end" class="t-num">14</text>
+<rect x="8" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="470" class="t-pill" fill="#fff">14</text>
+<circle cx="108" cy="492" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="88" y="496" text-anchor="end" class="t-num">12</text>
+<rect x="8" y="483" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="33" y="496" class="t-pill" fill="#fff">12</text>
+<circle cx="108" cy="518" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="8" y="509" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="33" y="522" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="108" cy="544" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="548" text-anchor="end" class="t-num">13</text>
+<rect x="8" y="535" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="548" class="t-pill" fill="#fff">13</text>
+<circle cx="108" cy="570" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="574" text-anchor="end" class="t-num">9</text>
+<rect x="8" y="561" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="574" class="t-pill" fill="#57534e">D2</text>
+<circle cx="108" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="600" text-anchor="end" class="t-num">10</text>
+<rect x="8" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="600" class="t-pill" fill="#57534e">D3</text>
+<circle cx="108" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="626" text-anchor="end" class="t-num">11</text>
+<rect x="8" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="626" class="t-pill" fill="#57534e">CMD</text>
+<circle cx="108" cy="648" r="6" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="8" y="639" width="50" height="18" rx="9" fill="#f97316"/>
+<text x="33" y="652" class="t-pill" fill="#fff">5V</text>
+<circle cx="252" cy="180" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="171" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="184" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="206" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="210" text-anchor="start" class="t-num">23</text>
+<rect x="302" y="197" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="210" class="t-pill" fill="#fff">23</text>
+<circle cx="252" cy="232" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="236" text-anchor="start" class="t-num">22</text>
+<rect x="302" y="223" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="236" class="t-pill" fill="#fff">22</text>
+<circle cx="252" cy="258" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="262" text-anchor="start" class="t-num">1</text>
+<rect x="302" y="249" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="262" class="t-pill" fill="#fff">TX</text>
+<circle cx="252" cy="284" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="288" text-anchor="start" class="t-num">3</text>
+<rect x="302" y="275" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="288" class="t-pill" fill="#fff">RX</text>
+<circle cx="252" cy="310" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="314" text-anchor="start" class="t-num">21</text>
+<rect x="302" y="301" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="314" class="t-pill" fill="#fff">21</text>
+<circle cx="252" cy="336" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="327" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="340" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="366" text-anchor="start" class="t-num">19</text>
+<rect x="302" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="366" class="t-pill" fill="#fff">19</text>
+<circle cx="252" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="392" text-anchor="start" class="t-num">18</text>
+<rect x="302" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="392" class="t-pill" fill="#fff">18</text>
+<circle cx="252" cy="414" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="418" text-anchor="start" class="t-num">5</text>
+<rect x="302" y="405" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="418" class="t-pill" fill="#fff">5</text>
+<circle cx="252" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="444" text-anchor="start" class="t-num">17</text>
+<rect x="302" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="444" class="t-pill" fill="#fff">17</text>
+<circle cx="252" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="470" text-anchor="start" class="t-num">16</text>
+<rect x="302" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="470" class="t-pill" fill="#fff">16</text>
+<circle cx="252" cy="492" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="496" text-anchor="start" class="t-num">4</text>
+<rect x="302" y="483" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="496" class="t-pill" fill="#fff">4</text>
+<circle cx="252" cy="518" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="522" text-anchor="start" class="t-num">0</text>
+<rect x="302" y="509" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="522" class="t-pill" fill="#fff">0</text>
+<circle cx="252" cy="544" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="548" text-anchor="start" class="t-num">2</text>
+<rect x="302" y="535" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="548" class="t-pill" fill="#fff">2</text>
+<circle cx="252" cy="570" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="574" text-anchor="start" class="t-num">15</text>
+<rect x="302" y="561" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="574" class="t-pill" fill="#fff">15</text>
+<circle cx="252" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="600" text-anchor="start" class="t-num">8</text>
+<rect x="302" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="600" class="t-pill" fill="#57534e">D1</text>
+<circle cx="252" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="626" text-anchor="start" class="t-num">7</text>
+<rect x="302" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="626" class="t-pill" fill="#57534e">D0</text>
+<circle cx="252" cy="648" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="652" text-anchor="start" class="t-num">6</text>
+<rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="652" class="t-pill" fill="#57534e">CLK</text></g>
+<rect x="560" y="436" width="150" height="260" rx="10" fill="#292524"/>
+<text x="635" y="460" class="t-boxw">GP-02</text>
+<rect x="646" y="476" width="50" height="50" rx="4" fill="#d6d3d1"/>
+<path d="M392 480 L560 480" stroke="#8b5cf6" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="473" class="t-wire2">GPIO17 (TX2) → RX</text>
+<path d="M392 506 L560 506" stroke="#8b5cf6" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="476" y="499" class="t-wire2">GPIO16 (RX2) ← TX</text>
+<path d="M48 688 L34 688 L34 804 L518 804 L518 626 L560 626" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="276" y="796" class="t-wire2">5 V · 5V → VCC (mesmo pino do microSD)</text>
+<path d="M48 558 L22 558 L22 830 L530 830 L530 666 L560 666" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="276" y="846" class="t-wire2">GND · Esq. 14 → GND</text>
+<circle cx="392" cy="480" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="480" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="392" cy="506" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="506" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="48" cy="688" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="626" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="48" cy="558" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="560" cy="666" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<path d="M560 546 H538" stroke="#d6d3d1" stroke-width="2" stroke-dasharray="2 3"/>
+<circle cx="560" cy="546" r="5" fill="#fafaf8" stroke="#a8a29e" stroke-width="2"/>
+<text x="532" y="550" class="t-nc">solto · 1 pulso/s</text>
+<path d="M560 580 H538" stroke="#d6d3d1" stroke-width="2" stroke-dasharray="2 3"/>
+<circle cx="560" cy="580" r="5" fill="#fafaf8" stroke="#a8a29e" stroke-width="2"/>
+<text x="532" y="584" class="t-nc">sem uso</text>
+<text x="574" y="484" class="t-pinw">RX</text>
+<text x="574" y="510" class="t-pinw">TX</text>
+<text x="574" y="550" class="t-pinw">PPS</text>
+<text x="574" y="584" class="t-pinw">N/F</text>
+<text x="574" y="630" class="t-pinw">VCC</text>
+<text x="574" y="670" class="t-pinw">GND</text>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#8b5cf6"></i>UART</li><li><b>●</b> ligação</li><li><b>┄</b> não ligado</li></ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>Pino do módulo</th><th>Fio</th><th>Função</th><th>Ligado no ESP32</th><th>Cuidados</th></tr></thead>
+      <tbody>
+<tr><td><b>N/F</b></td><td>—</td><td>Não conectado</td><td>—</td><td>—</td></tr>
+<tr><td><b>RX</b></td><td>azul</td><td>Recebe comandos do ESP32</td><td>GPIO17 · TX2 (Dir. 11)</td><td>Só serve para configurar o módulo; a leitura usa o TX.</td></tr>
+<tr><td><b>TX</b></td><td>marrom</td><td>Envia as frases NMEA (posição, hora, satélites)</td><td>GPIO16 · RX2 (Dir. 12)</td><td>Cruzado: TX do GPS no RX do ESP32. Invertido, a página mostra “Sem módulo” ou “Dados ilegíveis”.</td></tr>
+<tr><td><b>GND</b></td><td>preto</td><td>Terra</td><td>GND (Esq. 14)</td><td>—</td></tr>
+<tr><td><b>VCC</b></td><td>vermelho</td><td>Alimentação 5 V (o regulador WLDO do kit baixa para o módulo)</td><td>5V (Esq. 19), junto com o microSD</td><td>Dois fios no mesmo pino 5V: use emenda ou barra de pinos. Pelo USB cabem 500 mA; os dois juntos ficam em ≈150 mA no pior caso.</td></tr>
+<tr><td><b>PPS</b></td><td>—</td><td>Um pulso por segundo, alinhado ao segundo do GPS</td><td>não ligado</td><td>No futuro pode ir num GPIO livre (ex.: 4) para hora precisa.</td></tr>
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> o módulo mede o tempo que o sinal de pelo menos 4 satélites leva para chegar e calcula a posição. Uma vez por segundo ele manda linhas de texto (NMEA, como $GNRMC e $GNGGA) pelo TX; o ESP32 lê pela UART2 e interpreta. O kit recebe 5 V e o regulador WLDO baixa para o módulo; os sinais de TX e RX ficam em 3,3 V, então não há resistor nem conversor de nível no caminho.</p>
+    <p class="note"><b>Para conferir:</b> placa no USB, multímetro em DC na escala de 20 V. Entre VCC e GND do kit: ≈4,6–5,0 V. No pino 5 do regulador WLDO (em cima, à direita) contra GND: ≈3,3 V. No TX do módulo contra GND: ≈3,3 V, com pequenas quedas quando ele envia dados (nunca 5 V). Na página da estação, o cartão GPS sai de “Sem módulo” para “Procurando satélites” assim que os dados chegam.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">GPS GP-02-Kit</h3>
+    <div class="hero"><div class="tile"><div class="big">GPS + BDS</div><div class="lbl">satélites</div></div><div class="tile"><div class="big">9600</div><div class="lbl">baud</div></div><div class="tile"><div class="big">1 Hz</div><div class="lbl">posições por segundo</div></div><div class="tile"><div class="big">5 V</div><div class="lbl">no VCC</div></div></div>
+    <div class="specs">
+<div class="spec"><div class="k">Módulo</div><div class="val">Ai-Thinker GP-02-Kit (placa A602) com o módulo GP-02 <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Satélites</div><div class="val">GPS + BeiDou (BDS), impresso na blindagem do módulo <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Pinos</div><div class="val">6: N/F, RX, TX, GND, VCC, PPS · soldados: RX, TX, GND, VCC <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Saída</div><div class="val">Frases NMEA 0183 pela UART, 9600 baud, 1 posição por segundo <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Alimentação</div><div class="val">5 V no VCC · regulador SOT-23-5 marcado “WLDO / E530” entre o VCC e o módulo <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Consumo</div><div class="val">≈25–45 mA procurando ou rastreando <span class="src c">a confirmar na placa</span></div></div>
+<div class="spec"><div class="k">Bateria de backup</div><div class="val">Componente redondo ao lado do módulo: guarda a última posição e a hora para a próxima partida ser mais rápida <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Primeira posição</div><div class="val">De ≈30 s (partida a quente, céu aberto) a alguns minutos (partida a frio) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Antena</div><div class="val">Verificar no verso: antena cerâmica na placa ou conector para antena externa <span class="src c">a confirmar na placa</span></div></div>
+<div class="spec"><div class="k">No firmware</div><div class="val">UART2 a 9600 baud · lê só o que chegar, a estação funciona sem o GPS <span class="src d">no firmware</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="etapa" id="etapa-5">
+  <div class="n">Etapa 5</div>
+  <h2>Energia: baterias, painel solar e medição</h2>
+  <p>Duas baterias de lítio em paralelo, carregadas por um painel solar de 5 V através do carregador. O ESP32 lê a tensão da bateria (GPIO35) e o sinal do carregador (GPIO39) e mostra na página: “Carregando”, “Carregada” ou a % da bateria quando não há sol.</p>
+
+  <div class="card">
+    <h3>Caminho da energia</h3>
+    <p class="sub">Do painel até o ESP32. O step-up (tracejado) ainda precisa ser instalado.</p>
+    <div class="scroll"><svg viewBox="0 0 760 356" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">
+<path d="M140 66 L200 66" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="170" y="58" class="t-wire" style="text-anchor:middle">5 V</text>
+<path d="M380 80 L470 80" stroke="#ef4444" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="425" y="72" class="t-wire" style="text-anchor:middle">3,0–4,2 V</text>
+<path d="M580 80 L630 80" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="605" y="72" class="t-wire" style="text-anchor:middle">5 V</text>
+<path d="M380 125 L630 125" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="525" y="140" class="t-wire" style="text-anchor:middle">GND comum</text>
+<path d="M525 110 L525 125" stroke="#a8a29e" stroke-width="2" fill="none" stroke-linejoin="round"/>
+<circle cx="525" cy="125" r="4.5" fill="#1c1917"/>
+<path d="M380 165 L450 165" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M524 165 L630 165" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M380 200 L450 200" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M524 200 L630 200" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M250 230 L250 250" stroke="#ef4444" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M330 230 L330 250" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="240" y="245" class="t-wire" style="text-anchor:end">B+</text>
+<text x="340" y="245" class="t-wire" style="text-anchor:start">B−</text>
+<path d="M380 262 L450 262 L450 270" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M450 330 L450 340 L330 340 L330 310" stroke="#a8a29e" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M450 300 L630 300" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<circle cx="450" cy="300" r="4.5" fill="#1c1917"/>
+<rect x="20" y="41" width="120" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="80.0" y="61" class="t-box">Painel solar</text><text x="80.0" y="77" class="t-wire" style="font-weight:400">5 V</text>
+<rect x="200" y="30" width="180" height="200" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="290.0" y="50" class="t-box">Carregador</text><text x="290.0" y="66" class="t-wire" style="font-weight:400">provável TP4056</text>
+<circle cx="365" cy="165" r="6" fill="#ef4444"/><text x="352" y="169" class="t-wire" style="text-anchor:end">LED carregando</text>
+<circle cx="365" cy="200" r="6" fill="#3b82f6"/><text x="352" y="204" class="t-wire" style="text-anchor:end">LED carregado</text>
+<text x="212" y="70" class="t-nc" style="text-anchor:start">IN</text><text x="368" y="84" class="t-nc">OUT+</text><text x="368" y="129" class="t-nc">OUT−</text>
+<rect x="200" y="250" width="180" height="60" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="290.0" y="270" class="t-box">2× 18650 em paralelo</text><text x="290.0" y="286" class="t-wire" style="font-weight:400">3,0–4,2 V</text>
+<rect x="470" y="50" width="110" height="60" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4" stroke-dasharray="5 4"/><text x="525.0" y="70" class="t-box">Step-up 5 V</text><text x="525.0" y="86" class="t-wire" style="font-weight:400">a instalar</text>
+<rect x="450" y="154" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="169" class="t-fp" fill="#44403c">÷ 10k/10k</text>
+<rect x="450" y="189" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="204" class="t-fp" fill="#44403c">÷ 10k/10k</text>
+<rect x="443" y="270" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="287.0" class="t-nc" style="text-anchor:start">R1</text>
+<rect x="443" y="304" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="321.0" class="t-nc" style="text-anchor:start">R2</text>
+<rect x="630" y="40" width="110" height="290" rx="10" fill="#44403c"/><text x="685" y="62" class="t-boxw">ESP32</text>
+<text x="642" y="84" class="t-pinw">5V</text>
+<circle cx="630" cy="80" r="4.5" fill="#1c1917"/>
+<text x="642" y="129" class="t-pinw">GND</text>
+<circle cx="630" cy="125" r="4.5" fill="#1c1917"/>
+<text x="642" y="169" class="t-pinw">GPIO39</text>
+<circle cx="630" cy="165" r="4.5" fill="#1c1917"/>
+<text x="642" y="204" class="t-pinw">GPIO34</text>
+<circle cx="630" cy="200" r="4.5" fill="#1c1917"/>
+<text x="642" y="304" class="t-pinw">GPIO35</text>
+<circle cx="630" cy="300" r="4.5" fill="#1c1917"/>
+</svg></div>
+    <ul class="legend"><li><i style="background:#ef4444"></i>bateria 3,0–4,2 V</li><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>analógico (ADC1)</li><li><b>┄</b> peça a instalar</li></ul>
+    <p class="note"><b>Atenção:</b> não ligue o OUT do carregador direto no ESP32. No 3V3, os 4,2 V da bateria passam do máximo do chip (3,6 V). No 5V, o regulador da placa não consegue entregar 3,3 V com menos de ≈4,5 V na entrada, e o microSD e o GPS também precisam de 5 V. O step-up resolve os dois casos.</p>
+    <p class="note"><b>USB e bateria juntos:</b> com o step-up ligado no 5V, não conecte o cabo USB ao mesmo tempo até medir se a placa tem diodo entre o USB e o pino 5V (Etapa 1, “Para conferir”).</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação no ESP32</h3>
+    <p class="sub">Tudo do lado esquerdo da placa. As leituras usam o ADC1, que funciona com o Wi-Fi ligado.</p>
+    <div class="scroll"><svg viewBox="0 0 710 780" role="img" aria-label="Ligação da energia no ESP32" class="dia lig2">
+<g transform="translate(330,40)"><rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
+<rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
+<rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
+<rect x="206" y="21" width="16" height="16" rx="2" fill="#d4a24c"/><circle cx="214" cy="29" r="4" fill="#a16207"/>
+<text x="196" y="33" class="t-silk" text-anchor="end" style="text-anchor:end;fill:#44403c">U.FL</text>
+<text x="180" y="82" class="t-mod" style="font-size:9.5px">ESP32-WROOM-32U</text>
+<text x="180" y="100" class="t-mod2">D0WD-V3 · 4 MB</text>
+<text x="180" y="115" class="t-mod2">24:dc:c3:cf:fc:30</text>
+<text x="180" y="138" class="t-mod2">antena externa</text>
+<rect x="140" y="330" width="44" height="40" rx="2" fill="#292524"/><rect x="146" y="322" width="32" height="8" fill="#78716c"/><text x="162" y="388" class="t-silk">regulador</text>
+<rect x="212" y="330" width="18" height="14" rx="2" fill="#292524"/>
+<rect x="212" y="362" width="18" height="14" rx="2" fill="#292524"/>
+<text x="221" y="392" class="t-silk">Q1 Q2</text>
+<rect x="155" y="420" width="50" height="50" rx="3" fill="#292524"/><text x="180" y="449" class="t-chip">CP2102</text>
+<circle cx="130" cy="450" r="5" fill="#ef4444"/><text x="130" y="470" class="t-silk">PWR</text>
+<rect x="126" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="137" cy="609" r="5" fill="#78716c"/><text x="137" y="590" class="t-silk">EN</text>
+<rect x="212" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="223" cy="609" r="5" fill="#78716c"/><text x="223" y="590" class="t-silk">BOOT</text>
+<rect x="160" y="660" width="40" height="48" rx="4" fill="#a8a29e"/><text x="180" y="724" class="t-cap">micro-USB</text>
+<circle cx="108" cy="180" r="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="8" y="171" width="50" height="18" rx="9" fill="#f59e0b"/>
+<text x="33" y="184" class="t-pill" fill="#1c1917">3V3</text>
+<circle cx="108" cy="206" r="6" fill="#fafaf8" stroke="#44403c" stroke-width="3.5"/>
+<rect x="8" y="197" width="50" height="18" rx="9" fill="#44403c"/>
+<text x="33" y="210" class="t-pill" fill="#fff">EN</text>
+<circle cx="108" cy="232" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="236" text-anchor="end" class="t-num">36</text>
+<rect x="8" y="223" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="236" class="t-pill" fill="#1c1917">VP</text>
+<circle cx="108" cy="258" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="262" text-anchor="end" class="t-num">39</text>
+<rect x="8" y="249" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="262" class="t-pill" fill="#1c1917">VN</text>
+<circle cx="108" cy="284" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="288" text-anchor="end" class="t-num">34</text>
+<rect x="8" y="275" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="288" class="t-pill" fill="#1c1917">34</text>
+<circle cx="108" cy="310" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="314" text-anchor="end" class="t-num">35</text>
+<rect x="8" y="301" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="314" class="t-pill" fill="#1c1917">35</text>
+<circle cx="108" cy="336" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="340" text-anchor="end" class="t-num">32</text>
+<rect x="8" y="327" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="340" class="t-pill" fill="#fff">32</text>
+<circle cx="108" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="366" text-anchor="end" class="t-num">33</text>
+<rect x="8" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="366" class="t-pill" fill="#fff">33</text>
+<circle cx="108" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="392" text-anchor="end" class="t-num">25</text>
+<rect x="8" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="392" class="t-pill" fill="#fff">25</text>
+<circle cx="108" cy="414" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="418" text-anchor="end" class="t-num">26</text>
+<rect x="8" y="405" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="418" class="t-pill" fill="#fff">26</text>
+<circle cx="108" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="444" text-anchor="end" class="t-num">27</text>
+<rect x="8" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="444" class="t-pill" fill="#fff">27</text>
+<circle cx="108" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="470" text-anchor="end" class="t-num">14</text>
+<rect x="8" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="470" class="t-pill" fill="#fff">14</text>
+<circle cx="108" cy="492" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="88" y="496" text-anchor="end" class="t-num">12</text>
+<rect x="8" y="483" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="33" y="496" class="t-pill" fill="#fff">12</text>
+<circle cx="108" cy="518" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="8" y="509" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="33" y="522" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="108" cy="544" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="548" text-anchor="end" class="t-num">13</text>
+<rect x="8" y="535" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="548" class="t-pill" fill="#fff">13</text>
+<circle cx="108" cy="570" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="574" text-anchor="end" class="t-num">9</text>
+<rect x="8" y="561" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="574" class="t-pill" fill="#57534e">D2</text>
+<circle cx="108" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="600" text-anchor="end" class="t-num">10</text>
+<rect x="8" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="600" class="t-pill" fill="#57534e">D3</text>
+<circle cx="108" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="626" text-anchor="end" class="t-num">11</text>
+<rect x="8" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="626" class="t-pill" fill="#57534e">CMD</text>
+<circle cx="108" cy="648" r="6" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="8" y="639" width="50" height="18" rx="9" fill="#f97316"/>
+<text x="33" y="652" class="t-pill" fill="#fff">5V</text>
+<circle cx="252" cy="180" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="171" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="184" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="206" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="210" text-anchor="start" class="t-num">23</text>
+<rect x="302" y="197" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="210" class="t-pill" fill="#fff">23</text>
+<circle cx="252" cy="232" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="236" text-anchor="start" class="t-num">22</text>
+<rect x="302" y="223" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="236" class="t-pill" fill="#fff">22</text>
+<circle cx="252" cy="258" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="262" text-anchor="start" class="t-num">1</text>
+<rect x="302" y="249" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="262" class="t-pill" fill="#fff">TX</text>
+<circle cx="252" cy="284" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="288" text-anchor="start" class="t-num">3</text>
+<rect x="302" y="275" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="288" class="t-pill" fill="#fff">RX</text>
+<circle cx="252" cy="310" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="314" text-anchor="start" class="t-num">21</text>
+<rect x="302" y="301" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="314" class="t-pill" fill="#fff">21</text>
+<circle cx="252" cy="336" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="327" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="340" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="366" text-anchor="start" class="t-num">19</text>
+<rect x="302" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="366" class="t-pill" fill="#fff">19</text>
+<circle cx="252" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="392" text-anchor="start" class="t-num">18</text>
+<rect x="302" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="392" class="t-pill" fill="#fff">18</text>
+<circle cx="252" cy="414" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="418" text-anchor="start" class="t-num">5</text>
+<rect x="302" y="405" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="418" class="t-pill" fill="#fff">5</text>
+<circle cx="252" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="444" text-anchor="start" class="t-num">17</text>
+<rect x="302" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="444" class="t-pill" fill="#fff">17</text>
+<circle cx="252" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="470" text-anchor="start" class="t-num">16</text>
+<rect x="302" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="470" class="t-pill" fill="#fff">16</text>
+<circle cx="252" cy="492" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="496" text-anchor="start" class="t-num">4</text>
+<rect x="302" y="483" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="496" class="t-pill" fill="#fff">4</text>
+<circle cx="252" cy="518" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="522" text-anchor="start" class="t-num">0</text>
+<rect x="302" y="509" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="522" class="t-pill" fill="#fff">0</text>
+<circle cx="252" cy="544" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="548" text-anchor="start" class="t-num">2</text>
+<rect x="302" y="535" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="548" class="t-pill" fill="#fff">2</text>
+<circle cx="252" cy="570" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="574" text-anchor="start" class="t-num">15</text>
+<rect x="302" y="561" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="574" class="t-pill" fill="#fff">15</text>
+<circle cx="252" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="600" text-anchor="start" class="t-num">8</text>
+<rect x="302" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="600" class="t-pill" fill="#57534e">D1</text>
+<circle cx="252" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="626" text-anchor="start" class="t-num">7</text>
+<rect x="302" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="626" class="t-pill" fill="#57534e">D0</text>
+<circle cx="252" cy="648" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="652" text-anchor="start" class="t-num">6</text>
+<rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="652" class="t-pill" fill="#57534e">CLK</text></g>
+<rect x="8" y="287" width="228" height="22" rx="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="1.4"/>
+<text x="16" y="302" class="t-term">LED carregando<tspan class="t-term2"> · divisor 10k/10k</tspan></text>
+<path d="M236 298 H338" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="236" cy="298" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="298" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<rect x="8" y="313" width="228" height="22" rx="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="1.4"/>
+<text x="16" y="328" class="t-term">LED carregado<tspan class="t-term2"> · divisor 10k/10k</tspan></text>
+<path d="M236 324 H338" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="236" cy="324" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="324" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<rect x="8" y="339" width="228" height="22" rx="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="1.4"/>
+<text x="16" y="354" class="t-term">Bateria<tspan class="t-term2"> · meio de R1/R2</tspan></text>
+<path d="M236 350 H338" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="236" cy="350" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="350" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<rect x="8" y="547" width="228" height="22" rx="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/>
+<text x="16" y="562" class="t-term">GND comum<tspan class="t-term2"> · OUT− e step-up −</tspan></text>
+<path d="M236 558 H338" stroke="#a8a29e" stroke-width="3" fill="none"/>
+<circle cx="236" cy="558" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="558" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<rect x="8" y="677" width="228" height="22" rx="6" fill="#fafaf8" stroke="#f97316" stroke-width="1.4"/>
+<text x="16" y="692" class="t-term">Step-up 5 V<tspan class="t-term2"> · saída +</tspan></text>
+<path d="M236 688 H338" stroke="#f97316" stroke-width="3" fill="none"/>
+<circle cx="236" cy="688" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="688" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+</svg></div>
+    <ul class="legend"><li><i style="background:#ef4444"></i>bateria 3,0–4,2 V</li><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>analógico (ADC1)</li><li><b>┄</b> peça a instalar</li></ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>De</th><th>Para no ESP32</th><th>Por quê</th></tr></thead>
+      <tbody>
+<tr><td><b>Step-up 5 V · saída +</b></td><td>5V (Esq. 19)</td><td>Alimenta a placa. O mesmo pino 5V já alimenta o microSD e o GPS: os três ficam no mesmo trilho de 5 V.</td></tr>
+<tr><td><b>GND (OUT− e step-up −)</b></td><td>GND (Esq. 14)</td><td>Terra comum. O GPS já usa esse GND: em placa, todos os GND são o mesmo ponto.</td></tr>
+<tr><td><b>Bateria: meio de R1/R2</b></td><td>GPIO35 · ADC1_7 (Esq. 6)</td><td>Medido: bateria 4,10 V → 1,40 V no pino (razão ≈2,93). O firmware multiplica a leitura por 2,93.</td></tr>
+<tr><td><b>LED carregando, via divisor</b></td><td>GPIO39 · VN · ADC1_3 (Esq. 4)</td><td>Medido no fio: carregando 3,10–3,13 V · carregada 2,6 V · sem sol 0 V. No pino fica a metade: ≈1,55 / 1,30 / 0 V.</td></tr>
+<tr><td><b>LED carregado, via divisor</b></td><td>GPIO34 · ADC1_6 (Esq. 5)</td><td>Se um fio só já distingue os três estados, este fica livre (a confirmar).</td></tr>
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> o divisor R1/R2 entrega ao ESP32 ≈1/2,93 da tensão da bateria (medido), porque o ADC só mede até ≈3,1 V. No sinal dos LEDs foi medido: 3,10–3,13 V carregando, 2,6 V carregada e 0 V sem sol. O divisor de 10 kΩ + 10 kΩ corta pela metade (≈1,55 / 1,30 / 0 V), que é a faixa em que o ADC do ESP32 mede com mais precisão e deixa folga se o painel subir a tensão.</p>
+    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, ≈1/2,93 da tensão da bateria (medido: 4,10 V → 1,40 V). No fio dos LEDs (já medido): carregando 3,10–3,13 V, carregada 2,6 V, sem sol 0 V. Depois do divisor, no pino: metade desses valores. Na saída do step-up: 5,0–5,2 V, antes de ligar no pino 5V.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">Baterias e carregador</h3>
+    <div class="hero"><div class="tile"><div class="big">2× Li-ion</div><div class="lbl">em paralelo</div></div><div class="tile"><div class="big">3,0–4,2 V</div><div class="lbl">vazia → cheia</div></div><div class="tile"><div class="big">3,1 / 2,6 / 0 V</div><div class="lbl">carregando / cheia / sem sol</div></div><div class="tile"><div class="big">ADC1</div><div class="lbl">34 · 35 · 39</div></div></div>
+    <div class="specs">
+<div class="spec"><div class="k">Baterias</div><div class="val">2 células de lítio (provável 18650) em paralelo: 3,7 V nominal, 4,2 V cheias, ≈3,0 V vazias; a capacidade das duas se soma <span class="src c">a confirmar na placa</span></div></div>
+<div class="spec"><div class="k">Carregador</div><div class="val">Placa com entrada 5 V, B+/B−, OUT+/OUT− e 2 LEDs: provável TP4056 com proteção (DW01A + 8205A) <span class="src c">a confirmar na placa</span></div></div>
+<div class="spec"><div class="k">Entrada do carregador</div><div class="val">4,5–5,5 V (máximo absoluto 8 V): o painel de 5 V serve; em aberto ele pode passar de 6 V, ainda dentro do limite <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Saída OUT</div><div class="val">É a tensão da bateria (3,0–4,2 V), não 5 V. Por isso o step-up entre o OUT e o pino 5V <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Corrente de carga</div><div class="val">Até 1 A no padrão. Um painel pequeno não chega a isso; a carga só fica mais lenta <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">LEDs</div><div class="val">Vermelho = carregando · azul ou verde = carregada · os dois apagados = sem sol, a estação está na bateria <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Sinal dos LEDs (medido)</div><div class="val">Carregando: 3,10–3,13 V · carregada (LED de 100 % aceso): 2,6 V · nenhum aceso (painel sem carga): 0 V · antes do divisor <span class="src v">medido</span></div></div>
+<div class="spec"><div class="k">No pino, após o divisor 10k/10k</div><div class="val">Carregando ≈1,55 V · carregada ≈1,30 V · sem sol 0 V (metade do medido, dentro da faixa boa do ADC) <span class="src d">calculado</span></div></div>
+<div class="spec"><div class="k">Limites para o firmware</div><div class="val">acima de 1,42 V = carregando · de 0,60 a 1,42 V = carregada · abaixo de 0,60 V = sem sol (na bateria) <span class="src d">no firmware</span></div></div>
+<div class="spec"><div class="k">Divisor da bateria (medido)</div><div class="val">Bateria 4,10 V → 1,40 V no meio de R1/R2: razão ≈2,93 (R1 ≈ 1,9 × R2). Bateria cheia (4,2 V) → ≈1,43 V no pino <span class="src v">medido</span></div></div>
+<div class="spec"><div class="k">No firmware</div><div class="val">Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria · leitura a cada 3 s <span class="src d">no firmware</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="etapa" id="etapa-6">
+  <div class="n">Etapa 6</div>
+  <h2>Pluviômetro: sensor Hall 49E</h2>
+  <p>A báscula do pluviômetro tem um ímã. Cada vez que ela vira, o ímã passa pela frente do sensor 49E e a saída dele muda de tensão; o ESP32 conta essas mudanças e mostra o total na página (ainda sem converter em milímetros).</p>
+
+  <div class="card">
+    <div class="eyebrow">Sensor</div>
+    <h3 class="ft">Pinos do 49E e lado sensível</h3>
+    <div class="scroll"><svg viewBox="0 0 700 430" role="img" aria-label="Sensor Hall 49E: vista de frente com os pinos e vista de cima com os chanfros" class="dia hall">
+<text x="160" y="24" class="t-row" style="text-anchor:middle">Vista de frente</text>
+<text x="160" y="42" class="t-row2" style="text-anchor:middle;font-size:11px">nome virado para você · pernas para baixo</text>
+<rect x="90" y="62" width="140" height="150" rx="6" fill="#292524"/>
+<rect x="90" y="62" width="16" height="150" rx="4" fill="#57534e"/><rect x="214" y="62" width="16" height="150" rx="4" fill="#57534e"/>
+<text x="160" y="128" style="font-size:30px;font-weight:700;text-anchor:middle;fill:#e7e5e4;letter-spacing:.04em">49E</text>
+<text x="160" y="152" class="t-silk" style="font-size:11px">código do lote</text>
+<path d="M82 90 H98" stroke="#a8a29e"/><text x="78" y="94" class="t-nc" style="text-anchor:end;font-size:10px">chanfro</text>
+<path d="M222 90 H238" stroke="#a8a29e"/><text x="242" y="94" class="t-nc" style="text-anchor:start;font-size:10px">chanfro</text>
+<rect x="122" y="212" width="6" height="120" fill="#a8a29e"/>
+<text x="125" y="350" style="font-size:14px;font-weight:700;text-anchor:middle;fill:#1c1917">1</text>
+<rect x="109.0" y="363" width="32" height="18" rx="9" fill="#f59e0b"/><text x="125" y="375.6" class="t-fp" fill="#1c1917">VCC</text>
+<rect x="109.0" y="393" width="32" height="18" rx="9" fill="#fafaf8" stroke="#fafaf8" stroke-width="1.2"/><text x="125" y="405.6" class="t-fp" fill="#44403c"></text>
+<rect x="157" y="212" width="6" height="120" fill="#a8a29e"/>
+<text x="160" y="350" style="font-size:14px;font-weight:700;text-anchor:middle;fill:#1c1917">2</text>
+<rect x="144.0" y="363" width="32" height="18" rx="9" fill="#a8a29e"/><text x="160" y="375.6" class="t-fp" fill="#1c1917">GND</text>
+<rect x="144.0" y="393" width="32" height="18" rx="9" fill="#fafaf8" stroke="#fafaf8" stroke-width="1.2"/><text x="160" y="405.6" class="t-fp" fill="#44403c"></text>
+<rect x="192" y="212" width="6" height="120" fill="#a8a29e"/>
+<text x="195" y="350" style="font-size:14px;font-weight:700;text-anchor:middle;fill:#1c1917">3</text>
+<rect x="179.0" y="363" width="32" height="18" rx="9" fill="#06b6d4"/><text x="195" y="375.6" class="t-fp" fill="#1c1917">OUT</text>
+<rect x="179.0" y="393" width="32" height="18" rx="9" fill="#fafaf8" stroke="#fafaf8" stroke-width="1.2"/><text x="195" y="405.6" class="t-fp" fill="#44403c"></text>
+<text x="125" y="406" class="t-fp" fill="#44403c" style="font-size:9.5px">3V3</text>
+<text x="160" y="406" class="t-fp" fill="#44403c" style="font-size:9.5px">GND</text>
+<text x="195" y="406" class="t-fp" fill="#44403c" style="font-size:9.5px">GPIO32</text>
+<text x="40" y="376" class="t-row" style="text-anchor:end">Pino</text><text x="40" y="406" class="t-row" style="text-anchor:end">ESP32</text>
+<text x="500" y="24" class="t-row" style="text-anchor:middle">Vista de cima</text>
+<text x="500" y="42" class="t-row2" style="text-anchor:middle;font-size:11px">olhando o sensor de cima para baixo</text>
+<text x="500" y="92" class="t-nc" style="text-anchor:middle">trás · lisa</text>
+<polygon points="430,104 570,104 570,150 550,170 450,170 430,150" fill="#292524"/>
+<path d="M430 150 L450 170" stroke="#a8a29e" stroke-width="3"/><path d="M570 150 L550 170" stroke="#a8a29e" stroke-width="3"/>
+<rect x="488" y="150" width="24" height="8" rx="2" fill="#06b6d4"/>
+<text x="500" y="140" class="t-silk" style="font-size:10px">elemento Hall</text>
+<text x="500" y="192" class="t-wire2">frente · nome “49E” · chanfros</text>
+<path d="M500 254 V206" stroke="#57534e" stroke-width="2" marker-end="url(#seta)"/>
+<defs><marker id="seta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#57534e"/></marker></defs>
+<rect x="476" y="260" width="48" height="24" fill="#ef4444"/><rect x="476" y="284" width="48" height="24" fill="#3b82f6"/>
+<rect x="476" y="260" width="48" height="48" rx="3" fill="none" stroke="#1c1917" stroke-width="1"/>
+<text x="500" y="277" style="font-size:13px;font-weight:700;text-anchor:middle;fill:#fff">S</text><text x="500" y="301" style="font-size:13px;font-weight:700;text-anchor:middle;fill:#fff">N</text>
+<text x="534" y="290" class="t-wire2" style="text-anchor:start">ímã na báscula</text>
+<text x="500" y="340" class="t-nc" style="text-anchor:middle">aproxime da FRENTE, a 3–10 mm</text>
+<text x="500" y="370" class="t-nc" style="text-anchor:middle">sul na frente → saída sobe · norte → saída desce</text>
+<text x="500" y="388" class="t-nc" style="text-anchor:middle">qualquer polo serve: o firmware olha o desvio do meio</text>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f59e0b"></i>3,3 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>saída analógica (ADC1)</li></ul>
+    <p class="note"><b>Para identificar:</b> segure o sensor com a face que tem o nome “49E” e os cantos chanfrados virada para você, pernas para baixo. Da esquerda para a direita: <b>1 VCC</b>, <b>2 GND</b>, <b>3 OUT</b>. A parte de trás é lisa e arredondada.</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação</h3>
+    <p class="sub">3 fios, todos do lado esquerdo da placa.</p>
+    <div class="scroll"><svg viewBox="0 0 710 780" role="img" aria-label="Ligação do sensor 49E no ESP32" class="dia lig2">
+<g transform="translate(330,40)"><rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
+<rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
+<rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
+<rect x="206" y="21" width="16" height="16" rx="2" fill="#d4a24c"/><circle cx="214" cy="29" r="4" fill="#a16207"/>
+<text x="196" y="33" class="t-silk" text-anchor="end" style="text-anchor:end;fill:#44403c">U.FL</text>
+<text x="180" y="82" class="t-mod" style="font-size:9.5px">ESP32-WROOM-32U</text>
+<text x="180" y="100" class="t-mod2">D0WD-V3 · 4 MB</text>
+<text x="180" y="115" class="t-mod2">24:dc:c3:cf:fc:30</text>
+<text x="180" y="138" class="t-mod2">antena externa</text>
+<rect x="140" y="330" width="44" height="40" rx="2" fill="#292524"/><rect x="146" y="322" width="32" height="8" fill="#78716c"/><text x="162" y="388" class="t-silk">regulador</text>
+<rect x="212" y="330" width="18" height="14" rx="2" fill="#292524"/>
+<rect x="212" y="362" width="18" height="14" rx="2" fill="#292524"/>
+<text x="221" y="392" class="t-silk">Q1 Q2</text>
+<rect x="155" y="420" width="50" height="50" rx="3" fill="#292524"/><text x="180" y="449" class="t-chip">CP2102</text>
+<circle cx="130" cy="450" r="5" fill="#ef4444"/><text x="130" y="470" class="t-silk">PWR</text>
+<rect x="126" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="137" cy="609" r="5" fill="#78716c"/><text x="137" y="590" class="t-silk">EN</text>
+<rect x="212" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="223" cy="609" r="5" fill="#78716c"/><text x="223" y="590" class="t-silk">BOOT</text>
+<rect x="160" y="660" width="40" height="48" rx="4" fill="#a8a29e"/><text x="180" y="724" class="t-cap">micro-USB</text>
+<circle cx="108" cy="180" r="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="8" y="171" width="50" height="18" rx="9" fill="#f59e0b"/>
+<text x="33" y="184" class="t-pill" fill="#1c1917">3V3</text>
+<circle cx="108" cy="206" r="6" fill="#fafaf8" stroke="#44403c" stroke-width="3.5"/>
+<rect x="8" y="197" width="50" height="18" rx="9" fill="#44403c"/>
+<text x="33" y="210" class="t-pill" fill="#fff">EN</text>
+<circle cx="108" cy="232" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="236" text-anchor="end" class="t-num">36</text>
+<rect x="8" y="223" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="236" class="t-pill" fill="#1c1917">VP</text>
+<circle cx="108" cy="258" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="262" text-anchor="end" class="t-num">39</text>
+<rect x="8" y="249" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="262" class="t-pill" fill="#1c1917">VN</text>
+<circle cx="108" cy="284" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="288" text-anchor="end" class="t-num">34</text>
+<rect x="8" y="275" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="288" class="t-pill" fill="#1c1917">34</text>
+<circle cx="108" cy="310" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="314" text-anchor="end" class="t-num">35</text>
+<rect x="8" y="301" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="314" class="t-pill" fill="#1c1917">35</text>
+<circle cx="108" cy="336" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="340" text-anchor="end" class="t-num">32</text>
+<rect x="8" y="327" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="340" class="t-pill" fill="#fff">32</text>
+<circle cx="108" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="366" text-anchor="end" class="t-num">33</text>
+<rect x="8" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="366" class="t-pill" fill="#fff">33</text>
+<circle cx="108" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="392" text-anchor="end" class="t-num">25</text>
+<rect x="8" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="392" class="t-pill" fill="#fff">25</text>
+<circle cx="108" cy="414" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="418" text-anchor="end" class="t-num">26</text>
+<rect x="8" y="405" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="418" class="t-pill" fill="#fff">26</text>
+<circle cx="108" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="444" text-anchor="end" class="t-num">27</text>
+<rect x="8" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="444" class="t-pill" fill="#fff">27</text>
+<circle cx="108" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="470" text-anchor="end" class="t-num">14</text>
+<rect x="8" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="470" class="t-pill" fill="#fff">14</text>
+<circle cx="108" cy="492" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="88" y="496" text-anchor="end" class="t-num">12</text>
+<rect x="8" y="483" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="33" y="496" class="t-pill" fill="#fff">12</text>
+<circle cx="108" cy="518" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="8" y="509" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="33" y="522" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="108" cy="544" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="548" text-anchor="end" class="t-num">13</text>
+<rect x="8" y="535" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="548" class="t-pill" fill="#fff">13</text>
+<circle cx="108" cy="570" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="574" text-anchor="end" class="t-num">9</text>
+<rect x="8" y="561" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="574" class="t-pill" fill="#57534e">D2</text>
+<circle cx="108" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="600" text-anchor="end" class="t-num">10</text>
+<rect x="8" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="600" class="t-pill" fill="#57534e">D3</text>
+<circle cx="108" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="626" text-anchor="end" class="t-num">11</text>
+<rect x="8" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="626" class="t-pill" fill="#57534e">CMD</text>
+<circle cx="108" cy="648" r="6" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="8" y="639" width="50" height="18" rx="9" fill="#f97316"/>
+<text x="33" y="652" class="t-pill" fill="#fff">5V</text>
+<circle cx="252" cy="180" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="171" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="184" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="206" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="210" text-anchor="start" class="t-num">23</text>
+<rect x="302" y="197" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="210" class="t-pill" fill="#fff">23</text>
+<circle cx="252" cy="232" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="236" text-anchor="start" class="t-num">22</text>
+<rect x="302" y="223" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="236" class="t-pill" fill="#fff">22</text>
+<circle cx="252" cy="258" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="262" text-anchor="start" class="t-num">1</text>
+<rect x="302" y="249" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="262" class="t-pill" fill="#fff">TX</text>
+<circle cx="252" cy="284" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="288" text-anchor="start" class="t-num">3</text>
+<rect x="302" y="275" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="288" class="t-pill" fill="#fff">RX</text>
+<circle cx="252" cy="310" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="314" text-anchor="start" class="t-num">21</text>
+<rect x="302" y="301" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="314" class="t-pill" fill="#fff">21</text>
+<circle cx="252" cy="336" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="327" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="340" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="366" text-anchor="start" class="t-num">19</text>
+<rect x="302" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="366" class="t-pill" fill="#fff">19</text>
+<circle cx="252" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="392" text-anchor="start" class="t-num">18</text>
+<rect x="302" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="392" class="t-pill" fill="#fff">18</text>
+<circle cx="252" cy="414" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="418" text-anchor="start" class="t-num">5</text>
+<rect x="302" y="405" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="418" class="t-pill" fill="#fff">5</text>
+<circle cx="252" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="444" text-anchor="start" class="t-num">17</text>
+<rect x="302" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="444" class="t-pill" fill="#fff">17</text>
+<circle cx="252" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="470" text-anchor="start" class="t-num">16</text>
+<rect x="302" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="470" class="t-pill" fill="#fff">16</text>
+<circle cx="252" cy="492" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="496" text-anchor="start" class="t-num">4</text>
+<rect x="302" y="483" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="496" class="t-pill" fill="#fff">4</text>
+<circle cx="252" cy="518" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="522" text-anchor="start" class="t-num">0</text>
+<rect x="302" y="509" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="522" class="t-pill" fill="#fff">0</text>
+<circle cx="252" cy="544" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="548" text-anchor="start" class="t-num">2</text>
+<rect x="302" y="535" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="548" class="t-pill" fill="#fff">2</text>
+<circle cx="252" cy="570" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="574" text-anchor="start" class="t-num">15</text>
+<rect x="302" y="561" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="574" class="t-pill" fill="#fff">15</text>
+<circle cx="252" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="600" text-anchor="start" class="t-num">8</text>
+<rect x="302" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="600" class="t-pill" fill="#57534e">D1</text>
+<circle cx="252" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="626" text-anchor="start" class="t-num">7</text>
+<rect x="302" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="626" class="t-pill" fill="#57534e">D0</text>
+<circle cx="252" cy="648" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="652" text-anchor="start" class="t-num">6</text>
+<rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="652" class="t-pill" fill="#57534e">CLK</text></g>
+<rect x="8" y="209" width="228" height="22" rx="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="1.4"/>
+<text x="16" y="224" class="t-term">49E pino 1 · VCC<tspan class="t-term2"> · 3,3 V</tspan></text>
+<path d="M236 220 H338" stroke="#f59e0b" stroke-width="3" fill="none"/>
+<circle cx="236" cy="220" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="220" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<rect x="8" y="365" width="228" height="22" rx="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="1.4"/>
+<text x="16" y="380" class="t-term">49E pino 3 · OUT<tspan class="t-term2"> · sinal analógico</tspan></text>
+<path d="M236 376 H338" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="236" cy="376" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="376" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<rect x="8" y="547" width="228" height="22" rx="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/>
+<text x="16" y="562" class="t-term">49E pino 2 · GND<tspan class="t-term2"> · terra</tspan></text>
+<path d="M236 558 H338" stroke="#a8a29e" stroke-width="3" fill="none"/>
+<circle cx="236" cy="558" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+<circle cx="338" cy="558" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
+</svg></div>
+    <ul class="legend"><li><i style="background:#f59e0b"></i>3,3 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>saída analógica (ADC1)</li><li><b>●</b> ligação</li></ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>Pino</th><th>Nome</th><th>Ligado no ESP32</th><th>Cuidados</th></tr></thead>
+      <tbody>
+<tr><td><b>1</b></td><td><b>VCC</b></td><td>3V3 (Esq. 1), junto com o BME280</td><td>Dois fios no mesmo 3V3: emenda ou barra. Não ligue no 5V: a saída subiria até 5 V.</td></tr>
+<tr><td><b>2</b></td><td><b>GND</b></td><td>GND (Esq. 14), junto com GPS e energia</td><td>Terra comum.</td></tr>
+<tr><td><b>3</b></td><td><b>OUT</b></td><td>GPIO32 · ADC1_4 (Esq. 7)</td><td>Analógico: ≈1,65 V sem ímã. Não precisa de pull-up. GPIO32 é ADC1 (funciona com Wi-Fi).</td></tr>
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> dentro do 49E há uma placa Hall que gera uma tensão proporcional ao campo magnético. Sem ímã, a saída fica no meio da alimentação; o polo sul na frente faz a tensão subir e o norte faz descer. Como a saída nunca passa da alimentação (3,3 V), ela vai direto no pino, sem resistor.</p>
+    <p class="note"><b>Para conferir antes de soldar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no pino 2): ligue o pino 1 em 3,3 V e meça o pino 3. Sem ímã: ≈1,6–1,7 V. Encoste o ímã na frente: deve subir ou descer pelo menos 0,3 V. Se a saída ficar perto de 0 V ou de 3,3 V sem ímã, os pinos estão trocados: desligue e confira a vista de frente.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">SS49E no pluviômetro</h3>
+    <div class="hero"><div class="tile"><div class="big">Linear</div><div class="lbl">saída analógica</div></div><div class="tile"><div class="big">3,3 V</div><div class="lbl">no VCC</div></div><div class="tile"><div class="big">1,65 V</div><div class="lbl">sem ímã</div></div><div class="tile"><div class="big">GPIO32</div><div class="lbl">ADC1_4</div></div></div>
+    <div class="specs">
+<div class="spec"><div class="k">Sensor</div><div class="val">SS49E (marcado “49E”): sensor Hall linear, saída analógica proporcional ao campo <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Pinos</div><div class="val">De frente (nome para você, pernas para baixo): 1 VCC · 2 GND · 3 OUT <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Alimentação</div><div class="val">2,7–6,5 V · ligado em 3,3 V, a saída fica entre 0 e 3,3 V <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Saída sem ímã</div><div class="val">≈ metade da alimentação: ≈1,65 V em 3,3 V <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Sensibilidade</div><div class="val">≈1,4 mV por gauss em 5 V; em 3,3 V, ≈0,9 mV/G (proporcional à alimentação) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Consumo</div><div class="val">≈6 mA, contínuo <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Face sensível</div><div class="val">A da frente, com o nome e os chanfros <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Pluviômetro</div><div class="val">Báscula com ímã: cada virada = um pulso no sensor <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Calibração</div><div class="val">mm por basculada = volume da báscula (mL) ÷ área do funil (cm²) × 10 · confirmar despejando um volume conhecido <span class="src c">a confirmar na placa</span></div></div>
+<div class="spec"><div class="k">No firmware</div><div class="val">200 leituras/s no GPIO32, numa tarefa própria · conta quando a tensão se afasta mais de 0,25 V do centro (solta abaixo de 0,12 V) · ignora repetições por 150 ms · total salvo na flash <span class="src d">no firmware</span></div></div>
     </div>
   </div>
 </section>

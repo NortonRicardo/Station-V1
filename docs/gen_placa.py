@@ -65,10 +65,23 @@ R = [
 
 # Pinos em uso pelas peças do projeto: (lado, índice 0-based) -> texto
 USO = {
-    ("L", 0): "BME280 VCC",
+    ("L", 0): "BME280 VCC + 49E VCC",   # único 3V3: duas peças
     ("R", 0): "BME280 GND",
     ("R", 2): "BME280 SCL",
     ("R", 5): "BME280 SDA",
+    ("L", 18): "Step-up 5 V + microSD + GPS",   # trilho de 5 V: entrada e cargas
+    ("R", 1): "microSD MOSI",
+    ("R", 6): "microSD GND",
+    ("R", 7): "microSD MISO",
+    ("R", 8): "microSD SCK",
+    ("R", 9): "microSD CS",
+    ("L", 13): "GND: GPS + energia + 49E",
+    ("L", 6): "Pluviômetro (49E OUT)",
+    ("L", 3): "LED carregando (divisor)",
+    ("L", 4): "LED carregado (divisor)",
+    ("L", 5): "Tensão da bateria",
+    ("R", 10): "GPS RX (TX2)",
+    ("R", 11): "GPS TX (RX2)",
 }
 _vistos = {}
 for _k, _v in USO.items():
@@ -242,7 +255,9 @@ SRC = {"e": '',
        "d": '<span class="src d">datasheet</span>',
        "c": '<span class="src c">a confirmar na placa</span>',
        "v": '<span class="src v">visto na placa</span>',
-       "f": '<span class="src d">no firmware</span>'}
+       "f": '<span class="src d">no firmware</span>',
+       "m": '<span class="src v">medido</span>',
+       "k": '<span class="src d">calculado</span>'}
 ficha = [
  ("Chip", "ESP32-D0WD-V3, revisão v3.1 (wafer 3.1), QFN 5×5", "e"),
  ("CPU", "Xtensa LX6, 2 núcleos, até 240 MHz (eFuse: classificado para 240 MHz)", "e"),
@@ -424,6 +439,538 @@ etapa2_html = f'''
 </section>'''
 
 
+# ================= ETAPA 3: módulo microSD (SPI) =================
+VIN_C = C["vin"][0]
+SD_PINOS = [  # nome (silk), cor, função, ligado no ESP32
+    ("GND", STN, "terra", "GND"),
+    ("VCC", VIN_C, "5 V", "5V"),
+    ("MOSO", EME, "SD → ESP", "GPIO19"),   # impresso "MOSO" no módulo: é o MISO
+    ("MOSI", EME, "ESP → SD", "GPIO23"),
+    ("SCK", EME, "clock", "GPIO18"),
+    ("CS", EME, "seleção", "GPIO5"),
+]
+m = ['<svg viewBox="0 0 640 400" role="img" aria-label="Módulo microSD de 6 pinos (SPI)" class="dia mod">']
+m.append('<rect x="110" y="16" width="420" height="226" rx="12" fill="#44403c"/>')
+for hx, hy in ((134, 40), (506, 40)):
+    m.append(f'<circle cx="{hx}" cy="{hy}" r="8" fill="#F5F5F3"/>')
+m.append('<rect x="250" y="30" width="140" height="96" rx="4" fill="#d6d3d1"/><rect x="262" y="42" width="116" height="72" rx="3" fill="none" stroke="#a8a29e" stroke-width="1.5"/>')
+m.append('<text x="320" y="84" class="t-mod2">microSD</text>')
+m.append('<rect x="196" y="150" width="40" height="34" rx="2" fill="#292524"/><rect x="204" y="143" width="24" height="7" fill="#78716c"/>')
+m.append('<text x="216" y="198" class="t-silk">regulador</text><text x="216" y="209" class="t-silk">3,3 V</text>')
+m.append('<rect x="372" y="146" width="46" height="34" rx="2" fill="#292524"/>')
+for k in range(7):
+    m.append(f'<rect x="{375 + k*6}" y="141" width="3" height="5" fill="#a8a29e"/><rect x="{375 + k*6}" y="180" width="3" height="5" fill="#a8a29e"/>')
+m.append('<text x="395" y="198" class="t-silk">conversor</text><text x="395" y="209" class="t-silk">de nível</text>')
+for cx_, cy_ in ((262, 152), (290, 152), (440, 120), (440, 136)):
+    m.append(f'<rect x="{cx_}" y="{cy_}" width="14" height="8" rx="1.5" fill="#292524"/>')
+SX0, SPIT = 145, 70
+for i, (nome, cor, func, esp) in enumerate(SD_PINOS):
+    cx = SX0 + i * SPIT
+    escuro = cor in (AMB, STN)
+    m.append(f'<circle cx="{cx}" cy="226" r="7" fill="#fafaf8" stroke="{cor}" stroke-width="3.5"/>')
+    m.append(pill_svg(cx, 276, 62, nome, cor, "#1c1917" if cor == STN else "#fff"))
+    m.append(pill_svg(cx, 314, 64, func, "#fafaf8", "#57534e" if cor == STN else ("#c2410c" if cor == VIN_C else EME7), stroke=cor))
+    m.append(pill_svg(cx, 352, 64, esp, "#e7e5e4", "#44403c"))
+for y, t1, t2 in ((276, "Pino", ""), (314, "Função", ""), (352, "No ESP32", "")):
+    m.append(f'<text x="18" y="{y+4}" class="t-row">{t1}<tspan class="t-row2"> {t2}</tspan></text>')
+m.append('</svg>')
+sd_mod_svg = "\n".join(m)
+sd_mod_leg = (f'<li><i style="background:{VIN_C}"></i>5 V</li><li><i style="background:{STN}"></i>GND</li>'
+              f'<li><i style="background:{EME}"></i>SPI</li>')
+
+# --- ligação: placa completa -> microSD ---
+SD_Y = {"MOSI": pino_y(1), "GND": pino_y(6), "MISO": pino_y(7), "SCK": pino_y(8), "CS": pino_y(9)}
+SD_Y["VCC"] = SD_Y["CS"] + 70
+YBAIXO = GY + 690 + 70                        # abaixo da placa e do USB
+w = [f'<svg viewBox="0 0 730 {YBAIXO + 24}" role="img" aria-label="Ligação da placa ESP32 com o módulo microSD" class="dia lig">']
+w.append(f'<g transform="translate({GX},{GY})">' + "\n".join(_inner) + '</g>')
+w.append(f'<rect x="{MX}" y="{SD_Y["MOSI"] - 44}" width="150" height="{SD_Y["VCC"] - SD_Y["MOSI"] + 80}" rx="10" fill="#44403c"/>')
+w.append(f'<text x="{MX + 75}" y="{SD_Y["MOSI"] - 20}" class="t-boxw">microSD</text>')
+w.append(f'<rect x="{MX + 78}" y="{SD_Y["GND"] - 10}" width="56" height="40" rx="3" fill="#d6d3d1"/>')
+for nome, idx, cor, rot in (("MOSI", 1, EME, "MOSI · GPIO23"), ("GND", 6, STN, "GND"), ("MISO", 7, EME, "MOSO (MISO) · GPIO19"),
+                            ("SCK", 8, EME, "SCK · GPIO18"), ("CS", 9, EME, "CS · GPIO5")):
+    fio([(X_DIR, pino_y(idx)), (MX, SD_Y[nome])], cor)
+    rotulo(476, pino_y(idx) - 7, rot)
+    ponto(X_DIR, pino_y(idx)); ponto(MX, SD_Y[nome])
+y5 = pino_y(18)
+fio([(X_ESQ, y5), (22, y5), (22, YBAIXO), (530, YBAIXO), (530, SD_Y["VCC"]), (MX, SD_Y["VCC"])], VIN_C)   # 5V (Esq. 19) por baixo
+rotulo(276, YBAIXO - 8, "5 V · 5V → VCC")
+ponto(X_ESQ, y5); ponto(MX, SD_Y["VCC"])
+for nome, y in SD_Y.items():
+    w.append(f'<text x="{MX + 14}" y="{y + 4}" class="t-pinw">{"MOSO" if nome == "MISO" else nome}</text>')
+w.append('</svg>')
+sd_lig_svg = "\n".join(w)
+sd_lig_leg = (f'<li><i style="background:{VIN_C}"></i>5 V</li><li><i style="background:{STN}"></i>GND</li>'
+              f'<li><i style="background:{EME}"></i>SPI</li><li><b>●</b> ligação</li>')
+
+TAB_SD = [  # pino, função, ESP32, cuidado
+    ("GND", "Terra", "GND (Dir. 7)", "—"),
+    ("VCC", "5 V para o regulador do módulo", "5V (Esq. 19)", "Não ligar em 3V3: o regulador perde ≈1,1 V e o cartão fica com ≈2,2 V."),
+    ("MOSO", "É o MISO (erro de impressão do módulo): dados do cartão para o ESP32, em 3,3 V", "GPIO19 (Dir. 8)", "Neste tipo de módulo o MISO não se desliga com CS alto: no barramento SPI ele precisa ficar sozinho."),
+    ("MOSI", "Dados do ESP32 para o cartão", "GPIO23 (Dir. 2)", "—"),
+    ("SCK", "Clock do SPI", "GPIO18 (Dir. 9)", "—"),
+    ("CS", "Seleção do cartão, ativo em LOW", "GPIO5 (Dir. 10)", "GPIO5 é pino de boot e precisa estar alto ao ligar: o pull-up interno garante e o módulo não puxa para baixo."),
+]
+tab_sd_html = "\n".join(f'<tr><td><b>{a}</b></td><td>{esc(b)}</td><td>{esc(c)}</td><td>{esc(d)}</td></tr>' for a, b, c, d in TAB_SD)
+
+ficha_sd = [
+    ("Módulo", "Adaptador microSD por SPI, 6 pinos: GND, VCC, MOSO, MOSI, SCK, CS · o “MOSO” impresso é o MISO", "v"),
+    ("Regulador", "SOT-223 no módulo (provável AMS1117-3.3): baixa os 5 V para 3,3 V", "v"),
+    ("Conversor de nível", "CI de 14 pinos ao lado do slot (provável 74LVC125A): adapta os sinais e protege o cartão", "c"),
+    ("Alimentação", "VCC de 4,5 a 5,5 V (o regulador precisa de ≈1,1 V de folga)", "d"),
+    ("Corrente", "≈20–100 mA lendo ou gravando, com picos curtos · ≈1 mA parado (depende do cartão)", "d"),
+    ("Cartão", "microSD ou microSDHC, até 32 GB, formatado em FAT32", "d"),
+    ("SPI", "O cartão aceita até 25 MHz; com fios curtos, 4 a 20 MHz funcionam bem", "d"),
+]
+ficha_sd_html = ficha_rows(ficha_sd)
+
+etapa3_html = f'''
+<section class="etapa" id="etapa-3">
+  <div class="n">Etapa 3</div>
+  <h2>Cartão microSD: guardar as medições</h2>
+  <p>Módulo com slot microSD ligado pelo barramento SPI (VSPI). Vai guardar o histórico das medições na estação, mesmo sem internet.</p>
+
+  <div class="card">
+    <div class="eyebrow">Módulo</div>
+    <h3 class="ft">Pinos do adaptador microSD</h3>
+    <div class="scroll">{sd_mod_svg}</div>
+    <ul class="legend">{sd_mod_leg}</ul>
+    <p class="note">No módulo está impresso <b>MOSO</b>: é erro de fabricação, o pino é o <b>MISO</b> (dados do cartão para o ESP32). Só SPI: este módulo não tem modo I2C. O regulador e o conversor de nível ficam entre os pinos e o cartão.</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação</h3>
+    <p class="sub">SPI: 6 fios saindo dos pinos reais da placa. VCC no 5V; os sinais no VSPI (18, 19, 23 e 5).</p>
+    <div class="scroll">{sd_lig_svg}</div>
+    <ul class="legend">{sd_lig_leg}</ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>Pino do módulo</th><th>Função</th><th>Ligado no ESP32</th><th>Cuidados</th></tr></thead>
+      <tbody>
+{tab_sd_html}
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> o cartão conversa por SPI em 3,3 V. O regulador do módulo baixa os 5 V para 3,3 V e o conversor de nível adapta os sinais; como ele é alimentado em 3,3 V, o MISO chega ao ESP32 em 3,3 V, seguro para o pino. Os capacitores do módulo seguram os picos de corrente do cartão na hora de gravar.</p>
+    <p class="note"><b>Para conferir:</b> placa no USB, multímetro em DC na escala de 20 V. Entre VCC e GND do módulo: ≈4,6–5,0 V. Na aba larga do regulador do módulo (saída) contra GND: 3,25–3,35 V. Se o VCC estiver abaixo de 4,5 V, o cartão pode falhar ao gravar.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">Módulo microSD</h3>
+    {hero([("SPI", "6 pinos"), ("5 V", "no VCC"), ("32 GB", "FAT32"), ("≤100 mA", "gravando")])}
+    <div class="specs">
+{ficha_sd_html}
+    </div>
+  </div>
+</section>'''
+
+
+# ================= ETAPA 4: GPS GP-02-Kit (UART2) =================
+UART, UART7, NC_C, GPIO_C = "#8b5cf6", "#6d28d9", "#d6d3d1", "#3b82f6"
+GPS_PINOS = [  # nome (silk), cor do pino, fio, função, ligado no ESP32
+    ("N/F", NC_C, "—", "não usado", "—"),
+    ("RX", UART, "azul", "recebe", "GPIO17"),
+    ("TX", UART, "marrom", "envia NMEA", "GPIO16"),
+    ("GND", STN, "preto", "terra", "GND"),
+    ("VCC", VIN_C, "vermelho", "5 V", "5V"),
+    ("PPS", GPIO_C, "—", "1 pulso/s", "—"),
+]
+FIO_COR = {"azul": "#2563eb", "marrom": "#78350f", "preto": "#1c1917", "vermelho": "#dc2626"}
+m = ['<svg viewBox="0 0 680 440" role="img" aria-label="Módulo GPS GP-02-Kit de 6 pinos" class="dia mod">']
+m.append('<rect x="128" y="16" width="464" height="230" rx="12" fill="#292524"/>')
+m.append('<rect x="300" y="30" width="170" height="130" rx="6" fill="#d6d3d1"/><rect x="300" y="30" width="170" height="130" rx="6" fill="none" stroke="#a8a29e" stroke-width="2" stroke-dasharray="3 4"/>')
+m.append('<text x="385" y="88" class="t-mod">GP-02</text><text x="385" y="106" class="t-mod2">BDS + GPS</text>')
+m.append('<circle cx="190" cy="78" r="30" fill="#a8a29e"/><circle cx="190" cy="78" r="22" fill="#d6d3d1"/>')
+m.append('<text x="190" y="128" class="t-silk">bateria</text><text x="190" y="139" class="t-silk">de backup</text>')
+m.append('<rect x="420" y="178" width="34" height="22" rx="2" fill="#0c0a09"/><text x="437" y="214" class="t-silk">regulador WLDO</text>')
+m.append('<text x="150" y="190" class="t-silk" style="text-anchor:start">GP-02-Kit · A602</text>')
+GX0, GPIT = 160, 80
+for i, (nome, cor, fio_, func, esp) in enumerate(GPS_PINOS):
+    cx = GX0 + i * GPIT
+    m.append(f'<circle cx="{cx}" cy="230" r="7" fill="#fafaf8" stroke="{cor}" stroke-width="3.5"/>')
+    claro = cor in (AMB, STN, NC_C)
+    m.append(pill_svg(cx, 278, 74, nome, cor, "#1c1917" if claro else "#fff"))
+    if fio_ in FIO_COR:
+        m.append(f'<rect x="{cx-37}" y="{307}" width="74" height="18" rx="9" fill="#fafaf8" stroke="#d6d3d1"/>'
+                 f'<circle cx="{cx-26}" cy="316" r="5" fill="{FIO_COR[fio_]}"/>'
+                 f'<text x="{cx+6}" y="{319.6}" class="t-fp" fill="#44403c">{fio_}</text>')
+    else:
+        m.append(pill_svg(cx, 316, 74, "—", "#fafaf8", "#a8a29e", stroke="#e7e5e4"))
+    txt = {UART: UART7, AMB: "#b45309", VIN_C: "#c2410c", STN: "#57534e", NC_C: "#a8a29e", GPIO_C: "#1d4ed8"}[cor]
+    m.append(pill_svg(cx, 354, 76, func, "#fafaf8", txt, stroke=cor))
+    m.append(pill_svg(cx, 392, 76, esp, "#e7e5e4", "#44403c"))
+for y, t1 in ((278, "Pino"), (316, "Fio"), (354, "Função"), (392, "No ESP32")):
+    m.append(f'<text x="18" y="{y+4}" class="t-row">{t1}</text>')
+m.append('</svg>')
+gps_mod_svg = "\n".join(m)
+gps_mod_leg = (f'<li><i style="background:{VIN_C}"></i>5 V</li><li><i style="background:{STN}"></i>GND</li>'
+               f'<li><i style="background:{UART}"></i>UART</li><li><i style="background:{GPIO_C}"></i>sinal (PPS, não ligado)</li>'
+               f'<li><i style="background:{NC_C}"></i>sem uso</li>')
+
+# --- ligação: placa completa -> GPS ---
+GPS_Y = {"RX": pino_y(10), "TX": pino_y(11)}
+GPS_Y["PPS"] = GPS_Y["TX"] + 40     # PPS e N/F logo abaixo do TX: nenhum fio passa ali
+GPS_Y["N/F"] = GPS_Y["TX"] + 74
+GPS_Y["VCC"] = GPS_Y["TX"] + 120
+GPS_Y["GND"] = GPS_Y["TX"] + 160
+YB = GY + 690 + 100                 # faixa de baixo: GND (externa), abaixo da legenda micro-USB
+YB5 = YB - 26                       # faixa de baixo: 5V (interna)
+w = [f'<svg viewBox="0 0 730 {YB + 28}" role="img" aria-label="Ligação da placa ESP32 com o GPS" class="dia lig">']
+w.append(f'<g transform="translate({GX},{GY})">' + "\n".join(_inner) + '</g>')
+w.append(f'<rect x="{MX}" y="{GPS_Y["RX"] - 44}" width="150" height="{GPS_Y["GND"] - GPS_Y["RX"] + 74}" rx="10" fill="#292524"/>')
+w.append(f'<text x="{MX + 75}" y="{GPS_Y["RX"] - 20}" class="t-boxw">GP-02</text>')
+w.append(f'<rect x="{MX + 86}" y="{GPS_Y["RX"] - 4}" width="50" height="50" rx="4" fill="#d6d3d1"/>')
+fio([(X_DIR, GPS_Y["RX"]), (MX, GPS_Y["RX"])], UART)
+rotulo(476, GPS_Y["RX"] - 7, "GPIO17 (TX2) → RX")
+fio([(X_DIR, GPS_Y["TX"]), (MX, GPS_Y["TX"])], UART)
+rotulo(476, GPS_Y["TX"] - 7, "GPIO16 (RX2) ← TX")
+y5 = pino_y(18)
+fio([(X_ESQ, y5), (34, y5), (34, YB5), (518, YB5), (518, GPS_Y["VCC"]), (MX, GPS_Y["VCC"])], VIN_C)
+rotulo(276, YB5 - 8, "5 V · 5V → VCC (mesmo pino do microSD)")
+yg = pino_y(13)
+fio([(X_ESQ, yg), (22, yg), (22, YB), (530, YB), (530, GPS_Y["GND"]), (MX, GPS_Y["GND"])], STN)
+rotulo(276, YB + 16, "GND · Esq. 14 → GND")
+for (x, y) in ((X_DIR, GPS_Y["RX"]), (MX, GPS_Y["RX"]), (X_DIR, GPS_Y["TX"]), (MX, GPS_Y["TX"]),
+               (X_ESQ, y5), (MX, GPS_Y["VCC"]), (X_ESQ, yg), (MX, GPS_Y["GND"])):
+    ponto(x, y)
+for nome, nota in (("PPS", "solto · 1 pulso/s"), ("N/F", "sem uso")):
+    y = GPS_Y[nome]
+    w.append(f'<path d="M{MX} {y} H{MX - 22}" stroke="#d6d3d1" stroke-width="2" stroke-dasharray="2 3"/>')
+    w.append(f'<circle cx="{MX}" cy="{y}" r="5" fill="#fafaf8" stroke="#a8a29e" stroke-width="2"/>')
+    w.append(f'<text x="{MX - 28}" y="{y + 4}" class="t-nc">{nota}</text>')
+for nome, y in GPS_Y.items():
+    w.append(f'<text x="{MX + 14}" y="{y + 4}" class="t-pinw">{nome}</text>')
+w.append('</svg>')
+gps_lig_svg = "\n".join(w)
+gps_lig_leg = (f'<li><i style="background:{VIN_C}"></i>5 V</li><li><i style="background:{STN}"></i>GND</li>'
+               f'<li><i style="background:{UART}"></i>UART</li><li><b>●</b> ligação</li><li><b>┄</b> não ligado</li>')
+
+TAB_GPS = [  # pino, fio, função, ESP32, cuidado
+    ("N/F", "—", "Não conectado", "—", "—"),
+    ("RX", "azul", "Recebe comandos do ESP32", "GPIO17 · TX2 (Dir. 11)", "Só serve para configurar o módulo; a leitura usa o TX."),
+    ("TX", "marrom", "Envia as frases NMEA (posição, hora, satélites)", "GPIO16 · RX2 (Dir. 12)", "Cruzado: TX do GPS no RX do ESP32. Invertido, a página mostra “Sem módulo” ou “Dados ilegíveis”."),
+    ("GND", "preto", "Terra", "GND (Esq. 14)", "—"),
+    ("VCC", "vermelho", "Alimentação 5 V (o regulador WLDO do kit baixa para o módulo)", "5V (Esq. 19), junto com o microSD", "Dois fios no mesmo pino 5V: use emenda ou barra de pinos. Pelo USB cabem 500 mA; os dois juntos ficam em ≈150 mA no pior caso."),
+    ("PPS", "—", "Um pulso por segundo, alinhado ao segundo do GPS", "não ligado", "No futuro pode ir num GPIO livre (ex.: 4) para hora precisa."),
+]
+tab_gps_html = "\n".join(f'<tr><td><b>{a}</b></td><td>{esc(b)}</td><td>{esc(c)}</td><td>{esc(d)}</td><td>{esc(e)}</td></tr>' for a, b, c, d, e in TAB_GPS)
+
+ficha_gps = [
+    ("Módulo", "Ai-Thinker GP-02-Kit (placa A602) com o módulo GP-02", "v"),
+    ("Satélites", "GPS + BeiDou (BDS), impresso na blindagem do módulo", "v"),
+    ("Pinos", "6: N/F, RX, TX, GND, VCC, PPS · soldados: RX, TX, GND, VCC", "v"),
+    ("Saída", "Frases NMEA 0183 pela UART, 9600 baud, 1 posição por segundo", "d"),
+    ("Alimentação", "5 V no VCC · regulador SOT-23-5 marcado “WLDO / E530” entre o VCC e o módulo", "v"),
+    ("Consumo", "≈25–45 mA procurando ou rastreando", "c"),
+    ("Bateria de backup", "Componente redondo ao lado do módulo: guarda a última posição e a hora para a próxima partida ser mais rápida", "v"),
+    ("Primeira posição", "De ≈30 s (partida a quente, céu aberto) a alguns minutos (partida a frio)", "d"),
+    ("Antena", "Verificar no verso: antena cerâmica na placa ou conector para antena externa", "c"),
+    ("No firmware", "UART2 a 9600 baud · lê só o que chegar, a estação funciona sem o GPS", "f"),
+]
+ficha_gps_html = ficha_rows(ficha_gps)
+
+etapa4_html = f'''
+<section class="etapa" id="etapa-4">
+  <div class="n">Etapa 4</div>
+  <h2>GPS: posição, altitude e hora</h2>
+  <p>Módulo GP-02 (GPS + BeiDou) ligado na UART2. Dá a localização e a altitude da estação e a hora dos satélites, mesmo sem internet.</p>
+
+  <div class="card">
+    <div class="eyebrow">Módulo</div>
+    <h3 class="ft">Pinos do GP-02-Kit</h3>
+    <div class="scroll">{gps_mod_svg}</div>
+    <ul class="legend">{gps_mod_leg}</ul>
+    <p class="note">Cores dos fios como na foto: azul no RX, marrom no TX, preto no GND e vermelho no VCC. N/F e PPS ficam sem fio.</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação</h3>
+    <p class="sub">UART2: 4 fios. O TX de um vai no RX do outro. O VCC vai no 5V, o mesmo pino do microSD.</p>
+    <div class="scroll">{gps_lig_svg}</div>
+    <ul class="legend">{gps_lig_leg}</ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>Pino do módulo</th><th>Fio</th><th>Função</th><th>Ligado no ESP32</th><th>Cuidados</th></tr></thead>
+      <tbody>
+{tab_gps_html}
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> o módulo mede o tempo que o sinal de pelo menos 4 satélites leva para chegar e calcula a posição. Uma vez por segundo ele manda linhas de texto (NMEA, como $GNRMC e $GNGGA) pelo TX; o ESP32 lê pela UART2 e interpreta. O kit recebe 5 V e o regulador WLDO baixa para o módulo; os sinais de TX e RX ficam em 3,3 V, então não há resistor nem conversor de nível no caminho.</p>
+    <p class="note"><b>Para conferir:</b> placa no USB, multímetro em DC na escala de 20 V. Entre VCC e GND do kit: ≈4,6–5,0 V. No pino 5 do regulador WLDO (em cima, à direita) contra GND: ≈3,3 V. No TX do módulo contra GND: ≈3,3 V, com pequenas quedas quando ele envia dados (nunca 5 V). Na página da estação, o cartão GPS sai de “Sem módulo” para “Procurando satélites” assim que os dados chegam.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">GPS GP-02-Kit</h3>
+    {hero([("GPS + BDS", "satélites"), ("9600", "baud"), ("1 Hz", "posições por segundo"), ("5 V", "no VCC")])}
+    <div class="specs">
+{ficha_gps_html}
+    </div>
+  </div>
+</section>'''
+
+
+# ================= ETAPA 5: energia (baterias, carregador solar, medição) =================
+POT, ANA = "#ef4444", "#06b6d4"     # potência/bateria (vermelho) · analógico (ciano)
+
+def caixa(x, y, wd, ht, t1, t2="", tracejada=False, escura=False):
+    fill = "#292524" if escura else "#fafaf8"
+    st = ' stroke-dasharray="5 4"' if tracejada else ""
+    out = [f'<rect x="{x}" y="{y}" width="{wd}" height="{ht}" rx="8" fill="{fill}" stroke="#a8a29e" stroke-width="1.4"{st}/>']
+    cls1, cls2 = ("t-boxw", "t-pinw") if escura else ("t-box", "t-wire")
+    out.append(f'<text x="{x + wd/2}" y="{y + 20}" class="{cls1}">{t1}</text>')
+    if t2:
+        out.append(f'<text x="{x + wd/2}" y="{y + 36}" class="{cls2}" style="font-weight:400">{t2}</text>')
+    return "".join(out)
+
+def resistor_v(x, y1, y2, rot):
+    return (f'<rect x="{x-7}" y="{y1}" width="14" height="{y2-y1}" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/>'
+            f'<text x="{x+12}" y="{(y1+y2)/2+4}" class="t-nc" style="text-anchor:start">{rot}</text>')
+
+def divisor_h(x, y, rot):
+    return (f'<rect x="{x}" y="{y-11}" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/>'
+            f'<text x="{x+37}" y="{y+4}" class="t-fp" fill="#44403c">÷ {rot}</text>')
+
+# --- caminho da energia (diagrama de blocos) ---
+e = ['<svg viewBox="0 0 760 356" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">']
+def linha(pts, cor, larg=3, tracejada=False):
+    d = "M" + " L".join(f"{x} {y}" for x, y in pts)
+    st = ' stroke-dasharray="6 5"' if tracejada else ""
+    e.append(f'<path d="{d}" stroke="{cor}" stroke-width="{larg}" fill="none" stroke-linejoin="round"{st}/>')
+def pt(x, y): e.append(f'<circle cx="{x}" cy="{y}" r="4.5" fill="#1c1917"/>')
+def txt(x, y, t, anc="middle"): e.append(f'<text x="{x}" y="{y}" class="t-wire" style="text-anchor:{anc}">{t}</text>')
+# fios
+linha([(140, 66), (200, 66)], VIN_C); txt(170, 58, "5 V")
+linha([(380, 80), (470, 80)], POT); txt(425, 72, "3,0–4,2 V")
+linha([(580, 80), (630, 80)], VIN_C); txt(605, 72, "5 V")
+linha([(380, 125), (630, 125)], STN); txt(525, 140, "GND comum"); linha([(525, 110), (525, 125)], STN, 2); pt(525, 125)
+linha([(380, 165), (450, 165)], ANA, 2.5); linha([(524, 165), (630, 165)], ANA, 2.5)
+linha([(380, 200), (450, 200)], ANA, 2.5); linha([(524, 200), (630, 200)], ANA, 2.5)
+linha([(250, 230), (250, 250)], POT); linha([(330, 230), (330, 250)], STN)
+txt(240, 245, "B+", "end"); txt(340, 245, "B−", "start")
+linha([(380, 262), (450, 262), (450, 270)], POT, 2.5)
+linha([(450, 330), (450, 340), (330, 340), (330, 310)], STN, 2.5)
+linha([(450, 300), (630, 300)], ANA, 2.5); pt(450, 300)
+# caixas
+e.append(caixa(20, 41, 120, 50, "Painel solar", "5 V"))
+e.append(caixa(200, 30, 180, 200, "Carregador", "provável TP4056"))
+e.append('<circle cx="365" cy="165" r="6" fill="#ef4444"/><text x="352" y="169" class="t-wire" style="text-anchor:end">LED carregando</text>')
+e.append('<circle cx="365" cy="200" r="6" fill="#3b82f6"/><text x="352" y="204" class="t-wire" style="text-anchor:end">LED carregado</text>')
+e.append('<text x="212" y="70" class="t-nc" style="text-anchor:start">IN</text><text x="368" y="84" class="t-nc">OUT+</text><text x="368" y="129" class="t-nc">OUT−</text>')
+e.append(caixa(200, 250, 180, 60, "2× 18650 em paralelo", "3,0–4,2 V"))
+e.append(caixa(470, 50, 110, 60, "Step-up 5 V", "a instalar", tracejada=True))
+e.append(divisor_h(450, 165, "10k/10k")); e.append(divisor_h(450, 200, "10k/10k"))
+e.append(resistor_v(450, 270, 296, "R1")); e.append(resistor_v(450, 304, 330, "R2"))
+e.append('<rect x="630" y="40" width="110" height="290" rx="10" fill="#44403c"/><text x="685" y="62" class="t-boxw">ESP32</text>')
+for y, t in ((80, "5V"), (125, "GND"), (165, "GPIO39"), (200, "GPIO34"), (300, "GPIO35")):
+    e.append(f'<text x="642" y="{y+4}" class="t-pinw">{t}</text>'); pt(630, y)
+e.append('</svg>')
+energia_svg = "\n".join(e)
+energia_leg = (f'<li><i style="background:{POT}"></i>bateria 3,0–4,2 V</li><li><i style="background:{VIN_C}"></i>5 V</li>'
+               f'<li><i style="background:{STN}"></i>GND</li><li><i style="background:{ANA}"></i>analógico (ADC1)</li>'
+               f'<li><b>┄</b> peça a instalar</li>')
+
+# --- ligação no ESP32 (placa completa, tudo do lado esquerdo) ---
+GX2 = 330
+def py(i): return GY + Y0 + i * P
+XE = GX2 + 8
+TERM = [  # índice do pino (lado esq.), cor, título, detalhe
+    (3, ANA, "LED carregando", "divisor 10k/10k"),
+    (4, ANA, "LED carregado", "divisor 10k/10k"),
+    (5, ANA, "Bateria", "meio de R1/R2"),
+    (13, STN, "GND comum", "OUT− e step-up −"),
+    (18, VIN_C, "Step-up 5 V", "saída +"),
+]
+w = [f'<svg viewBox="0 0 {GX2 + 380} {GY + H + 10}" role="img" aria-label="Ligação da energia no ESP32" class="dia lig2">']
+w.append(f'<g transform="translate({GX2},{GY})">' + "\n".join(_inner) + '</g>')
+for idx, cor, t1, t2 in TERM:
+    y = py(idx)
+    w.append(f'<rect x="8" y="{y-11}" width="228" height="22" rx="6" fill="#fafaf8" stroke="{cor}" stroke-width="1.4"/>')
+    w.append(f'<text x="16" y="{y+4}" class="t-term">{t1}<tspan class="t-term2"> · {t2}</tspan></text>')
+    w.append(f'<path d="M236 {y} H{XE}" stroke="{cor}" stroke-width="3" fill="none"/>')
+    for x in (236, XE):
+        w.append(f'<circle cx="{x}" cy="{y}" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>')
+w.append('</svg>')
+energia_lig_svg = "\n".join(w)
+
+TAB_E = [  # de, para, por quê
+    ("Step-up 5 V · saída +", "5V (Esq. 19)", "Alimenta a placa. O mesmo pino 5V já alimenta o microSD e o GPS: os três ficam no mesmo trilho de 5 V."),
+    ("GND (OUT− e step-up −)", "GND (Esq. 14)", "Terra comum. O GPS já usa esse GND: em placa, todos os GND são o mesmo ponto."),
+    ("Bateria: meio de R1/R2", "GPIO35 · ADC1_7 (Esq. 6)", "Medido: bateria 4,10 V → 1,40 V no pino (razão ≈2,93). O firmware multiplica a leitura por 2,93."),
+    ("LED carregando, via divisor", "GPIO39 · VN · ADC1_3 (Esq. 4)", "Medido no fio: carregando 3,10–3,13 V · carregada 2,6 V · sem sol 0 V. No pino fica a metade: ≈1,55 / 1,30 / 0 V."),
+    ("LED carregado, via divisor", "GPIO34 · ADC1_6 (Esq. 5)", "Se um fio só já distingue os três estados, este fica livre (a confirmar)."),
+]
+tab_e_html = "\n".join(f'<tr><td><b>{esc(a)}</b></td><td>{esc(b)}</td><td>{esc(c)}</td></tr>' for a, b, c in TAB_E)
+
+ficha_e = [
+    ("Baterias", "2 células de lítio (provável 18650) em paralelo: 3,7 V nominal, 4,2 V cheias, ≈3,0 V vazias; a capacidade das duas se soma", "c"),
+    ("Carregador", "Placa com entrada 5 V, B+/B−, OUT+/OUT− e 2 LEDs: provável TP4056 com proteção (DW01A + 8205A)", "c"),
+    ("Entrada do carregador", "4,5–5,5 V (máximo absoluto 8 V): o painel de 5 V serve; em aberto ele pode passar de 6 V, ainda dentro do limite", "d"),
+    ("Saída OUT", "É a tensão da bateria (3,0–4,2 V), não 5 V. Por isso o step-up entre o OUT e o pino 5V", "d"),
+    ("Corrente de carga", "Até 1 A no padrão. Um painel pequeno não chega a isso; a carga só fica mais lenta", "d"),
+    ("LEDs", "Vermelho = carregando · azul ou verde = carregada · os dois apagados = sem sol, a estação está na bateria", "d"),
+    ("Sinal dos LEDs (medido)", "Carregando: 3,10–3,13 V · carregada (LED de 100 % aceso): 2,6 V · nenhum aceso (painel sem carga): 0 V · antes do divisor", "m"),
+    ("No pino, após o divisor 10k/10k", "Carregando ≈1,55 V · carregada ≈1,30 V · sem sol 0 V (metade do medido, dentro da faixa boa do ADC)", "k"),
+    ("Limites para o firmware", "acima de 1,42 V = carregando · de 0,60 a 1,42 V = carregada · abaixo de 0,60 V = sem sol (na bateria)", "f"),
+    ("Divisor da bateria (medido)", "Bateria 4,10 V → 1,40 V no meio de R1/R2: razão ≈2,93 (R1 ≈ 1,9 × R2). Bateria cheia (4,2 V) → ≈1,43 V no pino", "m"),
+    ("No firmware", "Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria · leitura a cada 3 s", "f"),
+]
+ficha_e_html = ficha_rows(ficha_e)
+
+etapa5_html = f'''
+<section class="etapa" id="etapa-5">
+  <div class="n">Etapa 5</div>
+  <h2>Energia: baterias, painel solar e medição</h2>
+  <p>Duas baterias de lítio em paralelo, carregadas por um painel solar de 5 V através do carregador. O ESP32 lê a tensão da bateria (GPIO35) e o sinal do carregador (GPIO39) e mostra na página: “Carregando”, “Carregada” ou a % da bateria quando não há sol.</p>
+
+  <div class="card">
+    <h3>Caminho da energia</h3>
+    <p class="sub">Do painel até o ESP32. O step-up (tracejado) ainda precisa ser instalado.</p>
+    <div class="scroll">{energia_svg}</div>
+    <ul class="legend">{energia_leg}</ul>
+    <p class="note"><b>Atenção:</b> não ligue o OUT do carregador direto no ESP32. No 3V3, os 4,2 V da bateria passam do máximo do chip (3,6 V). No 5V, o regulador da placa não consegue entregar 3,3 V com menos de ≈4,5 V na entrada, e o microSD e o GPS também precisam de 5 V. O step-up resolve os dois casos.</p>
+    <p class="note"><b>USB e bateria juntos:</b> com o step-up ligado no 5V, não conecte o cabo USB ao mesmo tempo até medir se a placa tem diodo entre o USB e o pino 5V (Etapa 1, “Para conferir”).</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação no ESP32</h3>
+    <p class="sub">Tudo do lado esquerdo da placa. As leituras usam o ADC1, que funciona com o Wi-Fi ligado.</p>
+    <div class="scroll">{energia_lig_svg}</div>
+    <ul class="legend">{energia_leg}</ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>De</th><th>Para no ESP32</th><th>Por quê</th></tr></thead>
+      <tbody>
+{tab_e_html}
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> o divisor R1/R2 entrega ao ESP32 ≈1/2,93 da tensão da bateria (medido), porque o ADC só mede até ≈3,1 V. No sinal dos LEDs foi medido: 3,10–3,13 V carregando, 2,6 V carregada e 0 V sem sol. O divisor de 10 kΩ + 10 kΩ corta pela metade (≈1,55 / 1,30 / 0 V), que é a faixa em que o ADC do ESP32 mede com mais precisão e deixa folga se o painel subir a tensão.</p>
+    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, ≈1/2,93 da tensão da bateria (medido: 4,10 V → 1,40 V). No fio dos LEDs (já medido): carregando 3,10–3,13 V, carregada 2,6 V, sem sol 0 V. Depois do divisor, no pino: metade desses valores. Na saída do step-up: 5,0–5,2 V, antes de ligar no pino 5V.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">Baterias e carregador</h3>
+    {hero([("2× Li-ion", "em paralelo"), ("3,0–4,2 V", "vazia → cheia"), ("3,1 / 2,6 / 0 V", "carregando / cheia / sem sol"), ("ADC1", "34 · 35 · 39")])}
+    <div class="specs">
+{ficha_e_html}
+    </div>
+  </div>
+</section>'''
+
+
+# ================= ETAPA 6: pluviômetro com sensor Hall linear SS49E =================
+# --- desenho do sensor: frente e vista de cima ---
+h = ['<svg viewBox="0 0 700 430" role="img" aria-label="Sensor Hall 49E: vista de frente com os pinos e vista de cima com os chanfros" class="dia hall">']
+# vista de frente
+h.append('<text x="160" y="24" class="t-row" style="text-anchor:middle">Vista de frente</text>')
+h.append('<text x="160" y="42" class="t-row2" style="text-anchor:middle;font-size:11px">nome virado para você · pernas para baixo</text>')
+h.append('<rect x="90" y="62" width="140" height="150" rx="6" fill="#292524"/>')
+h.append('<rect x="90" y="62" width="16" height="150" rx="4" fill="#57534e"/><rect x="214" y="62" width="16" height="150" rx="4" fill="#57534e"/>')
+h.append('<text x="160" y="128" style="font-size:30px;font-weight:700;text-anchor:middle;fill:#e7e5e4;letter-spacing:.04em">49E</text>')
+h.append('<text x="160" y="152" class="t-silk" style="font-size:11px">código do lote</text>')
+h.append('<path d="M82 90 H98" stroke="#a8a29e"/><text x="78" y="94" class="t-nc" style="text-anchor:end;font-size:10px">chanfro</text>')
+h.append('<path d="M222 90 H238" stroke="#a8a29e"/><text x="242" y="94" class="t-nc" style="text-anchor:start;font-size:10px">chanfro</text>')
+PERNAS = [(125, "1", "VCC", AMB, "3V3"), (160, "2", "GND", STN, "GND"), (195, "3", "OUT", ANA, "GPIO32")]
+for x, n, nome, cor, esp in PERNAS:
+    h.append(f'<rect x="{x-3}" y="212" width="6" height="120" fill="#a8a29e"/>')
+    h.append(f'<text x="{x}" y="350" style="font-size:14px;font-weight:700;text-anchor:middle;fill:#1c1917">{n}</text>')
+    h.append(pill_svg(x, 372, 32, nome, cor, "#1c1917" if cor in (AMB, STN, ANA) else "#fff"))
+    h.append(pill_svg(x, 402, 32, "", "#fafaf8", "#44403c", stroke="#fafaf8"))
+for x, n, nome, cor, esp in PERNAS:
+    h.append(f'<text x="{x}" y="{406}" class="t-fp" fill="#44403c" style="font-size:9.5px">{esp}</text>')
+h.append('<text x="40" y="376" class="t-row" style="text-anchor:end">Pino</text><text x="40" y="406" class="t-row" style="text-anchor:end">ESP32</text>')
+# vista de cima
+h.append('<text x="500" y="24" class="t-row" style="text-anchor:middle">Vista de cima</text>')
+h.append('<text x="500" y="42" class="t-row2" style="text-anchor:middle;font-size:11px">olhando o sensor de cima para baixo</text>')
+h.append('<text x="500" y="92" class="t-nc" style="text-anchor:middle">trás · lisa</text>')
+h.append('<polygon points="430,104 570,104 570,150 550,170 450,170 430,150" fill="#292524"/>')
+h.append('<path d="M430 150 L450 170" stroke="#a8a29e" stroke-width="3"/><path d="M570 150 L550 170" stroke="#a8a29e" stroke-width="3"/>')
+h.append('<rect x="488" y="150" width="24" height="8" rx="2" fill="#06b6d4"/>')
+h.append('<text x="500" y="140" class="t-silk" style="font-size:10px">elemento Hall</text>')
+h.append('<text x="500" y="192" class="t-wire2">frente · nome “49E” · chanfros</text>')
+h.append('<path d="M500 254 V206" stroke="#57534e" stroke-width="2" marker-end="url(#seta)"/>')
+h.append('<defs><marker id="seta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#57534e"/></marker></defs>')
+h.append('<rect x="476" y="260" width="48" height="24" fill="#ef4444"/><rect x="476" y="284" width="48" height="24" fill="#3b82f6"/>')
+h.append('<rect x="476" y="260" width="48" height="48" rx="3" fill="none" stroke="#1c1917" stroke-width="1"/>')
+h.append('<text x="500" y="277" style="font-size:13px;font-weight:700;text-anchor:middle;fill:#fff">S</text><text x="500" y="301" style="font-size:13px;font-weight:700;text-anchor:middle;fill:#fff">N</text>')
+h.append('<text x="534" y="290" class="t-wire2" style="text-anchor:start">ímã na báscula</text>')
+h.append('<text x="500" y="340" class="t-nc" style="text-anchor:middle">aproxime da FRENTE, a 3–10 mm</text>')
+h.append('<text x="500" y="370" class="t-nc" style="text-anchor:middle">sul na frente → saída sobe · norte → saída desce</text>')
+h.append('<text x="500" y="388" class="t-nc" style="text-anchor:middle">qualquer polo serve: o firmware olha o desvio do meio</text>')
+h.append('</svg>')
+hall_svg = "\n".join(h)
+hall_leg = (f'<li><i style="background:{AMB}"></i>3,3 V</li><li><i style="background:{STN}"></i>GND</li>'
+            f'<li><i style="background:{ANA}"></i>saída analógica (ADC1)</li>')
+
+# --- ligação: placa completa, sensor do lado esquerdo ---
+TERM_H = [(0, AMB, "49E pino 1 · VCC", "3,3 V"), (6, ANA, "49E pino 3 · OUT", "sinal analógico"), (13, STN, "49E pino 2 · GND", "terra")]
+w = [f'<svg viewBox="0 0 {GX2 + 380} {GY + H + 10}" role="img" aria-label="Ligação do sensor 49E no ESP32" class="dia lig2">']
+w.append(f'<g transform="translate({GX2},{GY})">' + "\n".join(_inner) + '</g>')
+for idx, cor, t1, t2 in TERM_H:
+    y = py(idx)
+    w.append(f'<rect x="8" y="{y-11}" width="228" height="22" rx="6" fill="#fafaf8" stroke="{cor}" stroke-width="1.4"/>')
+    w.append(f'<text x="16" y="{y+4}" class="t-term">{t1}<tspan class="t-term2"> · {t2}</tspan></text>')
+    w.append(f'<path d="M236 {y} H{XE}" stroke="{cor}" stroke-width="3" fill="none"/>')
+    for x in (236, XE):
+        w.append(f'<circle cx="{x}" cy="{y}" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>')
+w.append('</svg>')
+hall_lig_svg = "\n".join(w)
+
+TAB_H = [  # pino, nome, ESP32, cuidado
+    ("1", "VCC", "3V3 (Esq. 1), junto com o BME280", "Dois fios no mesmo 3V3: emenda ou barra. Não ligue no 5V: a saída subiria até 5 V."),
+    ("2", "GND", "GND (Esq. 14), junto com GPS e energia", "Terra comum."),
+    ("3", "OUT", "GPIO32 · ADC1_4 (Esq. 7)", "Analógico: ≈1,65 V sem ímã. Não precisa de pull-up. GPIO32 é ADC1 (funciona com Wi-Fi)."),
+]
+tab_h_html = "\n".join(f'<tr><td><b>{a}</b></td><td><b>{b}</b></td><td>{esc(c)}</td><td>{esc(d)}</td></tr>' for a, b, c, d in TAB_H)
+
+ficha_h = [
+    ("Sensor", "SS49E (marcado “49E”): sensor Hall linear, saída analógica proporcional ao campo", "v"),
+    ("Pinos", "De frente (nome para você, pernas para baixo): 1 VCC · 2 GND · 3 OUT", "d"),
+    ("Alimentação", "2,7–6,5 V · ligado em 3,3 V, a saída fica entre 0 e 3,3 V", "d"),
+    ("Saída sem ímã", "≈ metade da alimentação: ≈1,65 V em 3,3 V", "d"),
+    ("Sensibilidade", "≈1,4 mV por gauss em 5 V; em 3,3 V, ≈0,9 mV/G (proporcional à alimentação)", "d"),
+    ("Consumo", "≈6 mA, contínuo", "d"),
+    ("Face sensível", "A da frente, com o nome e os chanfros", "d"),
+    ("Pluviômetro", "Báscula com ímã: cada virada = um pulso no sensor", "v"),
+    ("Calibração", "mm por basculada = volume da báscula (mL) ÷ área do funil (cm²) × 10 · confirmar despejando um volume conhecido", "c"),
+    ("No firmware", "200 leituras/s no GPIO32, numa tarefa própria · conta quando a tensão se afasta mais de 0,25 V do centro (solta abaixo de 0,12 V) · ignora repetições por 150 ms · total salvo na flash", "f"),
+]
+ficha_h_html = ficha_rows(ficha_h)
+
+etapa6_html = f'''
+<section class="etapa" id="etapa-6">
+  <div class="n">Etapa 6</div>
+  <h2>Pluviômetro: sensor Hall 49E</h2>
+  <p>A báscula do pluviômetro tem um ímã. Cada vez que ela vira, o ímã passa pela frente do sensor 49E e a saída dele muda de tensão; o ESP32 conta essas mudanças e mostra o total na página (ainda sem converter em milímetros).</p>
+
+  <div class="card">
+    <div class="eyebrow">Sensor</div>
+    <h3 class="ft">Pinos do 49E e lado sensível</h3>
+    <div class="scroll">{hall_svg}</div>
+    <ul class="legend">{hall_leg}</ul>
+    <p class="note"><b>Para identificar:</b> segure o sensor com a face que tem o nome “49E” e os cantos chanfrados virada para você, pernas para baixo. Da esquerda para a direita: <b>1 VCC</b>, <b>2 GND</b>, <b>3 OUT</b>. A parte de trás é lisa e arredondada.</p>
+  </div>
+
+  <div class="card">
+    <h3>Ligação</h3>
+    <p class="sub">3 fios, todos do lado esquerdo da placa.</p>
+    <div class="scroll">{hall_lig_svg}</div>
+    <ul class="legend">{hall_leg}<li><b>●</b> ligação</li></ul>
+    <div class="scroll" style="margin-top:18px"><table class="pecas bme">
+      <thead><tr><th>Pino</th><th>Nome</th><th>Ligado no ESP32</th><th>Cuidados</th></tr></thead>
+      <tbody>
+{tab_h_html}
+      </tbody></table></div>
+    <p class="note"><b>Como funciona:</b> dentro do 49E há uma placa Hall que gera uma tensão proporcional ao campo magnético. Sem ímã, a saída fica no meio da alimentação; o polo sul na frente faz a tensão subir e o norte faz descer. Como a saída nunca passa da alimentação (3,3 V), ela vai direto no pino, sem resistor.</p>
+    <p class="note"><b>Para conferir antes de soldar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no pino 2): ligue o pino 1 em 3,3 V e meça o pino 3. Sem ímã: ≈1,6–1,7 V. Encoste o ímã na frente: deve subir ou descer pelo menos 0,3 V. Se a saída ficar perto de 0 V ou de 3,3 V sem ímã, os pinos estão trocados: desligue e confira a vista de frente.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Ficha</div>
+    <h3 class="ft">SS49E no pluviômetro</h3>
+    {hero([("Linear", "saída analógica"), ("3,3 V", "no VCC"), ("1,65 V", "sem ímã"), ("GPIO32", "ADC1_4")])}
+    <div class="specs">
+{ficha_h_html}
+    </div>
+  </div>
+</section>'''
+
+
 html = f'''<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -510,6 +1057,12 @@ tbody tr:last-child td, tbody tr:last-child th {{ border-bottom:0; }}
 
 .dia.mod {{ max-width:760px; min-width:560px; }}
 .dia.lig {{ max-width:730px; min-width:600px; }}
+.dia.lig2 {{ max-width:710px; min-width:600px; }}
+.dia.hall {{ max-width:700px; min-width:600px; }}
+.dia.energia {{ max-width:760px; min-width:620px; }}
+.t-term {{ font-size:11.5px; font-weight:600; fill:#1c1917; }}
+.t-term2 {{ font-size:10.5px; fill:#78716C; }}
+.t-box2 {{ }}
 .t-row {{ font-size:12px; font-weight:600; fill:#1c1917; }}
 .t-row2 {{ font-weight:400; fill:#78716C; }}
 .t-boxw {{ font-size:13px; font-weight:700; text-anchor:middle; fill:#fafaf9; letter-spacing:.04em; }}
@@ -613,11 +1166,22 @@ code {{ font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; b
       <tbody>
         <tr><td><b>ESP32 DevKitC (WROOM-32U)</b></td><td>Controlador, Wi-Fi e Bluetooth</td><td>5 V no USB/5V · lógica 3,3 V</td><td>≈40–150 mA, picos ≈500 mA</td><td>—</td></tr>
         <tr><td><b>BME280</b> (módulo 6 pinos)</td><td>Temperatura, umidade e pressão por I2C</td><td>3,3 V</td><td>até ≈0,7 mA medindo · ≈3,6 µA em média</td><td>3V3, GND, GPIO21 (SDA), GPIO22 (SCL)</td></tr>
+        <tr><td><b>Módulo microSD</b> (6 pinos)</td><td>Guardar o histórico das medições (SPI)</td><td>5 V no VCC · sinais 3,3 V</td><td>≈20–100 mA gravando · ≈1 mA parado</td><td>5V, GND, GPIO18 (SCK), GPIO19 (MISO), GPIO23 (MOSI), GPIO5 (CS)</td></tr>
+        <tr><td><b>GPS GP-02-Kit</b> (Ai-Thinker)</td><td>Posição, altitude e hora por satélite (GPS + BeiDou), UART2 a 9600 baud</td><td>5 V no VCC (regulador no kit) · sinais 3,3 V</td><td>≈25–45 mA (a confirmar)</td><td>5V (junto com o microSD), GND (Esq. 14), GPIO16 (RX2 ← TX do GPS), GPIO17 (TX2 → RX do GPS)</td></tr>
+        <tr><td><b>2× bateria Li-ion</b> em paralelo</td><td>Energia da estação</td><td>3,0–4,2 V</td><td>Fornece ≈100–200 mA (via step-up)</td><td>— (ligadas ao carregador)</td></tr>
+        <tr><td><b>Carregador</b> (provável TP4056)</td><td>Carrega as baterias pelo painel solar de 5 V</td><td>Entrada 5 V · saída = bateria</td><td>Carga até 1 A</td><td>GPIO39 (LED carregando), GPIO34 (LED carregado), via divisores</td></tr>
+        <tr><td><b>Divisor R1/R2</b> da bateria</td><td>Leitura da tensão da bateria</td><td>Metade da bateria (≤2,1 V)</td><td>≈21 µA com 100 kΩ + 100 kΩ</td><td>GPIO35</td></tr>
+        <tr><td><b>Step-up 5 V</b> (a instalar)</td><td>Sobe a bateria para 5 V</td><td>Entrada 3,0–4,2 V · saída 5 V</td><td>Até ≈1 A na saída</td><td>5V, GND</td></tr>
+        <tr><td><b>Sensor Hall SS49E</b> (pluviômetro)</td><td>Conta as viradas da báscula</td><td>3,3 V</td><td>≈6 mA</td><td>3V3 (junto com o BME280), GND (Esq. 14), GPIO32 (OUT, analógico)</td></tr>
       </tbody></table></div>
     <p class="note"><b>Como funciona:</b> o CP2102 converte USB em serial na UART0 (GPIO1/3). Dois transistores ligam DTR/RTS do CP2102 ao EN e ao GPIO0, e por isso o esptool reinicia e entra em gravação sozinho. O AMS1117 baixa os 5 V para 3,3 V. O resistor e o capacitor no EN seguram o reset até a tensão estabilizar.</p>
   </div>
 </section>
 {etapa2_html}
+{etapa3_html}
+{etapa4_html}
+{etapa5_html}
+{etapa6_html}
 </main>
 </body>
 </html>
