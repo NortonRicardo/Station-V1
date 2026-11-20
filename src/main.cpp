@@ -14,6 +14,7 @@
 #include <Preferences.h>
 #include <ArduinoOTA.h>
 #include <esp_sntp.h>
+#include <esp_system.h>
 #include <time.h>
 #include <vector>
 #include <deque>
@@ -370,13 +371,29 @@ static void rotaOutras() {
   server.send(302, "text/plain", "");
 }
 
+// Por que a estação (re)ligou: ajuda a achar queda de tensão ou travamento.
+static const char *motivoReinicio() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON: return "energia ligada";
+    case ESP_RST_BROWNOUT: return "QUEDA DE TENSÃO (alimentação fraca)";
+    case ESP_RST_SW: return "reinício pelo software (ex.: atualização)";
+    case ESP_RST_PANIC: return "erro no firmware (travou)";
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT: return "travamento (watchdog)";
+    case ESP_RST_EXT: return "botão EN";
+    case ESP_RST_DEEPSLEEP: return "acordou do sono";
+    default: return "motivo desconhecido";
+  }
+}
+
 void setup() {
   setCpuFrequencyMhz(CPU_MHZ);
   Serial.begin(115200);
   delay(300);
   setenv("TZ", "<-03>3", 1);  // horário de Brasília, mesmo sem internet (hora pelo GPS)
   tzset();
-  registrar("Estação ligada");
+  registrar(String("Estação ligada · ") + motivoReinicio());
 
   WiFi.persistent(false);  // credenciais só no nosso Preferences
   WiFi.setAutoReconnect(false);
@@ -417,9 +434,22 @@ void setup() {
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.setPassword(STATION_OTA_PASS);
   ArduinoOTA.setMdnsEnabled(false);  // o mDNS já foi iniciado acima
-  ArduinoOTA.onStart([]() { otaRodando = true; WiFi.scanDelete(); scanRodando = false; registrar("Atualização pelo Wi-Fi iniciada"); });
+  // durante a atualização: rádio sem economia (transferência mais firme).
+  // A frequência da CPU NÃO é trocada aqui: mudar com o Wi-Fi em uso travou a estação.
+  ArduinoOTA.onStart([]() {
+    otaRodando = true;
+    WiFi.scanDelete();
+    scanRodando = false;
+    WiFi.setSleep(false);
+    registrar("Atualização pelo Wi-Fi iniciada");
+  });
   ArduinoOTA.onEnd([]() { registrar("Atualização concluída, reiniciando"); });
-  ArduinoOTA.onError([](ota_error_t e) { otaRodando = false; registrar("Atualização falhou (erro " + String((int)e) + ")"); });
+  ArduinoOTA.onError([](ota_error_t e) {
+    otaRodando = false;
+    WiFi.setSleep(true);
+    static const char *txt[] = {"senha", "início", "conexão", "recebimento", "fim"};
+    registrar(String("Atualização falhou: ") + ((int)e < 5 ? txt[(int)e] : "erro") + " (erro " + String((int)e) + ")");
+  });
   ArduinoOTA.begin();
   MDNS.enableArduino(3232, true);
 
