@@ -142,7 +142,9 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>IP na rede</span><span id="staIp">—</span></div>
   <div class="row"><span>Sinal</span><span id="staRssi">—</span></div>
   <div class="row"><span>Hora</span><span id="hora">—</span></div>
-  <div class="row"><span>Aparelhos conectados</span><span id="cli">—</span></div>
+  <div class="row"><span>Rede Station-V1</span><span id="apEst">—</span></div>
+  <div class="row"><span>Aparelhos na Station-V1</span><span id="cli">—</span></div>
+  <button class="ghost" id="btnAp" type="button" style="margin-top:14px;align-self:flex-start" hidden>Ligar a rede Station-V1 por 15 min</button>
 </section>
 <section class="card">
   <div class="head">
@@ -151,7 +153,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   </div>
   <p class="msg" id="msg"></p>
   <ul id="lista"></ul>
-  <p class="hint">Ao conectar, a rede Station-V1 pode cair por alguns segundos enquanto a estação troca de canal. Se o celular sair dela, conecte de novo.</p>
+  <p class="hint">Depois de conectar no Wi-Fi de casa, a rede Station-V1 desliga em 2 minutos para economizar energia: a página passa a abrir em <b>station.local</b> (ou no IP mostrado em Estação), com o celular na mesma rede. Se o Wi-Fi de casa cair, a Station-V1 volta sozinha.</p>
   <button class="forget" id="btnEsquecer" type="button" hidden>Esquecer rede salva</button>
 </section>
 </div>
@@ -385,6 +387,7 @@ function batCard(b){
   $('bDica').textContent=b.carga==='sem_sol'?'Painel sem carga: a estação está funcionando na bateria.':'Sinal do carregador: '+fx(b.pino_carregador_mv/1000,2)+' V no pino.';
 }
 async function cartao(){
+  if(document.hidden)return;
   try{
     const z=await (await fetch('/api/sd',{cache:'no-store'})).json(),ativo=z.estado==='ativo';
     set('sdEstado',ativo?pill('Ativo','p-ok'):pill('Sem cartão','p-err'));
@@ -412,6 +415,7 @@ $('btnApagar').onclick=async()=>{
   bt.textContent=txt;await cartao();
 };
 async function eventos(){
+  if(document.hidden)return;
   try{
     const j=await (await fetch('/api/eventos',{cache:'no-store'})).json(),ul=$('eventos');ul.textContent='';
     j.eventos.forEach(v=>{const li=document.createElement('li'),q=document.createElement('span'),t=document.createElement('span');
@@ -425,6 +429,7 @@ function set(id,v){const e=$(id);e.textContent='';if(v instanceof Node)e.appendC
 function msg(t,erro){const m=$('msg');m.textContent=t;m.className='msg'+(erro?' err':'')}
 
 async function status(){
+  if(document.hidden)return;
   try{
     const s=await (await fetch('/api/status',{cache:'no-store'})).json(),e=s.sta.estado;
     set('sta',e==='conectado'?pill('Conectado','p-ok'):e==='conectando'?pill('Conectando','p-wait'):e==='falhou'?pill(s.sta.motivo||'Falhou','p-err'):pill('Não configurado','p-off'));
@@ -439,8 +444,11 @@ async function status(){
     if(s.bateria)batCard(s.bateria);
     relo={fonte:s.relogio.fonte,sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
     set('cli',String(s.ap.clientes));
+    const ap=s.ap,min=ap.desliga_em_s!==undefined?Math.max(1,Math.ceil(ap.desliga_em_s/60)):null;
+    set('apEst',ap.ligado?(min?pill('Ligada · desliga em '+min+' min','p-wait nc'):pill('Ligada','p-ok')):pill('Desligada · usando o Wi-Fi de casa','p-off nc'));
+    $('btnAp').hidden=ap.ligado&&!min;
     $('btnEsquecer').hidden=!s.sta.ssid;
-    $('rodape').textContent=s.ap.ssid+' · '+s.ap.ip+' · MAC '+s.mac;
+    $('rodape').textContent=(s.sta.ip?'station.local · '+s.sta.ip:s.ap.ssid+' · '+s.ap.ip)+' · MAC '+s.mac;
   }catch(_){}
 }
 
@@ -470,7 +478,7 @@ function render(){
           const res=await fetch('/api/conectar',{method:'POST',body:new URLSearchParams({ssid:r.ssid,senha:p.value})});
           const j=await res.json();
           if(!res.ok){msg(j.erro||'Erro ao salvar.',true);ok.disabled=false;ok.textContent='Conectar';return}
-          aberta=null;render();msg('Conectando em '+r.ssid+'. Acompanhe no cartão Estação.');
+          aberta=null;render();msg('Conectando em '+r.ssid+'. Quando aparecer “Conectado”, anote o IP: em 2 min a Station-V1 desliga e a página passa a abrir em station.local.');
         }catch(_){msg('A rede Station-V1 caiu durante a troca de canal. Conecte o celular nela de novo e confira o status.')}
       };
       li.appendChild(f);setTimeout(()=>{if(!r.aberta)p.focus()},0);
@@ -491,10 +499,12 @@ async function buscar(nova){
 }
 $('btnBuscar').onclick=()=>buscar(true);
 $('btnEsquecer').onclick=async()=>{if(!confirm('Esquecer a rede salva?'))return;await fetch('/api/esquecer',{method:'POST'});status()};
+$('btnAp').onclick=async()=>{const b=$('btnAp');b.disabled=true;try{await fetch('/api/ap/ligar',{method:'POST'})}catch(_){}b.disabled=false;status()};
 async function pluvRapido(){
   if(document.hidden)return;
   try{pluvCard(await (await fetch('/api/pluviometro',{cache:'no-store'})).json())}catch(_){}
 }
 setInterval(pluvRapido,500);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){status();eventos();cartao()}});
 status();eventos();cartao();buscar(false);setInterval(status,3000);setInterval(eventos,5000);setInterval(cartao,10000);
 </script></body></html>

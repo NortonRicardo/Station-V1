@@ -1,10 +1,11 @@
-// Station V1 - conexão Wi-Fi configurada pelo celular.
+// Station V1 - estação meteorológica com ESP32.
 //
-// O ESP32 sobe sempre a rede própria "Station-V1" (senha no .env). Pela página
-// http://192.168.4.1 (ou http://station.local) você escolhe o Wi-Fi de casa e a
-// senha; ele grava na flash, conecta, sincroniza a hora pela internet e mantém
-// a rede própria ligada para acesso local. Depois da 1ª gravação por USB, o
-// código pode ser gravado pelo Wi-Fi (OTA): pio run -e ota -t upload
+// Rede própria "Station-V1" (senha no .env) com a página em http://192.168.4.1; pela página
+// você escolhe o Wi-Fi de casa, e a estação também fica em http://station.local.
+// Uma rede ou a outra: conectada no Wi-Fi de casa, a rede própria desliga (2 min depois) e o
+// rádio passa a dormir entre os avisos do roteador; sem Wi-Fi de casa, a rede própria liga na
+// hora para configurar. CPU a 80 MHz. O botão BOOT (ou a página) religa a rede própria por 15 min.
+// Gravação pelo Wi-Fi (OTA): pio run -e ota -t upload
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
@@ -39,6 +40,11 @@ static const char *HOSTNAME = "station";
 static const uint32_t TEMPO_CONEXAO_MS = 20000;  // desiste da tentativa depois disso
 static const uint32_t ESPERA_RETRY_MS = 60000;   // nova tentativa após falha
 static const uint32_t VALIDADE_SCAN_MS = 15000;
+static const uint32_t CPU_MHZ = 80;                         // mínimo para o Wi-Fi; economiza ≈20–30 mA
+static const uint32_t AP_APOS_CONECTAR_MS = 2UL * 60 * 1000;   // tolerância depois de conectar no Wi-Fi de casa
+static const uint32_t AP_BOTAO_MS = 15UL * 60 * 1000;          // BOOT ou página: religa por 15 min
+static const uint32_t AP_ADIA_MS = 2UL * 60 * 1000;            // com celular conectado, adia o desligamento
+static const int PINO_BOOT = 0;                                 // botão BOOT da placa
 
 WebServer server(80);
 DNSServer dns;
@@ -53,6 +59,8 @@ static bool ntpIniciado = false;
 static volatile bool ntpAcertou = false;   // sinal vindo da tarefa do SNTP
 static volatile bool staConectouAgora = false;
 static volatile bool otaRodando = false;
+static bool apLigado = false;
+static uint32_t apDesligaEm = 0;  // 0 = sem prazo
 
 // ---------- registro de eventos (hora em uptime, convertida na leitura) ----------
 struct Evento { int64_t uptime; String texto; };
@@ -185,6 +193,49 @@ void relogioAcertado(const char *fonte) {
   }
 }
 
+// ---------- rede própria (AP) sob demanda ----------
+static void apLigar(uint32_t porMs, const char *motivo) {
+  apDesligaEm = porMs ? millis() + porMs : 0;
+  if (apLigado) return;
+  WiFi.softAP(AP_SSID, STATION_AP_PASS);  // acrescenta o AP ao modo atual (STA continua)
+  dns.start(53, "*", WiFi.softAPIP());
+  apLigado = true;
+  registrar(String("Rede ") + AP_SSID + " ligada" + (motivo ? String(" (") + motivo + ")" : String("")));
+}
+
+static void apDesligar() {
+  if (!apLigado) return;
+  dns.stop();
+  WiFi.softAPdisconnect(true);  // fica só o Wi-Fi de casa: o rádio pode dormir
+  WiFi.setSleep(true);
+  apLigado = false;
+  registrar(String("Rede ") + AP_SSID + " desligada: página em http://" + HOSTNAME + ".local ou http://" +
+            WiFi.localIP().toString() + " (botão BOOT religa)");
+}
+
+static void cuidarAp() {
+  // botão BOOT: religa por 15 min
+  static bool botaoAntes = true;
+  static uint32_t botaoDesde = 0;
+  bool solto = digitalRead(PINO_BOOT);
+  if (!solto && botaoAntes) botaoDesde = millis();
+  if (!solto && botaoDesde && millis() - botaoDesde > 50) { apLigar(AP_BOTAO_MS, "botão BOOT"); botaoDesde = 0; }
+  botaoAntes = solto;
+
+  // sem Wi-Fi de casa: a rede própria precisa estar ligada (é por ela que se configura)
+  if (estado != CONECTADO) {
+    if (!apLigado) apLigar(0, "sem Wi-Fi de casa");
+    else apDesligaEm = 0;
+    return;
+  }
+  // com Wi-Fi de casa: a página fica em station.local e a rede própria desliga
+  if (!apLigado) return;
+  if (apDesligaEm == 0) { apDesligaEm = millis() + AP_APOS_CONECTAR_MS; return; }
+  if ((int32_t)(millis() - apDesligaEm) < 0) return;
+  if (WiFi.softAPgetStationNum() > 0) { apDesligaEm = millis() + AP_ADIA_MS; return; }  // não derruba ninguém
+  apDesligar();
+}
+
 // ---------- busca de redes (assíncrona) ----------
 static void iniciarScan() {
   if (scanRodando || estado == CONECTANDO || otaRodando) return;
@@ -218,13 +269,17 @@ static void enviarJson(int code, const String &corpo) {
 
 static void rotaPagina() {
   server.sendHeader("Cache-Control", "no-store");
-  server.send_P(200, "text/html; charset=utf-8", PAGINA_HTML);
+  server.sendHeader("Content-Encoding", "gzip");  // a página fica guardada compactada
+  server.send_P(200, "text/html; charset=utf-8", (PGM_P)PAGINA_GZ, PAGINA_GZ_LEN);
 }
 
 static void rotaStatus() {
   String j = "{";
-  j += "\"ap\":{\"ssid\":\"" + String(AP_SSID) + "\",\"ip\":\"" + WiFi.softAPIP().toString() +
-       "\",\"clientes\":" + String(WiFi.softAPgetStationNum()) + "},";
+  j.reserve(1800);
+  j += "\"ap\":{\"ssid\":\"" + String(AP_SSID) + "\",\"ip\":\"192.168.4.1\",\"ligado\":" +
+       String(apLigado ? "true" : "false") + ",\"clientes\":" + String(apLigado ? WiFi.softAPgetStationNum() : 0);
+  if (apLigado && apDesligaEm) j += ",\"desliga_em_s\":" + String((int32_t)(apDesligaEm - millis()) / 1000);
+  j += "},";
   j += "\"sta\":{\"estado\":\"" + String(nomeEstado(estado)) + "\",\"ssid\":\"" + jsonEsc(staSsid) + "\"";
   if (estado == CONECTADO)
     j += ",\"ip\":\"" + WiFi.localIP().toString() + "\",\"rssi\":" + String(WiFi.RSSI()) + ",\"canal\":" + String(WiFi.channel());
@@ -269,6 +324,12 @@ static void rotaEventos() {
 static void rotaSd() { enviarJson(200, sdlog::statusJson()); }
 static void rotaPluv() { enviarJson(200, pluviometro::statusJson()); }  // leve: a página consulta a cada 0,5 s
 
+static void rotaApLigar() {
+  apLigar(AP_BOTAO_MS, "pela página");
+  apDesligaEm = millis() + AP_BOTAO_MS;
+  enviarJson(200, "{\"ok\":true}");
+}
+
 static void rotaSdApagar() {
   if (sdlog::apagar()) enviarJson(200, "{\"ok\":true}");
   else enviarJson(409, "{\"erro\":\"Cartão SD não está ativo.\"}");
@@ -301,11 +362,16 @@ static void rotaEsquecer() {
 
 // Portal cativo: qualquer endereço leva para a página (o celular abre sozinho).
 static void rotaOutras() {
-  server.sendHeader("Location", "http://" + WiFi.softAPIP().toString() + "/", true);
+  // pela rede de casa (station.local ou IP), só um 404; na rede própria, leva para a página
+  String host = server.hostHeader();
+  bool nossa = host.isEmpty() || host == WiFi.localIP().toString() || host.startsWith(HOSTNAME);
+  if (nossa || !apLigado) { server.send(404, "text/plain", "não encontrado"); return; }
+  server.sendHeader("Location", "http://192.168.4.1/", true);
   server.send(302, "text/plain", "");
 }
 
 void setup() {
+  setCpuFrequencyMhz(CPU_MHZ);
   Serial.begin(115200);
   delay(300);
   setenv("TZ", "<-03>3", 1);  // horário de Brasília, mesmo sem internet (hora pelo GPS)
@@ -317,10 +383,9 @@ void setup() {
   WiFi.onEvent(aoEventoWifi);
   WiFi.mode(WIFI_AP_STA);
   WiFi.setHostname(HOSTNAME);
-  WiFi.softAP(AP_SSID, STATION_AP_PASS);
-  registrar(String("Rede ") + AP_SSID + " no ar · http://" + WiFi.softAPIP().toString());
-
-  dns.start(53, "*", WiFi.softAPIP());
+  WiFi.setSleep(true);  // modem sleep no Wi-Fi de casa (vale quando a rede própria desliga)
+  apLigar(0, "ao ligar");
+  pinMode(PINO_BOOT, INPUT_PULLUP);
   if (MDNS.begin(HOSTNAME)) MDNS.addService("http", "tcp", 80);
 
   server.on("/", HTTP_GET, rotaPagina);
@@ -330,6 +395,7 @@ void setup() {
   server.on("/api/sd", HTTP_GET, rotaSd);
   server.on("/api/pluviometro", HTTP_GET, rotaPluv);
   server.on("/api/sd/apagar", HTTP_POST, rotaSdApagar);
+  server.on("/api/ap/ligar", HTTP_POST, rotaApLigar);
   server.on("/api/conectar", HTTP_POST, rotaConectar);
   server.on("/api/esquecer", HTTP_POST, rotaEsquecer);
   server.onNotFound(rotaOutras);
@@ -362,9 +428,10 @@ void setup() {
 
 void loop() {
   ArduinoOTA.handle();
-  dns.processNextRequest();
+  if (apLigado) dns.processNextRequest();
   server.handleClient();
   cuidarSta();
+  cuidarAp();
   cuidarScan();
   if (!otaRodando) {
     bme::cuidar();
@@ -373,5 +440,5 @@ void loop() {
   gps::cuidar();  // só lê o que chegou; sem GPS não faz nada
   energia::cuidar();
   pluviometro::cuidar();  // a contagem roda numa tarefa própria; aqui só registra e salva
-  delay(2);
+  delay(5);  // libera a CPU entre voltas (o processador espera parado)
 }
