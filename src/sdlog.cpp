@@ -5,6 +5,7 @@
 #include <SPI.h>
 #include <Preferences.h>
 #include <vector>
+#include <functional>
 
 #include "relogio.h"
 #include "sensor_bme280.h"
@@ -255,23 +256,35 @@ static const char *nomeTipo(uint8_t t) {
 }
 
 // últimas n linhas de dados do arquivo (lê só o fim)
-static void ultimasLinhas(const char *caminho, size_t n, std::vector<String> &linhas) {
+// Lê o arquivo de trás para a frente em blocos, chamando cb(linha) da mais nova para a mais
+// antiga. Para quando cb devolve false. Não carrega o arquivo inteiro na memória.
+static void linhasDoFim(const char *caminho, const std::function<bool(const String &)> &cb) {
   File f = SD.open(caminho, FILE_READ);
   if (!f) return;
-  size_t tam = f.size(), ler = 2048;
-  if (tam > ler) f.seek(tam - ler);
-  String bloco = f.readString();
-  f.close();
-  int fim = bloco.length();
-  while (fim > 0 && linhas.size() < n) {
-    int ini = bloco.lastIndexOf('\n', fim - 1);
-    String l = bloco.substring(ini + 1, fim);
-    l.trim();
-    if (!l.isEmpty() && isDigit(l[0]) && (ini >= 0 || tam <= ler)) linhas.push_back(l);
-    if (ini < 0) break;
-    fim = ini;
+  size_t pos = f.size();
+  String resto;
+  char buf[513];
+  bool seguir = true;
+  while (pos > 0 && seguir) {
+    size_t n = pos > 512 ? 512 : pos;
+    pos -= n;
+    f.seek(pos);
+    n = f.read((uint8_t *)buf, n);
+    buf[n] = 0;
+    String bloco = String(buf) + resto;
+    int fim = bloco.length();
+    for (;;) {
+      int ini = bloco.lastIndexOf('\n', fim - 1);
+      if (ini < 0 && pos > 0) break;  // primeira linha do bloco pode estar incompleta
+      String l = bloco.substring(ini + 1, fim);
+      l.trim();
+      if (!l.isEmpty() && isDigit(l[0]) && !cb(l)) { seguir = false; break; }
+      if (ini < 0) { fim = 0; break; }
+      fim = ini;
+    }
+    resto = bloco.substring(0, fim);
   }
-  // mais recente primeiro
+  f.close();
 }
 
 static String esc(const String &s) {
@@ -279,6 +292,48 @@ static String esc(const String &s) {
   o.replace("\\", "\\\\");
   o.replace("\"", "\\\"");
   return o;
+}
+
+// Converte uma linha do CSV no JSON da tabela da página; devolve false se a linha estiver incompleta.
+static bool linhaJson(const String &l, String &out, int64_t &epoch) {
+  String c[N_COLS];
+  int ini = 0, k = 0;
+  for (; k < N_COLS; k++) {
+    int p = l.indexOf(';', ini);
+    c[k] = p < 0 ? l.substring(ini) : l.substring(ini, p);
+    if (p < 0) { k++; break; }
+    ini = p + 1;
+  }
+  if (k < N_COLS) return false;
+  uint32_t b = c[C_BOOT].toInt();
+  epoch = atoll(c[C_EPOCH].c_str());
+  String quando = c[C_DATA];
+  if (quando.isEmpty()) quando = (b == boot) ? relogio::formatar(atoll(c[C_UP].c_str())) : "sem hora (boot " + String(b) + ")";
+  auto n = [](const String &v) { return v.isEmpty() ? String("null") : v; };
+  out = "{\"quando\":\"" + esc(quando) + "\",\"temperatura\":" + n(c[C_TEMP]) + ",\"umidade\":" + n(c[C_UMID]) +
+        ",\"pressao\":" + n(c[C_PRES]) + ",\"basculadas\":" + n(c[C_BPER]) + ",\"bateria_pct\":" + n(c[C_BATP]) +
+        ",\"bateria_v\":" + n(c[C_BATV]) + ",\"bateria_estado\":\"" + esc(c[C_BATE]) + "\"}";
+  return true;
+}
+
+// Registros das últimas `horas` (mais novo primeiro, no máximo `max`), em pedaços para a página.
+void registros(uint32_t horas, size_t max, const std::function<void(const String &)> &enviar) {
+  if (!montado) return;
+  int64_t limite = relogio::sincronizado() ? relogio::agoraEpochMs() - (int64_t)horas * 3600000LL : 0;
+  size_t n = 0;
+  String lote;
+  auto cb = [&](const String &l) {
+    String js;
+    int64_t ep = 0;
+    if (!linhaJson(l, js, ep)) return true;
+    if (limite && ep && ep < limite) return false;  // passou da janela de horas
+    lote += (n ? "," : "") + js;
+    if (lote.length() > 1400) { enviar(lote); lote = ""; }
+    return ++n < max;
+  };
+  linhasDoFim(PENDENTES, cb);  // as pendentes são as mais novas
+  if (n < max) linhasDoFim(ARQUIVO, cb);
+  if (lote.length()) enviar(lote);
 }
 
 String statusJson() {
@@ -291,35 +346,11 @@ String statusJson() {
     File f = SD.open(c, FILE_READ);
     if (f) { tamArq += f.size(); f.close(); }
   }
-  j += ",\"tipo\":\"" + String(nomeTipo(SD.cardType())) + "\",\"cartao_bytes\":" + String((double)SD.cardSize(), 0) +
-       ",\"total_bytes\":" + String((double)total, 0) + ",\"usado_bytes\":" + String((double)usado, 0) +
-       ",\"livre_bytes\":" + String((double)(total - usado), 0) + ",\"arquivo\":\"" + String(ARQUIVO) +
-       "\",\"arquivo_bytes\":" + String(tamArq) + ",\"ultimos\":[";
-  bool primeiro = true;
-  std::vector<String> ult;
-  ultimasLinhas(PENDENTES, 10, ult);  // as pendentes são as mais novas
-  if (ult.size() < 10) ultimasLinhas(ARQUIVO, 10 - ult.size(), ult);
-  for (const String &l : ult) {
-    String c[N_COLS];
-    int ini = 0, k = 0;
-    for (; k < N_COLS; k++) {
-      int p = l.indexOf(';', ini);
-      c[k] = p < 0 ? l.substring(ini) : l.substring(ini, p);
-      if (p < 0) { k++; break; }
-      ini = p + 1;
-    }
-    if (k < N_COLS) continue;  // linha incompleta
-    uint32_t b = c[C_BOOT].toInt();
-    String quando = c[C_DATA];
-    if (quando.isEmpty()) quando = (b == boot) ? relogio::formatar(atoll(c[C_UP].c_str())) : "sem hora (boot " + String(b) + ")";
-    auto n = [](const String &v) { return v.isEmpty() ? String("null") : v; };
-    if (!primeiro) j += ",";
-    primeiro = false;
-    j += "{\"quando\":\"" + esc(quando) + "\",\"temperatura\":" + n(c[C_TEMP]) + ",\"umidade\":" + n(c[C_UMID]) +
-         ",\"pressao\":" + n(c[C_PRES]) + ",\"basculadas\":" + n(c[C_BPER]) + ",\"bateria_pct\":" + n(c[C_BATP]) + ",\"bateria_v\":" + n(c[C_BATV]) +
-         ",\"bateria_estado\":\"" + esc(c[C_BATE]) + "\"}";
-  }
-  return j + "]}";
+  // a tabela vem de /api/sd/registros; aqui só o tamanho, que muda a cada registro novo
+  return j + ",\"tipo\":\"" + String(nomeTipo(SD.cardType())) + "\",\"cartao_bytes\":" + String((double)SD.cardSize(), 0) +
+         ",\"total_bytes\":" + String((double)total, 0) + ",\"usado_bytes\":" + String((double)usado, 0) +
+         ",\"livre_bytes\":" + String((double)(total - usado), 0) + ",\"arquivo\":\"" + String(ARQUIVO) +
+         "\",\"arquivo_bytes\":" + String(tamArq) + "}";
 }
 
 }  // namespace sdlog

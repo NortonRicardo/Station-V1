@@ -114,6 +114,17 @@ input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 100
 .hall-centro{width:1px;background:rgba(255,255,255,.4)}
 .hall-ponto{width:10px;margin-left:-5px;border-radius:50%;background:rgb(163,230,53);transition:left .2s}
 .hall-ponto.perto{background:#fcd34d}
+.rolagem{overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+#lista.rolagem{max-height:360px}
+@media (min-width:900px){
+  .card-wifi{contain:size}            /* não define a altura da linha: segue o cartão Estação */
+  .card-wifi #lista.rolagem{flex:1;max-height:none}
+}
+.tbl-rolagem{max-height:216px;overflow-y:auto}   /* cabeçalho + 5 linhas */
+.tbl-rolagem thead th{position:sticky;top:0;background:#000;z-index:1}
+.link-perigo{align-self:flex-start;margin-top:16px;font:inherit;font-size:12px;color:#fca5a5;background:none;border:0;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(252,165,165,.4)}
+.link-perigo:hover{color:#fecaca;text-decoration-color:#fecaca}
+.link-perigo:disabled{opacity:.4;cursor:default;text-decoration:none}
 .ev{margin-top:12px}
 .ev li{display:flex;gap:12px;padding:9px 0;border-top:.5px solid rgba(255,255,255,.1);font-size:13px}
 .ev .q{flex:none;width:132px;font-size:11px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums;padding-top:1px}
@@ -148,13 +159,13 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Aparelhos na Station-V1</span><span id="cli">—</span></div>
   <button class="ghost" id="btnAp" type="button" style="margin-top:14px;align-self:flex-start" hidden>Ligar a rede Station-V1 por 15 min</button>
 </section>
-<section class="card">
+<section class="card card-wifi">
   <div class="head">
     <div><div class="label">Configurar</div><h2>Rede Wi-Fi</h2></div>
     <button class="ghost" id="btnBuscar" type="button">Procurar</button>
   </div>
   <p class="msg" id="msg"></p>
-  <ul id="lista"></ul>
+  <ul id="lista" class="rolagem"></ul>
   <p class="hint">Depois de conectar no Wi-Fi de casa, a rede Station-V1 desliga em 2 minutos para economizar energia: a página passa a abrir em <b>station.local</b> (ou no IP mostrado em Estação), com o celular na mesma rede. Se o Wi-Fi de casa cair, a Station-V1 volta sozinha.</p>
   <button class="forget" id="btnEsquecer" type="button" hidden>Esquecer rede salva</button>
 </section>
@@ -213,12 +224,12 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Disponível</span><span id="sdLivre">—</span></div>
   <div class="bar"><i id="sdBarra"></i></div>
   <div class="row"><span>Registros</span><span id="sdArq">—</span></div>
-  <div class="label" style="margin-top:18px">Últimos 10 registros</div>
-  <div class="tbl"><table>
+  <div class="label" style="margin-top:18px">Registros das últimas 48 horas <span id="sdQtd" style="text-transform:none;letter-spacing:0"></span></div>
+  <div class="tbl tbl-rolagem"><table>
     <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bateria</th><th title="basculadas no intervalo do registro">Basc.</th></tr></thead>
     <tbody id="sdLista"><tr><td colspan="6" class="vazio">—</td></tr></tbody>
   </table></div>
-  <button class="danger" id="btnApagar" type="button" disabled>Apagar tudo do cartão</button>
+  <button class="link-perigo" id="btnApagar" type="button" disabled>Apagar tudo do cartão</button>
 </section>
 
 <div class="secao"><div class="label">Sensores</div><h2>Medições</h2></div>
@@ -409,20 +420,31 @@ async function cartao(){
     const iv=z.intervalo_s>=60?Math.round(z.intervalo_s/60)+' min (:00, :10, :20…)':z.intervalo_s+' s';
     set('sdArq',ativo?bytes(z.arquivo_bytes)+' · a cada '+iv:(z.erro||'—'));
     $('btnApagar').disabled=!ativo;
+    if(!ativo){sdTamanho=-1;preencherTabela([],false);return}
+    if(z.arquivo_bytes!==sdTamanho){sdTamanho=z.arquivo_bytes;registros48()}
+  }catch(_){}
+}
+let sdTamanho=-1;
+async function registros48(){
+  try{
+    const j=await (await fetch('/api/sd/registros',{cache:'no-store'})).json();
+    preencherTabela(j.registros||[],true);
+  }catch(_){}
+}
+function preencherTabela(L,ativo){
     const tb=$('sdLista');tb.textContent='';
-    const L=z.ultimos||[];
+    $('sdQtd').textContent=L.length?'· '+L.length+(L.length===1?' registro':' registros'):'';
     if(!L.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=6;td.className='vazio';td.textContent=ativo?'Nenhum registro ainda':'—';tr.appendChild(td);tb.appendChild(tr)}
     L.forEach(r=>{const tr=document.createElement('tr');
       const est={carregando:'Carregando',carregada:'Carregada',sem_sol:'Sem sol'}[r.bateria_estado]||'';
       const bat=r.bateria_v===null||r.bateria_v===undefined?'—':est+' · '+fx(r.bateria_v,2)+' V'+(r.bateria_estado==='carregando'?'':' · '+r.bateria_pct+' %');
       [r.quando,r.temperatura===null?'—':fx(r.temperatura,1)+' °C',r.umidade===null?'—':fx(r.umidade,0)+' %',r.pressao===null?'—':fx(r.pressao,1)+' hPa',bat,r.basculadas===null?'—':String(r.basculadas)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});
       tb.appendChild(tr)});
-  }catch(_){}
 }
 $('btnApagar').onclick=async()=>{
   if(!confirm('Apagar TUDO do cartão SD (registros e qualquer outro arquivo ou pasta)? Não dá para desfazer.'))return;
   const bt=$('btnApagar'),txt=bt.textContent;
-  bt.disabled=true;bt.innerHTML='<span class="spin"></span>Apagando o cartão…';
+  bt.disabled=true;bt.innerHTML='<span class="spin"></span>Apagando o cartão…';sdTamanho=-1;
   try{
     const r=await fetch('/api/sd/apagar',{method:'POST'});
     if(!r.ok)alert('Não foi possível apagar: o cartão não está ativo.');

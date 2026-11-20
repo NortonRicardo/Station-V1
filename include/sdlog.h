@@ -13,6 +13,7 @@
 //   epoch = agora - (uptime_agora - uptime_da_linha)
 #pragma once
 #include <Arduino.h>
+#include <functional>
 
 namespace sdlog {
 
@@ -20,6 +21,8 @@ void iniciar();          // no setup
 void cuidar();           // no loop: monta o cartão, grava a cada intervalo
 void aoSincronizar();    // chamado uma vez quando o relógio acerta a hora
 bool apagar();           // apaga TUDO do cartão e recria o arquivo de registros vazio
-String statusJson();     // estado, tipo, espaço e últimos 10 registros
+String statusJson();     // estado, tipo e espaço
+// registros das últimas `horas` (mais novo primeiro), entregues em pedaços de JSON
+void registros(uint32_t horas, size_t max, const std::function<void(const String &)> &enviar);
 
 }  // namespace sdlog

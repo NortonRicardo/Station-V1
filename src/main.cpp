@@ -324,6 +324,17 @@ static void rotaEventos() {
 }
 
 static void rotaSd() { enviarJson(200, sdlog::statusJson()); }
+
+// últimas 48 h de registros (até 300), enviados em pedaços para não montar um texto enorme
+static void rotaSdRegistros() {
+  server.sendHeader("Cache-Control", "no-store");
+  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server.send(200, "application/json; charset=utf-8", "");
+  server.sendContent("{\"registros\":[");
+  sdlog::registros(48, 300, [](const String &pedaco) { server.sendContent(pedaco); });
+  server.sendContent("]}");
+  server.sendContent("");  // fim da resposta
+}
 static void rotaPluv() { enviarJson(200, pluviometro::statusJson()); }  // leve: a página consulta a cada 0,5 s
 
 static void rotaApLigar() {
@@ -410,6 +421,7 @@ void setup() {
   server.on("/api/redes", HTTP_GET, rotaRedes);
   server.on("/api/eventos", HTTP_GET, rotaEventos);
   server.on("/api/sd", HTTP_GET, rotaSd);
+  server.on("/api/sd/registros", HTTP_GET, rotaSdRegistros);
   server.on("/api/pluviometro", HTTP_GET, rotaPluv);
   server.on("/api/sd/apagar", HTTP_POST, rotaSdApagar);
   server.on("/api/ap/ligar", HTTP_POST, rotaApLigar);
