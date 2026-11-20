@@ -21,7 +21,7 @@ static const uint32_t FREQ_SPI = 10000000;     // 10 MHz: folga para fios curtos
 static const uint32_t INTERVALO_MS = 30000;    // um registro a cada 30 s (teste)
 static const uint32_t NOVA_BUSCA_MS = 15000;   // sem cartão: tenta montar de novo
 static const char *ARQUIVO = "/registros.csv";
-static const char *TEMP = "/registros.tmp";
+static const char *PENDENTES = "/pendentes.csv";  // linhas gravadas antes de a hora sincronizar
 // as 4 primeiras colunas são fixas (a correção de hora depende delas); campos sem dado ficam vazios
 static const char *CABECALHO =
     "boot;uptime_ms;epoch_ms;data_hora;temperatura_c;umidade_pct;pressao_hpa;orvalho_c;umidade_abs_gm3;"
@@ -31,6 +31,7 @@ enum Col { C_BOOT, C_UP, C_EPOCH, C_DATA, C_TEMP, C_UMID, C_PRES, C_ORV, C_UABS,
 
 static bool montado = false;
 static uint32_t boot = 0;
+static int bootDaLinha(const String &l) { int p = l.indexOf(';'); return p > 0 ? l.substring(0, p).toInt() : -1; }
 static uint32_t proximaGravacao = 0, proximaBusca = 0;
 static uint32_t gravados = 0;    // registros gravados neste boot
 static String ultimoErro;
@@ -72,6 +73,8 @@ static bool garantirArquivo() {
   return true;
 }
 
+static uint32_t descarregarPendentes(bool corrigirEsteBoot);
+
 static void montar() {
   if (!SD.begin(PINO_CS, SPI, FREQ_SPI, "/sd", 5, false) || SD.cardType() == CARD_NONE) {
     SD.end();
@@ -83,6 +86,15 @@ static void montar() {
   if (!garantirArquivo()) { desmontar("não consegui criar " + String(ARQUIVO)); return; }
   montado = true;
   ultimoErro = "";
+  if (SD.exists(PENDENTES)) {
+    File f = SD.open(PENDENTES, FILE_READ);
+    String primeira = f ? f.readStringUntil('\n') : String();
+    if (f) f.close();
+    if ((uint32_t)bootDaLinha(primeira) != boot) {
+      uint32_t n = descarregarPendentes(false);
+      if (n) registrar("Cartão SD: " + String(n) + " registro(s) de um boot anterior ficaram sem hora");
+    }
+  }
   registrar("Cartão SD pronto: " + String((double)SD.cardSize() / 1e9, 1) + " GB");
   proximaGravacao = millis() + 2000;  // primeiro registro logo depois de montar
 }
@@ -115,7 +127,8 @@ static void gravar() {
   c[C_SATS] = gps::satelites() >= 0 ? String(gps::satelites()) : "";
   String linha = c[0];
   for (int i = 1; i < N_COLS; i++) linha += ";" + c[i];
-  File f = SD.open(ARQUIVO, FILE_APPEND);
+  // sem hora real: guarda à parte; na sincronização só essas linhas são corrigidas
+  File f = SD.open(epoch ? ARQUIVO : PENDENTES, FILE_APPEND);
   if (!f || f.println(linha) == 0) {
     if (f) f.close();
     desmontar("falha ao gravar (cartão removido?)");
@@ -147,38 +160,38 @@ void cuidar() {
   }
 }
 
-// Preenche a hora das linhas deste boot gravadas antes da sincronização.
-void aoSincronizar() {
-  if (!montado) return;
-  File in = SD.open(ARQUIVO, FILE_READ);
-  if (!in) return;
-  File out = SD.open(TEMP, FILE_WRITE);
-  if (!out) { in.close(); return; }
-  uint32_t corrigidas = 0;
+// Passa as linhas de pendentes.csv para o fim de registros.csv. As deste boot ganham a hora
+// real (hora atual − (uptime atual − uptime da linha)); as de boots anteriores ficam sem hora.
+// Custo proporcional só às linhas pendentes: o arquivo principal nunca é reescrito.
+static uint32_t descarregarPendentes(bool corrigirEsteBoot) {
+  if (!SD.exists(PENDENTES)) return 0;
+  File in = SD.open(PENDENTES, FILE_READ);
+  File out = SD.open(ARQUIVO, FILE_APPEND);
+  if (!in || !out) { if (in) in.close(); if (out) out.close(); return 0; }
+  uint32_t n = 0;
   while (in.available()) {
     String linha = in.readStringUntil('\n');
     linha.trim();
-    if (linha.isEmpty()) continue;
+    if (linha.isEmpty() || !isDigit(linha[0])) continue;
     int c1 = linha.indexOf(';'), c2 = linha.indexOf(';', c1 + 1), c3 = linha.indexOf(';', c2 + 1),
         c4 = linha.indexOf(';', c3 + 1);
-    if (c1 > 0 && c4 > 0 && isDigit(linha[0]) && (uint32_t)linha.substring(0, c1).toInt() == boot &&
-        linha.substring(c2 + 1, c3) == "0") {
-      int64_t up = atoll(linha.substring(c1 + 1, c2).c_str());
-      int64_t ep = relogio::paraEpochMs(up);
+    if (corrigirEsteBoot && c4 > 0 && (uint32_t)bootDaLinha(linha) == boot && linha.substring(c2 + 1, c3) == "0") {
+      int64_t ep = relogio::paraEpochMs(atoll(linha.substring(c1 + 1, c2).c_str()));
       linha = linha.substring(0, c2 + 1) + String((long long)ep) + ";" + dataHora(ep) + linha.substring(c4);
-      corrigidas++;
     }
     out.println(linha);
+    n++;
   }
   in.close();
   out.close();
-  if (corrigidas) {
-    SD.remove(ARQUIVO);
-    SD.rename(TEMP, ARQUIVO);
-    registrar("Cartão SD: hora corrigida em " + String(corrigidas) + " registro(s)");
-  } else {
-    SD.remove(TEMP);
-  }
+  SD.remove(PENDENTES);  // só depois de tudo copiado
+  return n;
+}
+
+void aoSincronizar() {
+  if (!montado) return;
+  uint32_t n = descarregarPendentes(true);
+  if (n) registrar("Cartão SD: hora corrigida em " + String(n) + " registro(s)");
 }
 
 // Remove tudo dentro de "dir" (arquivos e pastas, inclusive as que o computador cria).
@@ -224,10 +237,9 @@ static const char *nomeTipo(uint8_t t) {
 }
 
 // últimas n linhas de dados do arquivo (lê só o fim)
-static std::vector<String> ultimasLinhas(size_t n) {
-  std::vector<String> linhas;
-  File f = SD.open(ARQUIVO, FILE_READ);
-  if (!f) return linhas;
+static void ultimasLinhas(const char *caminho, size_t n, std::vector<String> &linhas) {
+  File f = SD.open(caminho, FILE_READ);
+  if (!f) return;
   size_t tam = f.size(), ler = 2048;
   if (tam > ler) f.seek(tam - ler);
   String bloco = f.readString();
@@ -241,7 +253,7 @@ static std::vector<String> ultimasLinhas(size_t n) {
     if (ini < 0) break;
     fim = ini;
   }
-  return linhas;  // mais recente primeiro
+  // mais recente primeiro
 }
 
 static String esc(const String &s) {
@@ -256,15 +268,20 @@ String statusJson() {
              ",\"boot\":" + String(boot) + ",\"gravados_boot\":" + String(gravados);
   if (!montado) return j + ",\"erro\":\"" + esc(ultimoErro) + "\"}";
   uint64_t total = SD.totalBytes(), usado = SD.usedBytes();
-  File f = SD.open(ARQUIVO, FILE_READ);
-  size_t tamArq = f ? f.size() : 0;
-  if (f) f.close();
+  size_t tamArq = 0;
+  for (const char *c : {ARQUIVO, PENDENTES}) {
+    File f = SD.open(c, FILE_READ);
+    if (f) { tamArq += f.size(); f.close(); }
+  }
   j += ",\"tipo\":\"" + String(nomeTipo(SD.cardType())) + "\",\"cartao_bytes\":" + String((double)SD.cardSize(), 0) +
        ",\"total_bytes\":" + String((double)total, 0) + ",\"usado_bytes\":" + String((double)usado, 0) +
        ",\"livre_bytes\":" + String((double)(total - usado), 0) + ",\"arquivo\":\"" + String(ARQUIVO) +
        "\",\"arquivo_bytes\":" + String(tamArq) + ",\"ultimos\":[";
   bool primeiro = true;
-  for (const String &l : ultimasLinhas(10)) {
+  std::vector<String> ult;
+  ultimasLinhas(PENDENTES, 10, ult);  // as pendentes são as mais novas
+  if (ult.size() < 10) ultimasLinhas(ARQUIVO, 10 - ult.size(), ult);
+  for (const String &l : ult) {
     String c[N_COLS];
     int ini = 0, k = 0;
     for (; k < N_COLS; k++) {
