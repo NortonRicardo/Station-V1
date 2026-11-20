@@ -528,7 +528,7 @@ etapa3_html = f'''
 <section class="etapa" id="etapa-3">
   <div class="n">Etapa 3</div>
   <h2>Cartão microSD: guardar as medições</h2>
-  <p>Módulo com slot microSD ligado pelo barramento SPI (VSPI). Guarda um registro a cada 10 minutos com todas as medições, GPS e bateria, mesmo sem internet.</p>
+  <p>Módulo com slot microSD ligado pelo barramento SPI (VSPI). Guarda um registro a cada 10 minutos, nos horários redondos (xx:00, xx:10, xx:20…), com todas as medições, GPS e bateria, mesmo sem internet.</p>
 
   <div class="card">
     <div class="eyebrow">Módulo</div>
@@ -806,8 +806,9 @@ ficha_e = [
     ("Corrente de carga", "Até 1 A no padrão. Um painel pequeno não chega a isso; a carga só fica mais lenta", "d"),
     ("LEDs", "Vermelho = carregando · azul ou verde = carregada · os dois apagados = sem sol, a estação está na bateria", "d"),
     ("Sinal dos LEDs (medido)", "Carregando: 3,10–3,13 V · carregada (LED de 100 % aceso): 2,6 V · nenhum aceso (painel sem carga): 0 V · antes do divisor", "m"),
-    ("No pino, após o divisor 10k/10k", "Carregando ≈1,55 V · carregada ≈1,30 V · sem sol 0 V (metade do medido, dentro da faixa boa do ADC)", "k"),
-    ("Limites para o firmware", "acima de 1,42 V = carregando · de 0,60 a 1,42 V = carregada · abaixo de 0,60 V = sem sol (na bateria)", "f"),
+    ("No pino, após o divisor 10k/10k", "Carregando ≈1,55 V · carregada ≈1,30 V · sem sol ≈0,65 V à noite (medido)", "k"),
+    ("À noite (medido no pino)", "≈0,65 V, não 0 V: o carregador deixa um resto de tensão no circuito do LED", "m"),
+    ("Limites para o firmware", "Com histerese e 3 leituras seguidas (≈9 s): sem sol → carregada acima de 1,05 V e volta abaixo de 0,90 V · carregada → carregando acima de 1,46 V e volta abaixo de 1,39 V", "f"),
     ("Economia no firmware", "CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-V1 desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min", "f"),
     ("Divisor da bateria (medido)", "Bateria 4,10 V → 1,40 V no meio de R1/R2: razão ≈2,93 (R1 ≈ 1,9 × R2). Bateria cheia (4,2 V) → ≈1,43 V no pino", "m"),
     ("No firmware", "Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria · leitura a cada 3 s", "f"),
