@@ -1,6 +1,6 @@
 // Station V1 - estação meteorológica com ESP32.
 //
-// Rede própria "Station-V1" (senha no .env) com a página em http://192.168.4.1; pela página
+// Rede própria "Station-XXXX" (final do MAC) (senha no .env) com a página em http://192.168.4.1; pela página
 // você escolhe o Wi-Fi de casa, e a estação também fica em http://station.local.
 // Uma rede ou a outra: conectada no Wi-Fi de casa, a rede própria desliga (2 min depois) e o
 // rádio passa a dormir entre os avisos do roteador; sem Wi-Fi de casa, a rede própria liga na
@@ -10,6 +10,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
+#include <esp_system.h>
 #include <ESPmDNS.h>
 #include <Preferences.h>
 #include <ArduinoOTA.h>
@@ -37,8 +38,10 @@ static_assert(sizeof(STATION_AP_PASS) - 1 >= 8, "STATION_AP_PASS precisa de 8+ c
 #define STATION_OTA_PASS STATION_AP_PASS
 #endif
 
-static const char *AP_SSID = "Station-V1";
-static const char *HOSTNAME = "station";
+// nomes na rede: final do MAC, para várias estações na mesma rede não se confundirem
+// (ex.: MAC …fc:30 → rede própria "Station-FC30" e página em station-fc30.local)
+static char AP_SSID[24] = "Station";
+static char HOSTNAME[24] = "station";
 static const uint32_t TEMPO_CONEXAO_MS = 20000;  // desiste da tentativa depois disso
 static const uint32_t ESPERA_RETRY_MS = 60000;   // nova tentativa após falha
 static const uint32_t VALIDADE_SCAN_MS = 15000;
@@ -278,6 +281,7 @@ static void rotaPagina() {
 static void rotaStatus() {
   String j = "{";
   j.reserve(1800);
+  j += "\"nome\":\"" + String(HOSTNAME) + "\",";
   j += "\"ap\":{\"ssid\":\"" + String(AP_SSID) + "\",\"ip\":\"192.168.4.1\",\"ligado\":" +
        String(apLigado ? "true" : "false") + ",\"clientes\":" + String(apLigado ? WiFi.softAPgetStationNum() : 0);
   if (apLigado && apDesligaEm) j += ",\"desliga_em_s\":" + String((int32_t)(apDesligaEm - millis()) / 1000);
@@ -405,6 +409,12 @@ void setup() {
   setenv("TZ", "<-03>3", 1);  // horário de Brasília, mesmo sem internet (hora pelo GPS)
   tzset();
   registrar(String("Estação ligada · ") + motivoReinicio());
+
+  uint8_t mac[6];
+  esp_read_mac(mac, ESP_MAC_WIFI_STA);
+  snprintf(AP_SSID, sizeof AP_SSID, "Station-%02X%02X", mac[4], mac[5]);
+  snprintf(HOSTNAME, sizeof HOSTNAME, "station-%02x%02x", mac[4], mac[5]);
+  registrar(String("Nome na rede: ") + HOSTNAME + ".local · rede própria " + AP_SSID);
 
   WiFi.persistent(false);  // credenciais só no nosso Preferences
   WiFi.setAutoReconnect(false);

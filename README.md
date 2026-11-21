@@ -54,17 +54,19 @@ A função de cada pino e a alimentação estão em [`placa.html`](placa.html): 
 
 ## 📶 Conectar a estação ao Wi-Fi
 
-1. Ligue a estação. Ela cria a rede **`Station-V1`**.
+1. Ligue a estação. Ela cria a rede **`Station-XXXX`**: as 4 letras finais vêm do MAC da placa, então cada estação tem a sua (a atual é `Station-FC30`).
 2. Conecte o celular nessa rede. A página abre sozinha; se não abrir, acesse **http://192.168.4.1**.
 3. Toque em **Procurar**, escolha a rede de casa, digite a senha e toque em **Conectar**.
 
-Pronto: a estação grava a rede, conecta na internet e acerta a hora. Na rede de casa, a página também abre em **http://station.local**.
+Pronto: a estação grava a rede, conecta na internet e acerta a hora. Na rede de casa, a página também abre em **http://station-xxxx.local**, com as mesmas 4 letras (a atual é `station-fc30.local`). O nome aparece no cartão **Estação**, em *Nome na rede*.
+
+Várias estações podem ficar na mesma rede: cada uma tem o seu nome e o seu endereço.
 
 ### 🔋 Uma rede ou a outra
 
-- **Conectada no Wi-Fi de casa:** a rede `Station-V1` desliga 2 minutos depois, e a página fica em **http://station.local** (ou no IP), com o celular na mesma rede. O rádio passa a dormir entre os avisos do roteador e gasta bem menos.
-- **Sem Wi-Fi de casa** (não configurado, senha errada, roteador fora): a `Station-V1` liga na hora, para configurar.
-- Para religar a `Station-V1` por 15 minutos: botão **BOOT** da placa, ou o botão no cartão **Estação** da página.
+- **Conectada no Wi-Fi de casa:** a rede `Station-XXXX` desliga 2 minutos depois, e a página fica em **http://station-xxxx.local** (ou no IP), com o celular na mesma rede. O rádio passa a dormir entre os avisos do roteador e gasta bem menos.
+- **Sem Wi-Fi de casa** (não configurado, senha errada, roteador fora): a `Station-XXXX` liga na hora, para configurar.
+- Para religar a `Station-XXXX` por 15 minutos: botão **BOOT** da placa, ou o botão no cartão **Estação** da página.
 - O processador roda a 80 MHz, o mínimo para o Wi-Fi.
 
 ## 🛠️ Gravar o código
@@ -72,7 +74,7 @@ Pronto: a estação grava a rede, conecta na internet e acerta a hora. Na rede d
 **Antes da primeira compilação**, copie `.env.example` para `.env` e defina as senhas (o `.env` não vai para o git):
 
 ```ini
-STATION_AP_PASS=senha-da-rede-Station-V1   # mínimo 8 caracteres
+STATION_AP_PASS=senha-da-rede-Station-XXXX  # mínimo 8 caracteres
 STATION_OTA_PASS=senha-da-gravacao-pelo-wifi  # opcional; se faltar, usa a de cima
 ```
 
@@ -81,7 +83,13 @@ STATION_OTA_PASS=senha-da-gravacao-pelo-wifi  # opcional; se faltar, usa a de ci
 | 🔌 **USB** | Primeira vez, ou se o Wi-Fi não responder | `pio run -t upload` |
 | 📶 **Wi-Fi** | Depois disso, com o computador na mesma rede da estação | `pio run -e ota -t upload` |
 
-O comando do Wi-Fi procura a estação em `station.local`. Se o computador estiver conectado na rede `Station-V1`, use o IP dela:
+O comando do Wi-Fi grava na estação `station-fc30.local` (definido no `platformio.ini`). Para outra estação, informe o nome dela; para ver as estações na rede: `dns-sd -B _arduino._tcp`.
+
+```sh
+pio run -e ota -t upload --upload-port station-xxxx.local
+```
+
+Se o computador estiver conectado na rede própria da estação (`Station-XXXX`), use o IP dela:
 
 ```sh
 pio run -e ota -t upload --upload-port 192.168.4.1
