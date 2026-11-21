@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consumo da bateria</title>
+<style>
+:root { --bg:#F3F3F1; --card:#F8F8F6; --tile:#F0EFEC; --line:#E4E2DF; --tx:#292524; --tx2:#78716C;
+  --ln:#2563EB; --night:#E7E9F0; --noch:#F6EBD9; --warn:#B45309; }
+* { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body { margin:0; background:var(--bg); color:var(--tx); -webkit-font-smoothing:antialiased;
+  font:16px/1.55 Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+main { max-width:1080px; margin:0 auto; padding:56px 20px 96px; }
+header h1 { font-size:34px; letter-spacing:-.02em; margin:0 0 6px; font-weight:700; }
+header p { margin:0; color:var(--tx2); max-width:720px; }
+h2 { font-size:22px; letter-spacing:-.01em; margin:0 0 6px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px; margin-top:20px; min-width:0; }
+.card > p.sub { color:var(--tx2); font-size:14px; margin:0 0 16px; }
+.card p { margin:0 0 12px; } .card p:last-child { margin-bottom:0; }
+.hero { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin-top:28px; }
+.tile { background:var(--tile); border-radius:14px; padding:14px 14px 12px; }
+.tile .big { font-size:24px; font-weight:650; letter-spacing:-.02em; line-height:1.15; white-space:nowrap; }
+.tile .lbl { font-size:12.5px; color:var(--tx2); margin-top:4px; line-height:1.35; }
+.grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+.grid .card { margin-top:20px; }
+.spec { display:grid; grid-template-columns:140px minmax(0,1fr); gap:16px; padding:10px 2px; border-top:1px solid var(--line); font-size:14.5px; }
+.spec:first-of-type { border-top:0; }
+.spec .k { color:var(--tx2); font-weight:500; font-size:13.5px; }
+.scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.chart svg { display:block; width:100%; min-width:680px; height:auto; }
+.chart .grid { stroke:#DAD8D4; stroke-width:1; } .chart .grid2 { stroke:#ECEAE7; stroke-width:1; }
+.chart .tick { stroke:#B8B4AF; }
+.chart .ax { font-size:12px; fill:var(--tx2); } .chart .ax.b { font-weight:650; fill:var(--tx); }
+.chart .night { fill:var(--night); } .chart .nocharge { fill:var(--noch); }
+.chart .bl { font-size:11.5px; fill:#6B7280; font-weight:500; }
+.chart .ln { fill:none; stroke:var(--ln); stroke-width:2; stroke-linejoin:round; }
+.chart .dot { fill:#fff; stroke:var(--ln); stroke-width:2; }
+.chart .an { font-size:12px; fill:var(--tx); font-weight:600; paint-order:stroke; stroke:var(--card); stroke-width:4px; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--tx2); margin-top:12px; }
+.legend i { display:inline-block; width:14px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+table { border-collapse:collapse; width:100%; font-size:14px; }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+thead th { font-size:12px; font-weight:600; color:var(--tx2); text-transform:uppercase; letter-spacing:.04em; }
+tbody tr:last-child td { border-bottom:0; }
+td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+.note { font-size:13.5px; color:var(--tx2); }
+.warn { color:var(--warn); font-weight:600; }
+ul, ol { margin:0; padding-left:20px; } li { margin:0 0 8px; } li:last-child { margin-bottom:0; }
+details summary { cursor:pointer; font-weight:600; }
+details[open] summary { margin-bottom:12px; }
+@media (max-width:860px) { .hero { grid-template-columns:repeat(2, minmax(0,1fr)); } .grid { grid-template-columns:minmax(0,1fr); } }
+@media (max-width:560px) { main { padding:36px 16px 72px; } header h1 { font-size:27px; } .card { padding:18px; }
+  .spec { grid-template-columns:minmax(0,1fr); gap:2px; } .tile .big { font-size:20px; } th, td { padding:8px 5px; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Consumo da bateria à noite</h1>
+  <p>Registros do cartão SD de 20/11/2026 12:00 até o último, 21/11/2026 10:30: 136 registros, um a cada 10 min. Firmware ainda com a leitura analógica do carregador.</p>
+</header>
+
+<section class="hero">
+  <div class="tile"><div class="big">11 h 22 min</div><div class="lbl">sem painel: de 18:22 a 05:44 (eventos da estação)</div></div>
+  <div class="tile"><div class="big">−0,29 V</div><div class="lbl">queda na noite (4,11 → 3,82 V)</div></div>
+  <div class="tile"><div class="big">≈35 %</div><div class="lbl">da carga gasta (91 % → 56 %)</div></div>
+  <div class="tile"><div class="big">≈3,2 %/h</div><div class="lbl">ritmo médio sem sol</div></div>
+</section>
+
+<section class="card chart">
+  <h2>Tensão da bateria</h2>
+  <p class="sub">Leitura do GPIO35 (divisor) a cada 10 min. As variações de ±0,02 V entre leituras vizinhas são ruído do ADC.</p>
+  <div class="scroll"><svg viewBox="0 0 1000 340" role="img" aria-label="Tensão da bateria de 20/11 00:20 a 21/11 10:20"><rect x="318.6" y="28" width="468.8" height="268" class="night"/><text x="553.0" y="44" class="bl" text-anchor="middle">noite de 20 para 21/11 · 11 h 22 min</text><rect x="56.0" y="28" width="44.7" height="268" class="nocharge"/><line x1="56" x2="984" y1="296.0" y2="296.0" class="grid2"/><line x1="56" x2="984" y1="273.7" y2="273.7" class="grid"/><text x="48" y="277.7" class="ax" text-anchor="end">3.8 V</text><line x1="56" x2="984" y1="251.3" y2="251.3" class="grid2"/><line x1="56" x2="984" y1="229.0" y2="229.0" class="grid"/><text x="48" y="233.0" class="ax" text-anchor="end">3.9 V</text><line x1="56" x2="984" y1="206.7" y2="206.7" class="grid2"/><line x1="56" x2="984" y1="184.3" y2="184.3" class="grid"/><text x="48" y="188.3" class="ax" text-anchor="end">4.0 V</text><line x1="56" x2="984" y1="162.0" y2="162.0" class="grid2"/><line x1="56" x2="984" y1="139.7" y2="139.7" class="grid"/><text x="48" y="143.7" class="ax" text-anchor="end">4.1 V</text><line x1="56" x2="984" y1="117.3" y2="117.3" class="grid2"/><line x1="56" x2="984" y1="95.0" y2="95.0" class="grid"/><text x="48" y="99.0" class="ax" text-anchor="end">4.2 V</text><line x1="56" x2="984" y1="72.7" y2="72.7" class="grid2"/><line x1="56" x2="984" y1="50.3" y2="50.3" class="grid"/><text x="48" y="54.3" class="ax" text-anchor="end">4.3 V</text><line x1="56" x2="984" y1="28.0" y2="28.0" class="grid2"/><line x1="56.0" x2="56.0" y1="296" y2="301" class="tick"/><text x="56.0" y="316" class="ax" text-anchor="middle">12 h</text><line x1="138.5" x2="138.5" y1="296" y2="301" class="tick"/><text x="138.5" y="316" class="ax" text-anchor="middle">14 h</text><line x1="221.0" x2="221.0" y1="296" y2="301" class="tick"/><text x="221.0" y="316" class="ax" text-anchor="middle">16 h</text><line x1="303.5" x2="303.5" y1="296" y2="301" class="tick"/><text x="303.5" y="316" class="ax" text-anchor="middle">18 h</text><line x1="386.0" x2="386.0" y1="296" y2="301" class="tick"/><text x="386.0" y="316" class="ax" text-anchor="middle">20 h</text><line x1="468.4" x2="468.4" y1="296" y2="301" class="tick"/><text x="468.4" y="316" class="ax" text-anchor="middle">22 h</text><line x1="550.9" x2="550.9" y1="296" y2="301" class="tick"/><text x="550.9" y="316" class="ax b" text-anchor="middle">21/11</text><line x1="633.4" x2="633.4" y1="296" y2="301" class="tick"/><text x="633.4" y="316" class="ax" text-anchor="middle">02 h</text><line x1="715.9" x2="715.9" y1="296" y2="301" class="tick"/><text x="715.9" y="316" class="ax" text-anchor="middle">04 h</text><line x1="798.4" x2="798.4" y1="296" y2="301" class="tick"/><text x="798.4" y="316" class="ax" text-anchor="middle">06 h</text><line x1="880.9" x2="880.9" y1="296" y2="301" class="tick"/><text x="880.9" y="316" class="ax" text-anchor="middle">08 h</text><line x1="963.4" x2="963.4" y1="296" y2="301" class="tick"/><text x="963.4" y="316" class="ax" text-anchor="middle">10 h</text><polyline points="56.0,103.9 62.9,108.4 69.7,117.3 76.6,108.4 83.5,112.9 90.4,117.3 97.2,117.3 104.1,117.3 111.0,117.3 117.9,121.8 124.7,121.8 131.6,126.3 138.5,135.2 145.4,54.8 152.2,41.4 159.1,45.9 166.0,45.9 172.9,50.3 179.7,72.7 186.6,81.6 193.5,77.1 200.4,81.6 207.2,86.1 214.1,86.1 221.0,90.5 227.9,95.0 234.7,103.9 241.6,99.5 248.5,99.5 255.3,117.3 262.2,121.8 269.1,117.3 276.0,130.7 282.8,117.3 289.7,117.3 296.6,126.3 303.5,117.3 310.3,126.3 317.2,126.3 324.1,126.3 331.0,130.7 337.8,148.6 344.7,135.2 351.6,135.2 358.5,135.2 365.3,139.7 372.2,144.1 379.1,144.1 386.0,148.6 392.8,157.5 399.7,148.6 406.6,157.5 413.5,153.1 420.3,157.5 427.2,166.5 434.1,162.0 440.9,162.0 447.8,162.0 454.7,170.9 461.6,166.5 468.4,166.5 475.3,170.9 482.2,170.9 489.1,175.4 495.9,175.4 502.8,179.9 509.7,179.9 516.6,184.3 523.4,179.9 530.3,184.3 537.2,184.3 544.1,188.8 550.9,188.8 557.8,193.3 564.7,193.3 571.6,193.3 578.4,197.7 585.3,197.7 592.2,197.7 599.1,211.1 605.9,202.2 612.8,202.2 619.7,206.7 626.5,206.7 633.4,211.1 640.3,224.5 647.2,215.6 654.0,215.6 660.9,229.0 667.8,224.5 674.7,224.5 681.5,237.9 688.4,229.0 695.3,242.4 702.2,242.4 709.0,242.4 715.9,246.9 722.8,242.4 729.7,242.4 736.5,246.9 743.4,246.9 750.3,251.3 757.2,255.8 764.0,255.8 770.9,269.2 777.8,260.3 784.7,260.3 791.5,273.7 798.4,260.3 805.3,255.8 812.1,264.7 819.0,260.3 825.9,260.3 832.8,255.8 839.6,255.8 846.5,251.3 853.4,251.3 860.3,251.3 867.1,246.9 874.0,246.9 880.9,246.9 887.8,229.0 894.6,215.6 901.5,224.5 908.4,206.7 915.3,197.7 922.1,188.8 929.0,184.3 935.9,179.9 942.8,184.3 949.6,179.9 956.5,179.9 963.4,153.1 970.3,148.6 977.1,148.6 984.0,108.4" class="ln"/><circle cx="324.1" cy="126.3" r="4" class="dot"/><text x="316.1" y="148.3" class="an" text-anchor="end">4,13 V · fim da carga</text><circle cx="784.7" cy="260.3" r="4" class="dot"/><text x="784.7" y="282.3" class="an" text-anchor="middle">3,83 V · nascer do sol</text><circle cx="152.2" cy="41.4" r="4" class="dot"/><text x="152.2" y="29.4" class="an" text-anchor="middle">4,32 V · carregando</text><circle cx="984.0" cy="108.4" r="4" class="dot"/><text x="976.0" y="96.4" class="an" text-anchor="end">4,17 V · último registro</text></svg></div>
+  <div class="legend"><span><i style="background:var(--night)"></i>noite (sem painel)</span><span><i style="background:var(--noch)"></i>dia, mas sem carga</span><span><i style="background:var(--ln);height:3px;vertical-align:3px"></i>tensão da bateria</span></div>
+</section>
+
+<div class="grid">
+<section class="card">
+  <h2>A noite, hora a hora</h2>
+  <p class="sub">Média das leituras de cada hora, para tirar o ruído. A % vem da tabela tensão → % do firmware.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Hora</th><th class="n">Leit.</th><th class="n">Média</th><th class="n">Queda</th><th class="n">%</th></tr></thead>
+    <tbody><tr><td>18–19 h</td><td class="n">3</td><td class="n">4,11 V</td><td class="n">—</td><td class="n">≈91 %</td></tr><tr><td>19–20 h</td><td class="n">6</td><td class="n">4,10 V</td><td class="n">−0,008 V</td><td class="n">≈90 %</td></tr><tr><td>20–21 h</td><td class="n">6</td><td class="n">4,07 V</td><td class="n">−0,033 V</td><td class="n">≈87 %</td></tr><tr><td>21–22 h</td><td class="n">6</td><td class="n">4,04 V</td><td class="n">−0,025 V</td><td class="n">≈84 %</td></tr><tr><td>22–23 h</td><td class="n">6</td><td class="n">4,02 V</td><td class="n">−0,018 V</td><td class="n">≈82 %</td></tr><tr><td>23–00 h</td><td class="n">6</td><td class="n">4,00 V</td><td class="n">−0,023 V</td><td class="n">≈80 %</td></tr><tr><td>00–01 h</td><td class="n">6</td><td class="n">3,98 V</td><td class="n">−0,023 V</td><td class="n">≈77 %</td></tr><tr><td>01–02 h</td><td class="n">6</td><td class="n">3,96 V</td><td class="n">−0,023 V</td><td class="n">≈74 %</td></tr><tr><td>02–03 h</td><td class="n">6</td><td class="n">3,92 V</td><td class="n">−0,035 V</td><td class="n">≈70 %</td></tr><tr><td>03–04 h</td><td class="n">6</td><td class="n">3,88 V</td><td class="n">−0,037 V</td><td class="n">≈65 %</td></tr><tr><td>04–05 h</td><td class="n">6</td><td class="n">3,86 V</td><td class="n">−0,022 V</td><td class="n">≈62 %</td></tr><tr><td>05–06 h</td><td class="n">5</td><td class="n">3,83 V</td><td class="n">−0,032 V</td><td class="n">≈57 %</td></tr></tbody>
+  </table></div>
+  <p class="note" style="margin-top:14px">A queda em volts aumenta depois das 02:00 (≈−0,03 V/h, contra ≈−0,02 V/h antes). O firmware faz as mesmas tarefas a noite toda, então a diferença deve vir da curva da célula de lítio, que desce mais rápido abaixo de ≈3,95 V. Só a medição de corrente confirma.</p>
+</section>
+
+<section class="card">
+  <h2>Antes e depois da noite</h2>
+  <p class="sub">O que aconteceu dos dois lados da noite, dentro da janela analisada.</p>
+  <div class="spec"><div class="k">20/11 12:00–13:00</div><div>Sem carga; a tensão caiu de 4,18 para 4,15 V.</div></div>
+  <div class="spec"><div class="k">20/11 13:10–18:10</div><div>Carregou e chegou a 4,32 V às 14:20. A partir das 15:00 a tensão caiu de 4,25 para 4,13 V com o carregador ainda carregando: o painel entregava menos do que a estação consumia.</div></div>
+  <div class="spec"><div class="k">Início da noite</div><div>4,11 V (≈91 %), média de 18:30 a 18:50.</div></div>
+  <div class="spec"><div class="k">Fim da noite</div><div>3,82 V (≈56 %), média de 05:20 a 05:40.</div></div>
+  <div class="spec"><div class="k">21/11 manhã</div><div>A tensão só voltou acima do nível do início da noite às 10:30 (4,17 V). Durante a carga a tensão lida fica acima da real, então a reposição completa pode demorar mais.</div></div>
+</section>
+</div>
+
+<section class="card">
+  <h2>Corrente média estimada da noite</h2>
+  <p class="sub">A capacidade das duas 18650 não está registrada, então a corrente depende dela. O cálculo usa os ≈35 % gastos em 11 h 10 min.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Cada célula</th><th class="n">Par</th><th class="n">Corrente</th></tr></thead>
+    <tbody>
+      <tr><td>2000 mAh</td><td class="n">4000 mAh</td><td class="n">≈127 mA</td></tr>
+      <tr><td>2500 mAh</td><td class="n">5000 mAh</td><td class="n">≈159 mA</td></tr>
+      <tr><td>3000 mAh</td><td class="n">6000 mAh</td><td class="n">≈190 mA</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note" style="margin-top:14px">É estimativa: a % vem da tensão medida com a estação ligada, e a tabela tensão → % é a de uma célula em repouso. O valor certo só sai medindo a corrente (abaixo).</p>
+</section>
+
+<section class="card">
+  <h2>Para planejar a economia</h2>
+  <p class="sub">Para decidir o que desligar e por quanto tempo, é preciso saber quanto cada parte consome. Faça à noite, ou com o painel coberto, para a carga não entrar na conta.</p>
+  <ol>
+    <li>Anote a capacidade escrita nas duas 18650 (mAh).</li>
+    <li>Multímetro em <strong>corrente contínua, escala 200 mA</strong>, ponta vermelha na entrada <strong>mA</strong>. Se passar de 200 mA, mude para a entrada e a escala de <strong>10 A</strong>.</li>
+    <li>Abra o fio entre o <strong>OUT+ do TP4056</strong> e a entrada do step-up e ligue o multímetro em série. A estação reinicia ao abrir o fio; espere ≈1 min até conectar no Wi-Fi e anote o valor estável. Pela estimativa acima, o esperado fica entre ≈127 e ≈190 mA, com picos rápidos quando o Wi-Fi transmite.</li>
+    <li>Desligue só o VCC do GPS e meça de novo: a diferença é o consumo do GPS.</li>
+    <li>Desconecte o leitor de microSD e meça de novo: a diferença é o consumo do cartão parado.</li>
+  </ol>
+  <p style="margin-top:14px">Referência para a conta: cada 10 mA a menos durante as 11 h 22 min da noite economizam ≈114 mAh.</p>
+</section>
+
+<div class="grid">
+<section class="card">
+  <h2>Leituras que não batem</h2>
+  <p class="sub">Vêm do método analógico do carregador, que a ligação digital nova (Etapa 5) substitui.</p>
+  <ul>
+    <li><strong>21/11 05:50 em diante:</strong> estado “carregada” e 100 % com a bateria em 3,80 V. A tensão sobe até 4,17 V às 10:30, então ela estava carregando, e a % real era ≈52 %.</li>
+    <li><strong>20/11 14:30–18:10:</strong> sem %, como previsto durante a carga.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Temperatura na caixa</h2>
+  <p class="sub">O BME280 marcou até 50,3 °C às 14:50 de 20/11 e ficou acima de 45 °C em vários registros entre 14:30 e 15:30.</p>
+  <p>Se as baterias ficam na mesma caixa, elas passam pelo mesmo calor. A faixa usual de carga das 18650 vai até 45 °C; acima disso a vida útil cai. Vale conferir o datasheet das suas células.</p>
+</section>
+</div>
+
+<section class="card">
+  <details>
+    <summary>Registros de hora em hora</summary>
+    <div class="scroll"><table>
+      <thead><tr><th>Quando</th><th>Bateria</th><th>%</th><th>Estado lido</th><th>Temp.</th></tr></thead>
+      <tbody><tr><td>20/11 12:00</td><td>4.18 V</td><td>98 %</td><td>sem sol</td><td>32.0 °C</td></tr><tr><td>20/11 13:00</td><td>4.15 V</td><td>95 %</td><td>sem sol</td><td>32.6 °C</td></tr><tr><td>20/11 14:00</td><td>4.11 V</td><td>91 %</td><td>carregando</td><td>37.9 °C</td></tr><tr><td>20/11 15:00</td><td>4.25 V</td><td>—</td><td>carregando</td><td>46.7 °C</td></tr><tr><td>20/11 16:00</td><td>4.21 V</td><td>—</td><td>carregando</td><td>40.0 °C</td></tr><tr><td>20/11 17:00</td><td>4.14 V</td><td>—</td><td>carregando</td><td>32.6 °C</td></tr><tr><td>20/11 18:00</td><td>4.15 V</td><td>—</td><td>carregando</td><td>29.5 °C</td></tr><tr><td>20/11 19:00</td><td>4.11 V</td><td>91 %</td><td>sem sol</td><td>26.9 °C</td></tr><tr><td>20/11 20:00</td><td>4.08 V</td><td>88 %</td><td>sem sol</td><td>25.7 °C</td></tr><tr><td>20/11 21:00</td><td>4.04 V</td><td>84 %</td><td>sem sol</td><td>25.3 °C</td></tr><tr><td>20/11 22:00</td><td>4.04 V</td><td>84 %</td><td>sem sol</td><td>24.7 °C</td></tr><tr><td>20/11 23:00</td><td>4.01 V</td><td>81 %</td><td>sem sol</td><td>24.2 °C</td></tr><tr><td>21/11 00:00</td><td>3.99 V</td><td>78 %</td><td>sem sol</td><td>24.3 °C</td></tr><tr><td>21/11 01:00</td><td>3.97 V</td><td>76 %</td><td>sem sol</td><td>24.1 °C</td></tr><tr><td>21/11 02:00</td><td>3.94 V</td><td>72 %</td><td>sem sol</td><td>23.7 °C</td></tr><tr><td>21/11 03:00</td><td>3.91 V</td><td>69 %</td><td>sem sol</td><td>23.4 °C</td></tr><tr><td>21/11 04:00</td><td>3.86 V</td><td>61 %</td><td>sem sol</td><td>23.1 °C</td></tr><tr><td>21/11 05:00</td><td>3.84 V</td><td>59 %</td><td>sem sol</td><td>23.0 °C</td></tr><tr><td>21/11 06:00</td><td>3.83 V</td><td>100 %</td><td>carregada</td><td>22.9 °C</td></tr><tr><td>21/11 07:00</td><td>3.84 V</td><td>100 %</td><td>carregada</td><td>24.9 °C</td></tr><tr><td>21/11 08:00</td><td>3.86 V</td><td>100 %</td><td>carregada</td><td>26.8 °C</td></tr><tr><td>21/11 09:00</td><td>3.99 V</td><td>100 %</td><td>carregada</td><td>29.9 °C</td></tr><tr><td>21/11 10:00</td><td>4.07 V</td><td>100 %</td><td>carregada</td><td>31.1 °C</td></tr></tbody>
+    </table></div>
+  </details>
+</section>
+</main>
+</body>
+</html>
