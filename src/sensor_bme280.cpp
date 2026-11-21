@@ -6,6 +6,8 @@
 
 #include "relogio.h"
 
+#include "buzzer.h"
+
 void registrar(const String &texto);  // em main.cpp
 
 namespace bme {
@@ -41,7 +43,7 @@ static void procurar() {
   Estado antes = estado;
   if (!endereco) {
     estado = AUSENTE;
-    if (antes != AUSENTE) registrar("BME280 não encontrado no I2C (SDA 21, SCL 22)");
+    if (antes != AUSENTE) { registrar("BME280 não encontrado no I2C (SDA 21, SCL 22)"); buzzer::tocar(buzzer::ERRO); }
     return;
   }
   if (chipId == 0x58) {
@@ -79,6 +81,7 @@ static void ler() {
   if (!sensor.takeForcedMeasurement()) {
     estado = ERRO;
     registrar("BME280 parou de responder");
+    buzzer::tocar(buzzer::ERRO);
     return;
   }
   Leitura l;

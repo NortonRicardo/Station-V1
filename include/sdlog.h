@@ -3,9 +3,10 @@
 // Arquivo /registros.csv: com hora real, um registro nos horários redondos de 10 min
 // (xx:00, xx:10, xx:20...); sem hora real ainda, a cada 10 min desde que ligou.
 // Colunas:
-//   boot;uptime_ms;epoch_ms;data_hora;temperatura_c;umidade_pct;pressao_hpa;orvalho_c;umidade_abs_gm3;
-//   basculadas_10min;basculadas_total;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites
-// basculadas_10min = basculadas desde o registro anterior (contadas na hora, salvas aqui).
+//   boot;uptime_ms;epoch_ms;data_hora_utc;temperatura_c;umidade_pct;pressao_hpa;orvalho_c;umidade_abs_gm3;
+//   chuva_mm_10min;basculadas_10min;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites
+// chuva_mm_10min = milímetros de chuva desde o registro anterior (basculadas × mm por basculada);
+// basculadas_10min = as basculadas desse mesmo intervalo (para conferir).
 // Campos sem dado (sensor ausente, sem GPS, sem bateria) ficam vazios. Um arquivo no formato
 // antigo é renomeado para /registros_antigo_<boot>.csv.
 // Linhas gravadas antes de a hora sincronizar saem com epoch_ms = 0 e são

@@ -121,7 +121,7 @@ input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 100
 .rolagem::-webkit-scrollbar-thumb:active,.tbl::-webkit-scrollbar-thumb:active{background-color:rgba(255,255,255,.55)}
 #lista.rolagem{overflow-x:hidden;padding:0 6px;margin:0 -6px}
 #lista.rolagem>li{min-width:0}
-.tbl-rolagem th:last-child,.tbl-rolagem td:last-child{padding-right:18px}  /* espaço para a barra não cobrir "Basc." */
+.tbl-rolagem th:last-child,.tbl-rolagem td:last-child{padding-right:18px}  /* espaço para a barra não cobrir "Chuva" */
 #lista.rolagem{max-height:360px}
 @media (min-width:900px){
   .card-wifi{contain:size}            /* não define a altura da linha: segue o cartão Estação */
@@ -172,7 +172,6 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Hora</span><span id="hora">—</span></div>
   <div class="row"><span>Rede <span class="apNome">própria</span></span><span id="apEst">—</span></div>
   <div class="row"><span>Aparelhos na <span class="apNome">rede própria</span></span><span id="cli">—</span></div>
-  <button class="ghost" id="btnAp" type="button" style="margin-top:14px;align-self:flex-start" hidden>Ligar a rede <span class="apNome">própria</span> por 15 min</button>
 </section>
 <section data-carga="redes" class="carregando card card-wifi">
   <div class="head">
@@ -181,7 +180,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   </div>
   <p class="msg" id="msg"></p>
   <ul id="lista" class="rolagem"></ul>
-  <p class="hint">Depois de conectar no Wi-Fi de casa, a rede <span class="apNome">própria</span> desliga em 2 minutos para economizar energia: a página passa a abrir em <b class="hostNome">station-xxxx.local</b> (ou no IP mostrado em Estação), com o celular na mesma rede. Se o Wi-Fi de casa cair, a <span class="apNome">rede própria</span> volta sozinha.</p>
+  <p class="hint">Depois de conectar no Wi-Fi de casa, a rede <span class="apNome">própria</span> desliga na hora para economizar energia: a página passa a abrir em <b class="hostNome">station-xxxx.local</b> (ou no IP mostrado em Estação), com o celular na mesma rede. Se o Wi-Fi de casa cair, a <span class="apNome">rede própria</span> volta sozinha.</p>
   <button class="forget" id="btnEsquecer" type="button" hidden>Esquecer rede salva</button>
 </section>
 </div>
@@ -242,7 +241,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Registros</span><span id="sdArq">—</span></div>
   <div class="label" style="margin-top:18px">Registros das últimas 48 horas <span id="sdQtd" style="text-transform:none;letter-spacing:0"></span></div>
   <div class="tbl tbl-rolagem"><table>
-    <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bateria</th><th title="basculadas no intervalo do registro">Basc.</th></tr></thead>
+    <thead><tr><th>Quando</th><th>Temp.</th><th>Umid.</th><th>Pressão</th><th>Bateria</th><th title="chuva no intervalo do registro (basculadas)">Chuva</th></tr></thead>
     <tbody id="sdLista"><tr><td colspan="6" class="vazio">—</td></tr></tbody>
   </table></div>
   <button class="link-perigo" id="btnApagar" type="button" disabled>Apagar tudo do cartão</button>
@@ -266,17 +265,17 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
 </section>
 <section data-carga="status" class="carregando card">
   <div class="head">
-    <div><div class="label">Pluviômetro · SS41F</div><h2>Basculadas</h2></div>
+    <div><div class="label">Pluviômetro · SS41F</div><h2>Chuva</h2></div>
     <span id="pluvEstado"></span>
   </div>
   <div class="tiles">
-    <div class="tile"><div class="lbl">Total</div><div class="val"><span id="pTotal">—</span><small>basculadas</small></div></div>
+    <div class="tile"><div class="lbl" id="pHoraLbl">Nesta hora</div><div class="val"><span id="pHoraMm">—</span><small>mm</small></div><div class="lbl" id="pHoraBasc" style="margin-top:4px">—</div></div>
     <div class="tile"><div class="lbl">Desde que ligou</div><div class="val"><span id="pBoot">—</span></div></div>
     <div class="tile"><div class="lbl">Última</div><div class="val" style="font-size:15px;white-space:normal"><span id="pUlt">—</span></div></div>
   </div>
   <div class="row" style="margin-top:12px"><span>Sinal do sensor</span><span id="pSinal">—</span></div>
   <div class="row"><span>Pulsos ignorados (ruído)</span><span id="pIgn">—</span></div>
-  <p class="hint">Cada vez que o ímã da báscula passa pela frente do sensor (polo sul e depois norte), conta uma basculada. Milímetros de chuva entram depois da calibração.</p>
+  <p class="hint">Cada vez que o ímã da báscula passa pela frente do sensor (polo sul e depois norte), conta uma basculada. Cada basculada vale ≈0,2 mm de chuva (funil de 160 mm, báscula de 4 mL). A hora cheia zera na virada da hora.</p>
 </section>
 </div>
 
@@ -405,9 +404,13 @@ function desenharMapa(){
 $('zMais').onclick=()=>{MAPA.z=Math.min(18,MAPA.z+1);MAPA.chave='';desenharMapa()};
 $('zMenos').onclick=()=>{MAPA.z=Math.max(3,MAPA.z-1);MAPA.chave='';desenharMapa()};
 addEventListener('resize',()=>{MAPA.chave='';desenharMapa()});
+// registros do cartão: gravados em UTC; na tela, horário de Brasília (passar o mouse mostra o UTC)
+const fmtData=tz=>new Intl.DateTimeFormat('pt-BR',{timeZone:tz,day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const FMT_BR=fmtData('America/Sao_Paulo'),FMT_UTC=fmtData('UTC');
+const dataBr=ms=>FMT_BR.format(new Date(ms)).replace(',',''),dataUtc=ms=>FMT_UTC.format(new Date(ms)).replace(',','');
 function pluvCard(p){
   set('pluvEstado',!p.sinal_ok?pill('Sinal preso em 0','p-err'):p.perto?pill('Ímã perto','p-wait'):pill('Pronto','p-ok'));
-  set('pTotal',String(p.total));set('pBoot',String(p.desde_boot));set('pUlt',p.ultima||'—');
+  set('pHoraLbl',p.hora_inicio?'Chuva '+p.hora_inicio+'–'+p.hora_fim:'Chuva nos últimos 60 min');set('pHoraMm',fx(p.hora_mm,1));set('pHoraBasc',p.hora_basculadas+(p.hora_basculadas===1?' basculada':' basculadas'));set('pBoot',String(p.desde_boot));set('pUlt',p.ultima||'—');
   set('pSinal',p.nivel?'1 · livre':'0 · ímã na frente');
   set('pIgn',String(p.ignorados));
 }
@@ -461,7 +464,7 @@ function preencherTabela(L,ativo){
     L.forEach(r=>{const tr=document.createElement('tr');
       const est={carregando:'Carregando',carregada:'Carregada',sem_sol:'Sem sol'}[r.bateria_estado]||'';
       const bat=r.bateria_v===null||r.bateria_v===undefined?'—':est+' · '+fx(r.bateria_v,2)+' V'+(r.bateria_estado==='carregando'?'':' · '+r.bateria_pct+' %');
-      [r.quando,r.temperatura===null?'—':fx(r.temperatura,1)+' °C',r.umidade===null?'—':fx(r.umidade,0)+' %',r.pressao===null?'—':fx(r.pressao,1)+' hPa',bat,r.basculadas===null?'—':String(r.basculadas)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.appendChild(td)});
+      [r.epoch_ms?dataBr(r.epoch_ms):r.quando,r.temperatura===null?'—':fx(r.temperatura,1)+' °C',r.umidade===null?'—':fx(r.umidade,0)+' %',r.pressao===null?'—':fx(r.pressao,1)+' hPa',bat,r.chuva_mm===null||r.chuva_mm===undefined?(r.basculadas===null||r.basculadas===undefined?'—':r.basculadas+' basc.'):fx(r.chuva_mm,1)+' mm ('+r.basculadas+')'].forEach((v,i)=>{const td=document.createElement('td');td.textContent=v;if(i===0&&r.epoch_ms)td.title='UTC '+dataUtc(r.epoch_ms);tr.appendChild(td)});
       tb.appendChild(tr)});
 }
 $('btnApagar').onclick=async()=>{
@@ -507,9 +510,8 @@ async function status(){
     pronto('status');
     relo={fonte:s.relogio.fonte,sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
     set('cli',String(s.ap.clientes));
-    const ap=s.ap,min=ap.desliga_em_s!==undefined?Math.max(1,Math.ceil(ap.desliga_em_s/60)):null;
-    set('apEst',ap.ligado?(min?pill('Ligada · desliga em '+min+' min','p-wait nc'):pill('Ligada','p-ok')):pill('Desligada · usando o Wi-Fi de casa','p-off nc'));
-    $('btnAp').hidden=ap.ligado&&!min;
+    const ap=s.ap;
+    set('apEst',ap.ligado?pill('Ligada · sem Wi-Fi de casa','p-wait nc'):pill('Desligada','p-off nc'));
     $('btnEsquecer').hidden=!s.sta.ssid;
     NOME=s.nome+'.local';AP=s.ap.ssid;
     set('host',NOME);
@@ -545,7 +547,7 @@ function render(){
           const res=await fetch('/api/conectar',{method:'POST',body:new URLSearchParams({ssid:r.ssid,senha:p.value})});
           const j=await res.json();
           if(!res.ok){msg(j.erro||'Erro ao salvar.',true);ok.disabled=false;ok.textContent='Conectar';return}
-          aberta=null;render();msg('Conectando em '+r.ssid+'. Quando aparecer “Conectado”, anote o IP: em 2 min a '+AP+' desliga e a página passa a abrir em '+NOME+'.');
+          aberta=null;render();msg('Conectando em '+r.ssid+'. Assim que conectar, a '+AP+' desliga e a página passa a abrir em '+NOME+', com o celular no Wi-Fi de casa.');
         }catch(_){msg('A rede '+AP+' caiu durante a troca de canal. Conecte o celular nela de novo e confira o status.')}
       };
       li.appendChild(f);setTimeout(()=>{if(!r.aberta)p.focus()},0);
@@ -566,7 +568,7 @@ async function buscar(nova){
 }
 $('btnBuscar').onclick=()=>buscar(true);
 $('btnEsquecer').onclick=async()=>{if(!confirm('Esquecer a rede salva?'))return;await fetch('/api/esquecer',{method:'POST'});status()};
-$('btnAp').onclick=async()=>{const b=$('btnAp');b.disabled=true;try{await fetch('/api/ap/ligar',{method:'POST'})}catch(_){}b.disabled=false;status()};
+
 async function pluvRapido(){
   if(document.hidden)return;
   try{pluvCard(await (await fetch('/api/pluviometro',{cache:'no-store'})).json())}catch(_){}

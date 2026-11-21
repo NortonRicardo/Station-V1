@@ -2,9 +2,9 @@
 //
 // Rede própria "Station-XXXX" (final do MAC) (senha no .env) com a página em http://192.168.4.1; pela página
 // você escolhe o Wi-Fi de casa, e a estação também fica em http://station.local.
-// Uma rede ou a outra: conectada no Wi-Fi de casa, a rede própria desliga (2 min depois) e o
-// rádio passa a dormir entre os avisos do roteador; sem Wi-Fi de casa, a rede própria liga na
-// hora para configurar. CPU a 80 MHz. O botão BOOT (ou a página) religa a rede própria por 15 min.
+// Uma rede ou a outra: conectada no Wi-Fi de casa, a rede própria desliga na hora e o rádio
+// dorme entre os avisos do roteador (economia máxima); sem Wi-Fi de casa (ou se ele cair), a
+// rede própria liga na hora para dar acesso e configurar. CPU a 80 MHz.
 // Gravação pelo Wi-Fi (OTA): pio run -e ota -t upload
 #include <Arduino.h>
 #include <WiFi.h>
@@ -29,6 +29,7 @@
 #include "gps.h"
 #include "energia.h"
 #include "pluviometro.h"
+#include "buzzer.h"
 
 #ifndef STATION_AP_PASS
 #error "STATION_AP_PASS não definida: crie o .env (veja .env.example)"
@@ -46,10 +47,6 @@ static const uint32_t TEMPO_CONEXAO_MS = 20000;  // desiste da tentativa depois 
 static const uint32_t ESPERA_RETRY_MS = 60000;   // nova tentativa após falha
 static const uint32_t VALIDADE_SCAN_MS = 15000;
 static const uint32_t CPU_MHZ = 80;                         // mínimo para o Wi-Fi; economiza ≈20–30 mA
-static const uint32_t AP_APOS_CONECTAR_MS = 2UL * 60 * 1000;   // tolerância depois de conectar no Wi-Fi de casa
-static const uint32_t AP_BOTAO_MS = 15UL * 60 * 1000;          // BOOT ou página: religa por 15 min
-static const uint32_t AP_ADIA_MS = 2UL * 60 * 1000;            // com celular conectado, adia o desligamento
-static const int PINO_BOOT = 0;                                 // botão BOOT da placa
 
 WebServer server(80);
 DNSServer dns;
@@ -65,7 +62,6 @@ static volatile bool ntpAcertou = false;   // sinal vindo da tarefa do SNTP
 static volatile bool staConectouAgora = false;
 static volatile bool otaRodando = false;
 static bool apLigado = false;
-static uint32_t apDesligaEm = 0;  // 0 = sem prazo
 
 // ---------- registro de eventos (hora em uptime, convertida na leitura) ----------
 struct Evento { int64_t uptime; String texto; };
@@ -172,6 +168,7 @@ static void cuidarSta() {
   if (staConectouAgora) {
     staConectouAgora = false;
     registrar("Wi-Fi conectado: " + staSsid + " · IP " + WiFi.localIP().toString());
+    buzzer::tocar(buzzer::WIFI);
   }
   if (estado == CONECTADO && !ntpIniciado) {
     sntp_set_time_sync_notification_cb([](struct timeval *) { ntpAcertou = true; });
@@ -198,9 +195,8 @@ void relogioAcertado(const char *fonte) {
   }
 }
 
-// ---------- rede própria (AP) sob demanda ----------
-static void apLigar(uint32_t porMs, const char *motivo) {
-  apDesligaEm = porMs ? millis() + porMs : 0;
+// ---------- rede própria (AP): só sem Wi-Fi de casa ----------
+static void apLigar(const char *motivo) {
   if (apLigado) return;
   WiFi.softAP(AP_SSID, STATION_AP_PASS);  // acrescenta o AP ao modo atual (STA continua)
   dns.start(53, "*", WiFi.softAPIP());
@@ -212,33 +208,17 @@ static void apDesligar() {
   if (!apLigado) return;
   dns.stop();
   WiFi.softAPdisconnect(true);  // fica só o Wi-Fi de casa: o rádio pode dormir
-  WiFi.setSleep(true);
+  WiFi.setSleep(WIFI_PS_MAX_MODEM);  // acorda a cada 3 avisos do roteador (≈0,3 s): página ainda responde
   apLigado = false;
   registrar(String("Rede ") + AP_SSID + " desligada: página em http://" + HOSTNAME + ".local ou http://" +
-            WiFi.localIP().toString() + " (botão BOOT religa)");
+            WiFi.localIP().toString());
 }
 
 static void cuidarAp() {
-  // botão BOOT: religa por 15 min
-  static bool botaoAntes = true;
-  static uint32_t botaoDesde = 0;
-  bool solto = digitalRead(PINO_BOOT);
-  if (!solto && botaoAntes) botaoDesde = millis();
-  if (!solto && botaoDesde && millis() - botaoDesde > 50) { apLigar(AP_BOTAO_MS, "botão BOOT"); botaoDesde = 0; }
-  botaoAntes = solto;
-
-  // sem Wi-Fi de casa: a rede própria precisa estar ligada (é por ela que se configura)
-  if (estado != CONECTADO) {
-    if (!apLigado) apLigar(0, "sem Wi-Fi de casa");
-    else apDesligaEm = 0;
-    return;
-  }
-  // com Wi-Fi de casa: a página fica em station.local e a rede própria desliga
-  if (!apLigado) return;
-  if (apDesligaEm == 0) { apDesligaEm = millis() + AP_APOS_CONECTAR_MS; return; }
-  if ((int32_t)(millis() - apDesligaEm) < 0) return;
-  if (WiFi.softAPgetStationNum() > 0) { apDesligaEm = millis() + AP_ADIA_MS; return; }  // não derruba ninguém
-  apDesligar();
+  // sem Wi-Fi de casa (ou caiu): a rede própria liga para dar acesso e configurar
+  if (estado != CONECTADO) apLigar("sem Wi-Fi de casa");
+  // conectada no Wi-Fi de casa: a página fica em station-xxxx.local e a rede própria desliga na hora
+  else apDesligar();
 }
 
 // ---------- busca de redes (assíncrona) ----------
@@ -284,7 +264,6 @@ static void rotaStatus() {
   j += "\"nome\":\"" + String(HOSTNAME) + "\",";
   j += "\"ap\":{\"ssid\":\"" + String(AP_SSID) + "\",\"ip\":\"192.168.4.1\",\"ligado\":" +
        String(apLigado ? "true" : "false") + ",\"clientes\":" + String(apLigado ? WiFi.softAPgetStationNum() : 0);
-  if (apLigado && apDesligaEm) j += ",\"desliga_em_s\":" + String((int32_t)(apDesligaEm - millis()) / 1000);
   j += "},";
   j += "\"sta\":{\"estado\":\"" + String(nomeEstado(estado)) + "\",\"ssid\":\"" + jsonEsc(staSsid) + "\"";
   if (estado == CONECTADO)
@@ -341,11 +320,6 @@ static void rotaSdRegistros() {
 }
 static void rotaPluv() { enviarJson(200, pluviometro::statusJson()); }  // leve: a página consulta a cada 0,5 s
 
-static void rotaApLigar() {
-  apLigar(AP_BOTAO_MS, "pela página");  // apLigar já marca o prazo de 15 min
-  enviarJson(200, "{\"ok\":true}");
-}
-
 static void rotaSdApagar() {
   if (sdlog::apagar()) enviarJson(200, "{\"ok\":true}");
   else enviarJson(409, "{\"erro\":\"Cartão SD não está ativo.\"}");
@@ -386,6 +360,28 @@ static void rotaOutras() {
   server.send(302, "text/plain", "");
 }
 
+// Comando pela serial (só com a placa no cabo USB): "ZERAR TUDO" apaga o cartão SD, o total de
+// basculadas, o contador de ligações e a posição salva do GPS, e reinicia. O Wi-Fi salvo é mantido.
+static void cuidarSerial() {
+  static String linha;
+  while (Serial.available()) {
+    char c = (char)Serial.read();
+    if (c != '\n' && c != '\r') { if (linha.length() < 32) linha += c; continue; }
+    if (linha == "ZERAR TUDO") {
+      registrar("Zerando todo o histórico (pedido pela serial)");
+      bool sd = sdlog::apagar();
+      Preferences p;
+      for (const char *ns : {"pluv", "sistema", "gps"}) { p.begin(ns, false); p.clear(); p.end(); }
+      Serial.printf("ZERADO: cartão %s, basculadas, contador de ligações e posição do GPS. Reiniciando.\n",
+                    sd ? "apagado" : "NÃO apagado (cartão ausente)");
+      Serial.flush();
+      delay(300);
+      ESP.restart();
+    }
+    linha = "";
+  }
+}
+
 // Por que a estação (re)ligou: ajuda a achar queda de tensão ou travamento.
 static const char *motivoReinicio() {
   switch (esp_reset_reason()) {
@@ -403,12 +399,19 @@ static const char *motivoReinicio() {
 }
 
 void setup() {
+  buzzer::iniciar();  // primeiro: pino do buzzer em 0 (mudo) o quanto antes
   setCpuFrequencyMhz(CPU_MHZ);
   Serial.begin(115200);
   delay(300);
   setenv("TZ", "<-03>3", 1);  // horário de Brasília, mesmo sem internet (hora pelo GPS)
   tzset();
   registrar(String("Estação ligada · ") + motivoReinicio());
+  buzzer::tocar(buzzer::LIGOU);
+  switch (esp_reset_reason()) {  // reinício por falha: avisa também
+    case ESP_RST_BROWNOUT: case ESP_RST_PANIC: case ESP_RST_INT_WDT: case ESP_RST_TASK_WDT: case ESP_RST_WDT:
+      buzzer::tocar(buzzer::ERRO); break;
+    default: break;
+  }
 
   uint8_t mac[6];
   esp_read_mac(mac, ESP_MAC_WIFI_STA);
@@ -421,9 +424,8 @@ void setup() {
   WiFi.onEvent(aoEventoWifi);
   WiFi.mode(WIFI_AP_STA);
   WiFi.setHostname(HOSTNAME);
-  WiFi.setSleep(true);  // modem sleep no Wi-Fi de casa (vale quando a rede própria desliga)
-  apLigar(0, "ao ligar");
-  pinMode(PINO_BOOT, INPUT_PULLUP);
+  WiFi.setSleep(WIFI_PS_MAX_MODEM);  // economia máxima no Wi-Fi de casa (vale quando a rede própria desliga)
+  apLigar("ao ligar");
   if (MDNS.begin(HOSTNAME)) MDNS.addService("http", "tcp", 80);
 
   server.on("/", HTTP_GET, rotaPagina);
@@ -434,7 +436,6 @@ void setup() {
   server.on("/api/sd/registros", HTTP_GET, rotaSdRegistros);
   server.on("/api/pluviometro", HTTP_GET, rotaPluv);
   server.on("/api/sd/apagar", HTTP_POST, rotaSdApagar);
-  server.on("/api/ap/ligar", HTTP_POST, rotaApLigar);
   server.on("/api/conectar", HTTP_POST, rotaConectar);
   server.on("/api/esquecer", HTTP_POST, rotaEsquecer);
   server.onNotFound(rotaOutras);
@@ -474,7 +475,7 @@ void setup() {
     otaRodando = false;
     pluviometro::pausar(false);
     esp_task_wdt_add(xTaskGetIdleTaskHandleForCPU(0));
-    WiFi.setSleep(true);
+    WiFi.setSleep(WIFI_PS_MAX_MODEM);
     static const char *txt[] = {"senha", "início", "conexão", "recebimento", "fim"};
     registrar(String("Atualização falhou: ") + ((int)e < 5 ? txt[(int)e] : "erro") + " (erro " + String((int)e) + ")");
   });
@@ -498,5 +499,7 @@ void loop() {
   gps::cuidar();  // só lê o que chegou; sem GPS não faz nada
   energia::cuidar();
   pluviometro::cuidar();  // a contagem roda numa tarefa própria; aqui só registra e salva
+  buzzer::cuidar();
+  cuidarSerial();
   delay(5);  // libera a CPU entre voltas (o processador espera parado)
 }

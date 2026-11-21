@@ -2,6 +2,7 @@
 
 #include <FS.h>
 #include <SD.h>
+#include "buzzer.h"
 #include <SPI.h>
 #include <Preferences.h>
 #include <vector>
@@ -25,9 +26,9 @@ static const char *ARQUIVO = "/registros.csv";
 static const char *PENDENTES = "/pendentes.csv";  // linhas gravadas antes de a hora sincronizar
 // as 4 primeiras colunas são fixas (a correção de hora depende delas); campos sem dado ficam vazios
 static const char *CABECALHO =
-    "boot;uptime_ms;epoch_ms;data_hora;temperatura_c;umidade_pct;pressao_hpa;orvalho_c;umidade_abs_gm3;"
-    "basculadas_10min;basculadas_total;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites";
-enum Col { C_BOOT, C_UP, C_EPOCH, C_DATA, C_TEMP, C_UMID, C_PRES, C_ORV, C_UABS, C_BPER, C_BTOT, C_BATV, C_BATP,
+    "boot;uptime_ms;epoch_ms;data_hora_utc;temperatura_c;umidade_pct;pressao_hpa;orvalho_c;umidade_abs_gm3;"
+    "chuva_mm_10min;basculadas_10min;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites";
+enum Col { C_BOOT, C_UP, C_EPOCH, C_DATA, C_TEMP, C_UMID, C_PRES, C_ORV, C_UABS, C_CHUVA, C_BPER, C_BATV, C_BATP,
            C_BATE, C_LAT, C_LON, C_ALT, C_SATS, N_COLS };
 
 static bool montado = false;
@@ -39,17 +40,18 @@ static uint32_t gravados = 0;    // registros gravados neste boot
 static uint32_t basculadasNoUltimo = 0;  // total do pluviômetro no último registro gravado
 static String ultimoErro;
 
+// data e hora em UTC, no padrão ISO 8601 (ex.: 2026-11-21T23:40:00Z); a página converte para Brasília
 static String dataHora(int64_t epochMs) {
   time_t t = (time_t)(epochMs / 1000);
   struct tm tm;
-  localtime_r(&t, &tm);
+  gmtime_r(&t, &tm);
   char b[24];
-  strftime(b, sizeof b, "%d/%m/%Y %H:%M:%S", &tm);
+  strftime(b, sizeof b, "%Y-%m-%dT%H:%M:%SZ", &tm);
   return String(b);
 }
 
 static void desmontar(const String &motivo) {
-  if (montado) registrar("Cartão SD: " + motivo);
+  if (montado) { registrar("Cartão SD: " + motivo); buzzer::tocar(buzzer::ERRO); }
   SD.end();
   montado = false;
   ultimoErro = motivo;
@@ -81,7 +83,10 @@ static uint32_t descarregarPendentes(bool corrigirEsteBoot);
 static void montar() {
   if (!SD.begin(PINO_CS, SPI, FREQ_SPI, "/sd", 5, false) || SD.cardType() == CARD_NONE) {
     SD.end();
-    if (ultimoErro != "sem cartão") registrar("Cartão SD não encontrado (confira o cartão e os fios do SPI)");
+    if (ultimoErro != "sem cartão") {
+      registrar("Cartão SD não encontrado (confira o cartão e os fios do SPI)");
+      buzzer::tocar(buzzer::ERRO);
+    }
     ultimoErro = "sem cartão";
     proximaBusca = millis() + NOVA_BUSCA_MS;
     return;
@@ -122,8 +127,9 @@ static void gravar(int64_t epochFixo) {
   c[C_UABS] = b ? num(l.umidadeAbs, 1) : "";
   // basculadas desde o último registro gravado (se um registro falhar, elas entram no próximo)
   uint32_t totalAgora = pluviometro::total();
-  c[C_BPER] = String(totalAgora - basculadasNoUltimo);
-  c[C_BTOT] = String(totalAgora);
+  uint32_t basc = totalAgora - basculadasNoUltimo;
+  c[C_CHUVA] = String(basc * pluviometro::mmPorBasculada(), 2);  // chuva nesses 10 min
+  c[C_BPER] = String(basc);
   c[C_BATV] = bat ? String(energia::tensao(), 2) : "";
   c[C_BATP] = (bat && energia::pct() >= 0) ? String(energia::pct()) : "";  // carregando: vazio
   c[C_BATE] = bat ? energia::estadoCarga() : "";  // sem leitura confiável, fica vazio
@@ -259,6 +265,7 @@ static const char *nomeTipo(uint8_t t) {
 // Lê o arquivo de trás para a frente em blocos, chamando cb(linha) da mais nova para a mais
 // antiga. Para quando cb devolve false. Não carrega o arquivo inteiro na memória.
 static void linhasDoFim(const char *caminho, const std::function<bool(const String &)> &cb) {
+  if (!SD.exists(caminho)) return;  // pendentes.csv quase sempre não existe: evita o erro no log
   File f = SD.open(caminho, FILE_READ);
   if (!f) return;
   size_t pos = f.size();
@@ -307,11 +314,11 @@ static bool linhaJson(const String &l, String &out, int64_t &epoch) {
   if (k < N_COLS) return false;
   uint32_t b = c[C_BOOT].toInt();
   epoch = atoll(c[C_EPOCH].c_str());
-  String quando = c[C_DATA];
+  String quando = c[C_DATA];  // UTC; a página mostra em Brasília quando há epoch_ms
   if (quando.isEmpty()) quando = (b == boot) ? relogio::formatar(atoll(c[C_UP].c_str())) : "sem hora (boot " + String(b) + ")";
   auto n = [](const String &v) { return v.isEmpty() ? String("null") : v; };
-  out = "{\"quando\":\"" + esc(quando) + "\",\"temperatura\":" + n(c[C_TEMP]) + ",\"umidade\":" + n(c[C_UMID]) +
-        ",\"pressao\":" + n(c[C_PRES]) + ",\"basculadas\":" + n(c[C_BPER]) + ",\"bateria_pct\":" + n(c[C_BATP]) +
+  out = "{\"quando\":\"" + esc(quando) + "\",\"epoch_ms\":" + String((long long)epoch) + ",\"temperatura\":" + n(c[C_TEMP]) + ",\"umidade\":" + n(c[C_UMID]) +
+        ",\"pressao\":" + n(c[C_PRES]) + ",\"chuva_mm\":" + n(c[C_CHUVA]) + ",\"basculadas\":" + n(c[C_BPER]) + ",\"bateria_pct\":" + n(c[C_BATP]) +
         ",\"bateria_v\":" + n(c[C_BATV]) + ",\"bateria_estado\":\"" + esc(c[C_BATE]) + "\"}";
   return true;
 }
@@ -343,6 +350,7 @@ String statusJson() {
   uint64_t total = SD.totalBytes(), usado = SD.usedBytes();
   size_t tamArq = 0;
   for (const char *c : {ARQUIVO, PENDENTES}) {
+    if (!SD.exists(c)) continue;
     File f = SD.open(c, FILE_READ);
     if (f) { tamArq += f.size(); f.close(); }
   }

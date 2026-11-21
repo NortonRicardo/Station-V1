@@ -15,6 +15,17 @@ static const int64_t MIN_EM_SUL_US = 5000;     // ficou menos que isso em 0: ru�
 static const int64_t FILTRO_US = 50000;        // ignora outra basculada dentro desse tempo
 static const uint32_t PRESO_MS = 5000;         // em 0 por mais que isso: ímã parado na frente ou fio em curto
 
+// Milímetros de chuva por basculada = volume da basculada (mL) × 1000 ÷ área da boca do funil (mm²)
+// (1 mm de chuva = 1 L/m²). Funil de 160 mm e báscula calibrada com 4 mL → ≈0,199 mm (ver pluviometria.html).
+static const float DIAMETRO_FUNIL_MM = 160.0f;
+static const float ML_POR_BASCULADA = 4.0f;
+static const float MM_POR_BASCULADA = ML_POR_BASCULADA * 1000.0f / (PI * (DIAMETRO_FUNIL_MM / 2) * (DIAMETRO_FUNIL_MM / 2));
+
+// horário de cada basculada recente (uptime), para somar a chuva da hora cheia (ex.: 20:00–21:00)
+static const int HISTORICO = 600;              // ≈120 mm numa hora: folga para chuva muito forte
+static int64_t quando[HISTORICO];
+static int nQuando = 0, iQuando = 0;
+
 // Cada passagem do ímã gera descida (polo sul) e subida (polo norte), nos dois sentidos.
 // Conta na subida, se o pino ficou pelo menos MIN_EM_SUL_US em 0.
 static portMUX_TYPE trava = portMUX_INITIALIZER_UNLOCKED;
@@ -91,6 +102,11 @@ void cuidar() {
   if (!n) return;
   total_ += n;
   ultimaUptime = relogio::uptimeMs();
+  for (uint32_t i = 0; i < n; i++) {
+    quando[iQuando] = ultimaUptime;
+    iQuando = (iQuando + 1) % HISTORICO;
+    if (nQuando < HISTORICO) nQuando++;
+  }
   Preferences p;
   p.begin("pluv", false);
   p.putUInt("total", total_);
@@ -100,6 +116,32 @@ void cuidar() {
 
 uint32_t total() { return total_; }
 uint32_t desdeBootN() { return desdeBoot; }
+float mmPorBasculada() { return MM_POR_BASCULADA; }
+
+// Basculadas da hora cheia atual (com hora real) ou dos últimos 60 min (sem hora real).
+// inicio/fim: "20:00" e "21:00" (vazios sem hora real).
+static uint32_t basculadasDaHora(String &inicio, String &fim) {
+  int64_t agoraUp = relogio::uptimeMs();
+  int64_t desdeUp;  // basculadas a partir deste uptime contam
+  if (relogio::sincronizado()) {
+    time_t t = (time_t)(relogio::agoraEpochMs() / 1000);
+    struct tm tm;
+    localtime_r(&t, &tm);
+    desdeUp = agoraUp - ((int64_t)tm.tm_min * 60 + tm.tm_sec) * 1000;
+    char a[6], b[6];
+    snprintf(a, sizeof a, "%02d:00", tm.tm_hour);
+    snprintf(b, sizeof b, "%02d:00", (tm.tm_hour + 1) % 24);
+    inicio = a;
+    fim = b;
+  } else {
+    desdeUp = agoraUp - 3600000LL;
+    inicio = fim = "";
+  }
+  uint32_t c = 0;
+  for (int i = 0; i < nQuando; i++)
+    if (quando[i] >= desdeUp) c++;
+  return c;
+}
 
 String statusJson() {
   int nivel = nivelPino();
@@ -108,6 +150,10 @@ String statusJson() {
              ",\"nivel\":" + String(nivel) + ",\"perto\":" + String(nivel ? "false" : "true") +
              ",\"ignorados\":" + String(ignorados) + ",\"sinal_ok\":" + String(preso ? "false" : "true");
   if (ultimaUptime >= 0) j += ",\"ultima\":\"" + relogio::formatar(ultimaUptime) + "\"";
+  String ini, fim;
+  uint32_t bh = basculadasDaHora(ini, fim);
+  j += ",\"mm_por_basculada\":" + String(MM_POR_BASCULADA, 3) + ",\"hora_basculadas\":" + String(bh) +
+       ",\"hora_mm\":" + String(bh * MM_POR_BASCULADA, 1) + ",\"hora_inicio\":\"" + ini + "\",\"hora_fim\":\"" + fim + "\"";
   return j + "}";
 }
 
