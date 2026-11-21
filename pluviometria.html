@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pluviometria da estação</title>
+<style>
+:root { --bg:#F3F3F1; --card:#F8F8F6; --tile:#F0EFEC; --line:#E4E2DF; --tx:#292524; --tx2:#78716C;
+  --ln:#2563EB; --night:#E7E9F0; --noch:#F6EBD9; --warn:#B45309; }
+* { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body { margin:0; background:var(--bg); color:var(--tx); -webkit-font-smoothing:antialiased;
+  font:16px/1.55 Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+main { max-width:1080px; margin:0 auto; padding:56px 20px 96px; }
+header h1 { font-size:34px; letter-spacing:-.02em; margin:0 0 6px; font-weight:700; }
+header p { margin:0; color:var(--tx2); max-width:720px; }
+h2 { font-size:22px; letter-spacing:-.01em; margin:0 0 6px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px; margin-top:20px; min-width:0; }
+.card > p.sub { color:var(--tx2); font-size:14px; margin:0 0 16px; }
+.card p { margin:0 0 12px; } .card p:last-child { margin-bottom:0; }
+.hero { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin-top:28px; }
+.tile { background:var(--tile); border-radius:14px; padding:14px 14px 12px; }
+.tile .big { font-size:24px; font-weight:650; letter-spacing:-.02em; line-height:1.15; white-space:nowrap; }
+.tile .lbl { font-size:12.5px; color:var(--tx2); margin-top:4px; line-height:1.35; }
+.grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+.grid .card { margin-top:20px; }
+.spec { display:grid; grid-template-columns:140px minmax(0,1fr); gap:16px; padding:10px 2px; border-top:1px solid var(--line); font-size:14.5px; }
+.spec:first-of-type { border-top:0; }
+.spec .k { color:var(--tx2); font-weight:500; font-size:13.5px; }
+.scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.chart svg { display:block; width:100%; min-width:680px; height:auto; }
+.chart .grid { stroke:#DAD8D4; stroke-width:1; } .chart .grid2 { stroke:#ECEAE7; stroke-width:1; }
+.chart .tick { stroke:#B8B4AF; }
+.chart .ax { font-size:12px; fill:var(--tx2); } .chart .ax.b { font-weight:650; fill:var(--tx); }
+.chart .night { fill:var(--night); } .chart .nocharge { fill:var(--noch); }
+.chart .bl { font-size:11.5px; fill:#6B7280; font-weight:500; }
+.chart .ln { fill:none; stroke:var(--ln); stroke-width:2; stroke-linejoin:round; }
+.chart .dot { fill:#fff; stroke:var(--ln); stroke-width:2; }
+.chart .an { font-size:12px; fill:var(--tx); font-weight:600; paint-order:stroke; stroke:var(--card); stroke-width:4px; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--tx2); margin-top:12px; }
+.legend i { display:inline-block; width:14px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+table { border-collapse:collapse; width:100%; font-size:14px; }
+th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+thead th { font-size:12px; font-weight:600; color:var(--tx2); text-transform:uppercase; letter-spacing:.04em; }
+tbody tr:last-child td { border-bottom:0; }
+td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+.note { font-size:13.5px; color:var(--tx2); }
+.warn { color:var(--warn); font-weight:600; }
+ul, ol { margin:0; padding-left:20px; } li { margin:0 0 8px; } li:last-child { margin-bottom:0; }
+details summary { cursor:pointer; font-weight:600; }
+details[open] summary { margin-bottom:12px; }
+@media (max-width:860px) { .hero { grid-template-columns:repeat(2, minmax(0,1fr)); } .grid { grid-template-columns:minmax(0,1fr); } }
+@media (max-width:560px) { main { padding:36px 16px 72px; } header h1 { font-size:27px; } .card { padding:18px; }
+  .spec { grid-template-columns:minmax(0,1fr); gap:2px; } .tile .big { font-size:20px; } th, td { padding:8px 5px; } }
+.formula { font-size:17px; font-weight:600; background:var(--tile); border-radius:12px; padding:14px 16px; margin:4px 0 14px; line-height:1.5; }
+.formula small { display:block; font-size:13px; font-weight:400; color:var(--tx2); margin-top:4px; }
+tr.alvo td { background:#ECF5E9; font-weight:650; }
+.tag { display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:999px; background:#E7F0FF; color:#1D4ED8; margin-left:6px; vertical-align:1px; }
+.tag.v { background:#ECF5E9; color:#166534; }
+.fig svg { display:block; width:100%; max-width:640px; height:auto; margin:6px auto 0; }
+.fig text { font-family:inherit; }
+</style>
+
+</head>
+<body>
+<main>
+<header>
+  <h1>Pluviômetro: de basculadas para milímetros</h1>
+  <p>Até agora a estação só conta basculadas. Aqui está o cálculo para transformar cada basculada em milímetros de chuva, a precisão esperada e como o nosso pluviômetro se compara ao padrão do mercado.</p>
+</header>
+
+<div class="hero">
+  <div class="tile"><div class="big">Ø 160 mm</div><div class="lbl">boca do funil (diâmetro interno)</div></div>
+  <div class="tile"><div class="big">201,1 cm²</div><div class="lbl">área de captação</div></div>
+  <div class="tile"><div class="big">0,199 mm</div><div class="lbl">por basculada com 4 mL</div></div>
+  <div class="tile"><div class="big">0,2 mm</div><div class="lbl">padrão do mercado por basculada</div></div>
+</div>
+
+<div class="card">
+  <h2>O cálculo</h2>
+  <p class="sub">Baseado na seção “Some Math” do SS4H-ZRG, aplicado às medidas da nossa estação.</p>
+  <p><b>A base:</b> 1 mm de chuva é 1 litro de água em cada metro quadrado. Se a chuva cobrisse a boca do funil com uma lâmina de 1 mm, o volume seria a área da boca × 1 mm.</p>
+  <div class="formula">mm por basculada = volume da basculada (mL) × 1000 ÷ área da boca (mm²)
+    <small>ou, com a área em cm²: mm = mL ÷ cm² × 10 (1 mL = 1000 mm³)</small></div>
+  <ol>
+    <li><b>Área da boca</b> (redonda): π × (diâmetro ÷ 2)² = π × 80² = <b>20106,2 mm²</b> = 201,06 cm².</li>
+    <li><b>Volume de 1 mm de chuva</b> nessa boca: 20106,2 mm³ = <b>20,11 mL</b>.</li>
+    <li><b>Com 4 mL por basculada:</b> 4 × 1000 ÷ 20106,2 = <b>0,199 mm</b> por basculada (≈ 0,2 mm).</li>
+    <li><b>Para dar 0,200 mm exatos</b>, cada basculada teria que levar 4,02 mL. A diferença para os 4 mL é de 0,5 % e não precisa ser ajustada: o firmware usa o valor medido.</li>
+  </ol>
+  <p class="note" style="margin-top:14px"><b>O que entra e o que não entra:</b> só a abertura de cima do funil (por onde a chuva entra) conta. A profundidade e o formato do funil não mudam o resultado. No site de referência, os 55 mm são chamados de “diâmetro”, mas a conta usa como raio (boca de 110 mm); aqui o 160 mm é o diâmetro, e a conta usa o raio de 80 mm.</p>
+</div>
+
+<div class="card">
+  <h2>Quanto vale cada basculada</h2>
+  <p class="sub">Funil de 160 mm. A linha verde é a calibração atual (4 mL).</p>
+  <div class="scroll"><table>
+    <thead><tr><th class="n">Volume por basculada</th><th class="n">Chuva por basculada</th><th class="n">Basculadas por 1 mm</th><th class="n">Chuva de 10 mm</th><th class="n">Chuva de 50 mm</th></tr></thead>
+    <tbody>
+<tr><td class="n">2 mL</td><td class="n">0,099 mm</td><td class="n">10,1</td><td class="n">101</td><td class="n">503</td></tr>
+<tr><td class="n">3 mL</td><td class="n">0,149 mm</td><td class="n">6,7</td><td class="n">67</td><td class="n">335</td></tr>
+<tr class="alvo"><td class="n">4 mL</td><td class="n">0,199 mm</td><td class="n">5,0</td><td class="n">50</td><td class="n">251</td></tr>
+<tr><td class="n">5 mL</td><td class="n">0,249 mm</td><td class="n">4,0</td><td class="n">40</td><td class="n">201</td></tr>
+<tr><td class="n">6 mL</td><td class="n">0,298 mm</td><td class="n">3,4</td><td class="n">34</td><td class="n">168</td></tr>
+<tr><td class="n">7 mL</td><td class="n">0,348 mm</td><td class="n">2,9</td><td class="n">29</td><td class="n">144</td></tr>
+<tr><td class="n">8 mL</td><td class="n">0,398 mm</td><td class="n">2,5</td><td class="n">25</td><td class="n">126</td></tr>
+<tr><td class="n">9 mL</td><td class="n">0,448 mm</td><td class="n">2,2</td><td class="n">22</td><td class="n">112</td></tr>
+<tr><td class="n">10 mL</td><td class="n">0,497 mm</td><td class="n">2,0</td><td class="n">20</td><td class="n">101</td></tr>
+    </tbody></table></div>
+  <p class="note" style="margin-top:12px">As duas últimas colunas são quantas basculadas a estação conta numa chuva de 10 mm e de 50 mm. Quanto menor o volume por basculada, mais fina a medida (resolução) e mais viradas por chuva.</p>
+</div>
+
+<div class="card">
+  <h2>Precisão</h2>
+  <p class="sub">Cada fonte de erro separada. Os percentuais são calculados para as nossas medidas; os de chuva forte vêm das fichas dos fabricantes.</p>
+  <div class="spec"><div class="k">Resolução</div><div>A menor chuva que aparece é uma basculada: <b>0,199 mm</b>. A água que ficou na concha sem completar uma virada só é contada na próxima chuva (ou evapora). No fim de cada chuva fica até ≈0,2 mm sem contar. <span class="tag">calculado</span></div></div>
+  <div class="spec"><div class="k">Diâmetro do funil</div><div>A área vai com o quadrado do diâmetro: errar 0,5 mm nos 160 mm muda o resultado em ±0,6 %; errar 1 mm, ±1,2 %. Medir o diâmetro interno da borda com paquímetro, em duas direções, e usar a média. <span class="tag">calculado</span></div></div>
+  <div class="spec"><div class="k">Volume da basculada</div><div>Errar 0,1 mL na seringa, em 4 mL, muda o resultado em ±2,5 %. Medindo o total de várias basculadas (ex.: 40 mL para 10 viradas), o mesmo 0,1 mL pesa só ±0,25 % no valor médio. <span class="tag">calculado</span></div></div>
+  <div class="spec"><div class="k">Os dois lados da báscula</div><div>Cada concha pode encher com um volume diferente. Calibrar os dois lados e usar a média; se a diferença passar de ≈5 %, ajustar os parafusos.</div></div>
+  <div class="spec"><div class="k">Chuva forte</div><div>Durante a virada a água continua caindo e parte não é contada: a báscula subestima chuvas fortes. Os fabricantes garantem ≈2 % até ≈25 mm/h; acima disso o erro cresce. <span class="tag v">fabricantes</span></div></div>
+  <div class="spec"><div class="k">Vento, respingos, evaporação</div><div>Também fazem o pluviômetro medir menos. Ajudam: instalar nivelado, longe de paredes e árvores, com a borda do funil horizontal. Não dá para calcular sem medir no local.</div></div>
+  <div class="spec"><div class="k">Sensor</div><div>A contagem por interrupção do SS41F foi testada sem erro a ≈7 basculadas por segundo. Uma chuva de 100 mm/h dá ≈503 basculadas por hora, uma a cada ≈7 s: muita folga. <span class="tag v">medido</span></div></div>
+  <div class="spec"><div class="k">Estimativa total</div><div>Com o diâmetro medido a ±0,5 mm e o volume calibrado a ±2 %: ≈±2,1 % do total, mais ±1 basculada (0,2 mm), em chuva fraca a moderada e sem contar vento. Para comparação, a OMM (WMO) considera alcançável para o total diário o maior entre 5 % e 0,1 mm. <span class="tag">calculado</span></div></div>
+</div>
+
+<div class="card">
+  <h2>Padrão do mercado</h2>
+  <p class="sub">Pluviômetros de báscula profissionais e a recomendação da Organização Meteorológica Mundial (OMM / WMO).</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Referência</th><th class="n">Área de captação</th><th class="n">Chuva por basculada</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td>OMM (WMO)</td><td class="n">200–500 cm² (mais comuns)</td><td class="n">leitura a 0,2 mm (0,1 mm se possível)</td><td>≥200 cm² se houver neve/granizo</td></tr>
+      <tr><td>Eijkelkamp</td><td class="n">200 cm²</td><td class="n">0,2 mm</td><td>±1 basculada ou 2 % a 24 mm/h</td></tr>
+      <tr><td>Adcon (aprovado pela OMM)</td><td class="n">200 cm²</td><td class="n">0,1 ou 0,2 mm</td><td>—</td></tr>
+      <tr><td>R. M. Young 52202</td><td class="n">—</td><td class="n">0,1 ou 0,2 mm</td><td>2 % até 25 mm/h</td></tr>
+      <tr><td>Tecnal DB-PLUVI (Brasil)</td><td class="n">314 cm² (Ø 200 mm)</td><td class="n">0,2 mm</td><td>—</td></tr>
+      <tr class="alvo"><td>Nossa estação</td><td class="n">201,1 cm² (Ø 160 mm)</td><td class="n">0,199 mm (4 mL)</td><td>mesma faixa dos profissionais</td></tr>
+    </tbody></table></div>
+  <p style="margin-top:14px"><b>Conclusão:</b> o padrão é <b>0,2 mm por basculada</b> com boca de <b>200 cm²</b>, o que dá ≈4 mL por virada. O nosso funil de 160 mm tem 201,1 cm² e a báscula está em 4 mL: a estação já está no padrão profissional. Mudar o volume não traz ganho; o que melhora a medida é calibrar bem o volume e medir bem o diâmetro.</p>
+</div>
+
+<div class="card">
+  <h2>Calibração recomendada</h2>
+  <p class="sub">Para descobrir o volume real de cada basculada, com a média de várias viradas.</p>
+  <ol>
+    <li>Báscula nivelada e no lugar, concha vazia. Anote para qual lado ela está.</li>
+    <li>Coloque <b>40 mL</b> devagar, gota a gota, como se fosse chuva (com a seringa, 10 vezes de 4 mL, sem pressa entre elas).</li>
+    <li>Conte as basculadas pela página da estação (campo “Desde que ligou”). O esperado com 4 mL é <b>10</b>.</li>
+    <li>Volume por basculada = 40 mL ÷ basculadas contadas. Repita 3 vezes e use a média.</li>
+    <li>Se o resultado ficar longe de 4 mL, ajuste os parafusos e repita. Se ficar perto, não mexa: o firmware usa o valor medido.</li>
+  </ol>
+  <p class="note" style="margin-top:12px">Por que gota a gota: despejar rápido faz a concha virar com mais água do que numa chuva real (o mesmo erro da chuva forte).</p>
+</div>
+
+<div class="card">
+  <h2>Na estação (proposta, ainda não implementada)</h2>
+  <ul>
+    <li><b>No firmware:</b> diâmetro do funil (160 mm) e volume por basculada (4 mL, ou o valor calibrado) como constantes; a estação calcula 0,199 mm por basculada.</li>
+    <li><b>Na página:</b> chuva de hoje (zera à meia-noite), chuva da última hora (intensidade em mm/h) e total acumulado, além das basculadas.</li>
+    <li><b>No cartão SD:</b> uma coluna de mm em cada registro de 10 min, ao lado das basculadas.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Fontes</h2>
+  <ul class="note">
+    <li><a href="https://smartsolutions4home.com/ss4h-zrg-zigbee-rain-gauge/">SS4H-ZRG Zigbee Rain Gauge, seção “Some Math”</a></li>
+    <li><a href="https://old.wmo.int/extranet/pages/prog/www/IMOP/publications/CIMO-Guide/Prelim_2018_ed/8_I_6_en_MR_clean.pdf">OMM, CIMO Guide, cap. 6 (precipitação)</a></li>
+    <li><a href="https://etrp.wmo.int/pluginfile.php/97653/mod_folder/content/0/Training%20Material/8_1_Precipitation%20Part%201%20Introduction.pdf">OMM, material de treinamento: precipitação</a></li>
+    <li><a href="https://royaleijkelkamp.com/media/5dwk0ugn/rain-gauge.pdf">Eijkelkamp, rain gauge</a></li>
+    <li><a href="https://downloads.psl.noaa.gov/psd3/cruises/PISTON_2019/Sally_Ride/SCS/Sally_Met_Manual/Precipitation/52202.pdf">R. M. Young 52202</a></li>
+    <li><a href="https://tecnal.com.br/pt-BR/produtos/lamina/8719_pluviometro_de_bascula">Tecnal, pluviômetro de báscula</a></li>
+  </ul>
+</div>
+</main>
+</body>
+</html>

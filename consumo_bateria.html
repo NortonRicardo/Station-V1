@@ -117,7 +117,7 @@ details[open] summary { margin-bottom:12px; }
   <ol>
     <li>Anote a capacidade escrita nas duas 18650 (mAh).</li>
     <li>Multímetro em <strong>corrente contínua, escala 200 mA</strong>, ponta vermelha na entrada <strong>mA</strong>. Se passar de 200 mA, mude para a entrada e a escala de <strong>10 A</strong>.</li>
-    <li>Abra o fio entre o <strong>OUT+ do TP4056</strong> e a entrada do step-up e ligue o multímetro em série. A estação reinicia ao abrir o fio; espere ≈1 min até conectar no Wi-Fi e anote o valor estável. Pela estimativa acima, o esperado fica entre ≈127 e ≈190 mA, com picos rápidos quando o Wi-Fi transmite.</li>
+    <li>Abra o fio entre o <strong>OUT+ do TP4056</strong> e o pino 5V do ESP32 e ligue o multímetro em série. A estação reinicia ao abrir o fio; espere ≈1 min até conectar no Wi-Fi e anote o valor estável. Pela estimativa acima, o esperado fica entre ≈127 e ≈190 mA, com picos rápidos quando o Wi-Fi transmite.</li>
     <li>Desligue só o VCC do GPS e meça de novo: a diferença é o consumo do GPS.</li>
     <li>Desconecte o leitor de microSD e meça de novo: a diferença é o consumo do cartão parado.</li>
   </ol>
