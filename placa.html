@@ -87,6 +87,7 @@ tbody tr:last-child td, tbody tr:last-child th { border-bottom:0; }
 .dia.lig2 { max-width:710px; min-width:600px; }
 .dia.hall { max-width:700px; min-width:600px; }
 .dia.energia { max-width:760px; min-width:620px; }
+.dia.tp { max-width:760px; min-width:620px; }
 .t-term { font-size:11.5px; font-weight:600; fill:#1c1917; }
 .t-term2 { font-size:10.5px; fill:#78716C; }
 .t-box2 { }
@@ -467,8 +468,8 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <tr><td>Esq. 1</td><td><span class="dot" style="background:#f59e0b"></span><b>3V3</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Saída do regulador</td><td>Ver Alimentação (corrente disponível).</td><td class="uso"><b>BME280 VCC + 49E VCC</b></td></tr>
 <tr><td>Esq. 2</td><td><span class="dot" style="background:#44403c"></span><b>EN</b></td><td>—</td><td>3,3 V</td><td>—</td><td>—</td><td>Reset do chip</td><td>LOW reinicia. Botão EN da placa.</td><td class="free">livre</td></tr>
 <tr><td>Esq. 3</td><td><span class="dot" style="background:#06b6d4"></span><b>VP</b></td><td>36</td><td>3,3 V</td><td>ADC1_0</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="free">livre</td></tr>
-<tr><td>Esq. 4</td><td><span class="dot" style="background:#06b6d4"></span><b>VN</b></td><td>39</td><td>3,3 V</td><td>ADC1_3</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>LED carregando (divisor)</b></td></tr>
-<tr><td>Esq. 5</td><td><span class="dot" style="background:#06b6d4"></span><b>34</b></td><td>34</td><td>3,3 V</td><td>ADC1_6</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>LED carregado (divisor)</b></td></tr>
+<tr><td>Esq. 4</td><td><span class="dot" style="background:#06b6d4"></span><b>VN</b></td><td>39</td><td>3,3 V</td><td>ADC1_3</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>CHRG do carregador</b></td></tr>
+<tr><td>Esq. 5</td><td><span class="dot" style="background:#06b6d4"></span><b>34</b></td><td>34</td><td>3,3 V</td><td>ADC1_6</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>STDBY do carregador</b></td></tr>
 <tr><td>Esq. 6</td><td><span class="dot" style="background:#06b6d4"></span><b>35</b></td><td>35</td><td>3,3 V</td><td>ADC1_7</td><td>—</td><td>RTC</td><td>Só entrada. Sem pull-up/down interno.</td><td class="uso"><b>Tensão da bateria</b></td></tr>
 <tr><td>Esq. 7</td><td><span class="dot" style="background:#3b82f6"></span><b>32</b></td><td>32</td><td>3,3 V</td><td>ADC1_4</td><td>T9</td><td>PWM, RTC</td><td>—</td><td class="uso"><b>Pluviômetro (49E OUT)</b></td></tr>
 <tr><td>Esq. 8</td><td><span class="dot" style="background:#3b82f6"></span><b>33</b></td><td>33</td><td>3,3 V</td><td>ADC1_5</td><td>T8</td><td>PWM, RTC</td><td>—</td><td class="free">livre</td></tr>
@@ -516,7 +517,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
         <tr><td><b>Módulo microSD</b> (6 pinos)</td><td>Guardar o histórico das medições (SPI)</td><td>5 V no VCC · sinais 3,3 V</td><td>≈20–100 mA gravando · ≈1 mA parado</td><td>5V, GND, GPIO18 (SCK), GPIO19 (MISO), GPIO23 (MOSI), GPIO5 (CS)</td></tr>
         <tr><td><b>GPS GP-02-Kit</b> (Ai-Thinker)</td><td>Posição, altitude e hora por satélite (GPS + BeiDou), UART2 a 9600 baud</td><td>5 V no VCC (regulador no kit) · sinais 3,3 V</td><td>≈25–45 mA (a confirmar)</td><td>5V (junto com o microSD), GND (Esq. 14), GPIO16 (RX2 ← TX do GPS), GPIO17 (TX2 → RX do GPS)</td></tr>
         <tr><td><b>2× bateria Li-ion</b> em paralelo</td><td>Energia da estação</td><td>3,0–4,2 V</td><td>Fornece ≈100–200 mA (via step-up)</td><td>— (ligadas ao carregador)</td></tr>
-        <tr><td><b>Carregador</b> (provável TP4056)</td><td>Carrega as baterias pelo painel solar de 5 V</td><td>Entrada 5 V · saída = bateria</td><td>Carga até 1 A</td><td>GPIO39 (LED carregando), GPIO34 (LED carregado), cada um via 10 kΩ em série</td></tr>
+        <tr><td><b>Carregador</b> (provável TP4056)</td><td>Carrega as baterias pelo painel solar de 5 V</td><td>Entrada 5 V · saída = bateria</td><td>Carga: R3 trocado por 425 Ω (pede ≈2,8 A; o TP4056 é de 1 A, ver observação na Etapa 5)</td><td>GPIO39 (CHRG), GPIO34 (STDBY): 1 kΩ em série e 10 kΩ de pull-up para o 3V3 em cada</td></tr>
         <tr><td><b>Divisor R1/R2</b> da bateria</td><td>Leitura da tensão da bateria</td><td>Metade da bateria (≤2,1 V)</td><td>≈21 µA com 100 kΩ + 100 kΩ</td><td>GPIO35</td></tr>
         <tr><td><b>Step-up 5 V</b> (a instalar)</td><td>Sobe a bateria para 5 V</td><td>Entrada 3,0–4,2 V · saída 5 V</td><td>Até ≈1 A na saída</td><td>5V, GND</td></tr>
         <tr><td><b>Sensor Hall SS49E</b> (pluviômetro)</td><td>Conta as viradas da báscula</td><td>3,3 V</td><td>≈6 mA</td><td>3V3 (junto com o BME280), GND (Esq. 14), GPIO32 (OUT, analógico)</td></tr>
@@ -1405,64 +1406,209 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <section class="etapa" id="etapa-5">
   <div class="n">Etapa 5</div>
   <h2>Energia: baterias, painel solar e medição</h2>
-  <p>Duas baterias de lítio em paralelo, carregadas por um painel solar de 5 V através do carregador. O ESP32 lê a tensão da bateria (GPIO35) e o sinal do carregador (GPIO39) e mostra na página: “Carregando”, “Carregada” ou a % da bateria quando não há sol.</p>
+  <p>Duas baterias de lítio em paralelo, carregadas por um painel solar de 5 V através do carregador. O ESP32 lê a tensão da bateria (GPIO35) e os pinos CHRG (GPIO39) e STDBY (GPIO34) do carregador e mostra na página: “Carregando”, “Carregada” ou a % da bateria quando não há sol.</p>
 
   <div class="card">
     <h3>Caminho da energia</h3>
     <p class="sub">Do painel até o ESP32. O step-up (tracejado) ainda precisa ser instalado.</p>
-    <div class="scroll"><svg viewBox="0 0 760 360" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">
-<path d="M140 66 L200 66" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
-<text x="170" y="58" class="t-wire" style="text-anchor:middle">5 V</text>
-<path d="M380 80 L470 80" stroke="#ef4444" stroke-width="3" fill="none" stroke-linejoin="round"/>
-<text x="425" y="72" class="t-wire" style="text-anchor:middle">3,0–4,2 V</text>
-<path d="M580 80 L630 80" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
-<text x="605" y="72" class="t-wire" style="text-anchor:middle">5 V</text>
-<path d="M380 125 L630 125" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
-<text x="525" y="140" class="t-wire" style="text-anchor:middle">GND comum</text>
-<path d="M525 110 L525 125" stroke="#a8a29e" stroke-width="2" fill="none" stroke-linejoin="round"/>
-<circle cx="525" cy="125" r="4.5" fill="#1c1917"/>
-<path d="M380 165 L450 165" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-<path d="M524 165 L630 165" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-<path d="M380 200 L450 200" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-<path d="M524 200 L630 200" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-<path d="M250 230 L250 250" stroke="#ef4444" stroke-width="3" fill="none" stroke-linejoin="round"/>
-<path d="M330 230 L330 250" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
-<text x="240" y="245" class="t-wire" style="text-anchor:end">B+</text>
-<text x="340" y="245" class="t-wire" style="text-anchor:start">B−</text>
-<path d="M380 262 L450 262 L450 270" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-<path d="M450 330 L450 340 L330 340 L330 310" stroke="#a8a29e" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-<path d="M450 300 L630 300" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
-<circle cx="450" cy="300" r="4.5" fill="#1c1917"/>
-<rect x="20" y="41" width="120" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="80.0" y="61" class="t-box">Painel solar</text><text x="80.0" y="77" class="t-wire" style="font-weight:400">5 V</text>
-<rect x="200" y="30" width="180" height="200" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="290.0" y="50" class="t-box">Carregador</text><text x="290.0" y="66" class="t-wire" style="font-weight:400">provável TP4056</text>
-<circle cx="365" cy="165" r="6" fill="#ef4444"/><text x="352" y="169" class="t-wire" style="text-anchor:end">LED carregando</text>
-<circle cx="365" cy="200" r="6" fill="#3b82f6"/><text x="352" y="204" class="t-wire" style="text-anchor:end">LED carregado</text>
-<text x="212" y="70" class="t-nc" style="text-anchor:start">IN</text><text x="368" y="84" class="t-nc">OUT+</text><text x="368" y="129" class="t-nc">OUT−</text>
-<rect x="200" y="250" width="180" height="60" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="290.0" y="270" class="t-box">2× 18650 em paralelo</text><text x="290.0" y="286" class="t-wire" style="font-weight:400">3,0–4,2 V</text>
-<rect x="470" y="50" width="110" height="60" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4" stroke-dasharray="5 4"/><text x="525.0" y="70" class="t-box">Step-up 5 V</text><text x="525.0" y="86" class="t-wire" style="font-weight:400">a instalar</text>
-<rect x="450" y="154" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="169" class="t-fp" fill="#44403c">10 kΩ série</text>
-<rect x="450" y="189" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="204" class="t-fp" fill="#44403c">10 kΩ série</text>
-<rect x="443" y="270" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="287.0" class="t-nc" style="text-anchor:start">R1 100 kΩ</text>
-<rect x="443" y="304" width="14" height="26" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="462" y="321.0" class="t-nc" style="text-anchor:start">R2 100 kΩ</text>
-<path d="M545 300 V318 M531 318 H559 M531 325 H559 M545 325 V340 H450" stroke="#78716c" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
-<circle cx="545" cy="300" r="4.5" fill="#1c1917"/>
-<text x="566" y="324" class="t-nc" style="text-anchor:start">100 nF</text>
-<text x="566" y="337" class="t-nc" style="text-anchor:start">opcional</text>
-<rect x="630" y="40" width="110" height="290" rx="10" fill="#44403c"/><text x="685" y="62" class="t-boxw">ESP32</text>
-<text x="642" y="84" class="t-pinw">5V</text>
-<circle cx="630" cy="80" r="4.5" fill="#1c1917"/>
-<text x="642" y="129" class="t-pinw">GND</text>
+    <div class="scroll"><svg viewBox="0 0 760 440" role="img" aria-label="Caminho da energia: painel, carregador, baterias, step-up e ESP32" class="dia energia">
+<rect x="220" y="40" width="140" height="210" rx="6" fill="#2f5d8c" stroke="#24476b" stroke-width="1.4"/>
+<rect x="270" y="30" width="40" height="18" rx="4" fill="#d6d3d1" stroke="#a8a29e" stroke-width="1.2"/>
+<text x="290" y="62" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#cbd5e1">USB</text>
+<text x="290" y="80" style="font-size:12px;font-weight:700;text-anchor:middle;fill:#f5f5f4">Carregador</text>
+<rect x="227" y="56" width="18" height="12" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="236" y="81" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">IN+</text>
+<rect x="318" y="95" width="18" height="10" rx="2" fill="#ef4444" stroke="#1c1917" stroke-width="1"/>
+<text x="312" y="103.5" style="font-size:9px;font-weight:500;text-anchor:end;fill:#e2e8f0">carregando</text>
+<rect x="318" y="120" width="18" height="10" rx="2" fill="#3b82f6" stroke="#1c1917" stroke-width="1"/>
+<text x="312" y="128.5" style="font-size:9px;font-weight:500;text-anchor:end;fill:#e2e8f0">carregado</text>
+<rect x="244" y="142" width="64" height="38" rx="3" fill="#1c1917"/>
+<text x="276" y="165" style="font-size:9.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">TP4056</text>
+<circle cx="248" cy="147" r="1.8" fill="#78716c"/>
+<rect x="244" y="192" width="30" height="16" rx="2" fill="#1c1917"/>
+<text x="259" y="203" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">DW01</text>
+<rect x="282" y="190" width="42" height="20" rx="2" fill="#1c1917"/>
+<text x="303" y="203" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">8205A</text>
+<rect x="231" y="232" width="18" height="12" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="240" y="227" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">OUT−</text>
+<rect x="266" y="232" width="18" height="12" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="275" y="227" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">B−</text>
+<rect x="301" y="232" width="18" height="12" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="310" y="227" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">B+</text>
+<rect x="336" y="232" width="18" height="12" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="345" y="227" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#f5f5f4">OUT+</text>
+<path d="M140 62 L227 62" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="180" y="54" class="t-wire" style="text-anchor:middle">5 V</text>
+<path d="M336 100 L450 100" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M524 100 L630 100" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<circle cx="340" cy="100" r="3.5" fill="#16a34a" stroke="#fafaf8" stroke-width="1.2"/>
+<path d="M336 125 L450 125" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M524 125 L630 125" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<circle cx="340" cy="125" r="3.5" fill="#16a34a" stroke="#fafaf8" stroke-width="1.2"/>
+<text x="393" y="92" class="t-wire" style="text-anchor:middle">CHRG</text>
+<text x="393" y="143" class="t-wire" style="text-anchor:middle">STDBY</text>
+<path d="M345 244 L345 280 L470 280" stroke="#ef4444" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="410" y="272" class="t-wire" style="text-anchor:middle">3,0–4,2 V</text>
+<path d="M580 280 L630 280" stroke="#f97316" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="605" y="272" class="t-wire" style="text-anchor:middle">5 V</text>
+<path d="M310 244 L310 320" stroke="#ef4444" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M275 244 L275 320" stroke="#a8a29e" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M240 244 L240 262" stroke="#a8a29e" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M240 262 V270 M230 270 H250 M234 274 H246 M237.5 278 H242.5" stroke="#a8a29e" stroke-width="2.2" fill="none"/>
+<path d="M525 305 L525 316" stroke="#a8a29e" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M525 316 V324 M515 324 H535 M519 328 H531 M522.5 332 H527.5" stroke="#a8a29e" stroke-width="2.2" fill="none"/>
+<path d="M360 345 L430 345 L430 352" stroke="#ef4444" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M430 400 L430 412" stroke="#a8a29e" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M430 412 V420 M420 420 H440 M424 424 H436 M427.5 428 H432.5" stroke="#a8a29e" stroke-width="2.2" fill="none"/>
+<path d="M430 376 L630 376" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<circle cx="430" cy="376" r="4.5" fill="#1c1917"/>
+<rect x="20" y="37" width="120" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="80.0" y="57" class="t-box">Painel solar</text><text x="80.0" y="73" class="t-wire" style="font-weight:400">5 V</text>
+<rect x="220" y="320" width="140" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="290.0" y="340" class="t-box">2× 18650 em paralelo</text><text x="290.0" y="356" class="t-wire" style="font-weight:400">3,0–4,2 V</text>
+<rect x="470" y="255" width="110" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4" stroke-dasharray="5 4"/><text x="525.0" y="275" class="t-box">Step-up 5 V</text><text x="525.0" y="291" class="t-wire" style="font-weight:400">a instalar</text>
+<rect x="450" y="89" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="104" class="t-fp" fill="#44403c">1 kΩ série</text>
+<rect x="450" y="114" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="129" class="t-fp" fill="#44403c">1 kΩ série</text>
+<rect x="562" y="93" width="38" height="14" rx="2" fill="#fafaf8" stroke="#f59e0b" stroke-width="1.6"/>
+<text x="581" y="104" class="t-fp" fill="#b45309" style="font-size:9px">10k↑</text>
+<rect x="562" y="118" width="38" height="14" rx="2" fill="#fafaf8" stroke="#f59e0b" stroke-width="1.6"/>
+<text x="581" y="129" class="t-fp" fill="#b45309" style="font-size:9px">10k↑</text>
+<text x="581" y="147" class="t-nc" style="text-anchor:middle">pull-up p/ 3V3</text>
+<rect x="423" y="352" width="14" height="22" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="442" y="367.0" class="t-nc" style="text-anchor:start">R1 100 kΩ</text>
+<rect x="423" y="378" width="14" height="22" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.6"/><text x="442" y="393.0" class="t-nc" style="text-anchor:start">R2 100 kΩ</text>
+<path d="M525 376 V394 M513 394 H537 M513 401 H537 M525 401 V412" stroke="#78716c" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+<circle cx="525" cy="376" r="4.5" fill="#1c1917"/>
+<path d="M525 412 V420 M515 420 H535 M519 424 H531 M522.5 428 H527.5" stroke="#a8a29e" stroke-width="2.2" fill="none"/>
+<text x="546" y="398" class="t-nc" style="text-anchor:start">100 nF</text>
+<text x="546" y="411" class="t-nc" style="text-anchor:start">opcional</text>
+<rect x="630" y="40" width="110" height="390" rx="10" fill="#44403c"/><text x="685" y="62" class="t-boxw">ESP32</text>
+<text x="642" y="104" class="t-pinw">GPIO39</text>
+<circle cx="630" cy="100" r="4.5" fill="#1c1917"/>
+<text x="642" y="129" class="t-pinw">GPIO34</text>
 <circle cx="630" cy="125" r="4.5" fill="#1c1917"/>
-<text x="642" y="169" class="t-pinw">GPIO39</text>
-<circle cx="630" cy="165" r="4.5" fill="#1c1917"/>
-<text x="642" y="204" class="t-pinw">GPIO34</text>
-<circle cx="630" cy="200" r="4.5" fill="#1c1917"/>
-<text x="642" y="304" class="t-pinw">GPIO35</text>
-<circle cx="630" cy="300" r="4.5" fill="#1c1917"/>
+<text x="642" y="284" class="t-pinw">5V</text>
+<circle cx="630" cy="280" r="4.5" fill="#1c1917"/>
+<text x="642" y="380" class="t-pinw">GPIO35</text>
+<circle cx="630" cy="376" r="4.5" fill="#1c1917"/>
+<text x="642" y="416" class="t-pinw">GND</text>
+<path d="M630 412 L612 412" stroke="#a8a29e" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+<path d="M612 412 V420 M602 420 H622 M606 424 H618 M609.5 428 H614.5" stroke="#a8a29e" stroke-width="2.2" fill="none"/>
 </svg></div>
-    <ul class="legend"><li><i style="background:#ef4444"></i>bateria 3,0–4,2 V</li><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>analógico (ADC1)</li><li><b>┄</b> peça a instalar</li></ul>
+    <ul class="legend"><li><i style="background:#ef4444"></i>bateria 3,0–4,2 V</li><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>analógico (ADC1)</li><li><b>┄</b> peça a instalar</li><li><b>⏚</b> GND comum (todos no mesmo ponto)</li><li><i style="background:#16a34a;border-radius:50%"></i>ponto de solda (lado do chip)</li></ul>
     <p class="note"><b>Atenção:</b> não ligue o OUT do carregador direto no ESP32. No 3V3, os 4,2 V da bateria passam do máximo do chip (3,6 V). No 5V, o regulador da placa não consegue entregar 3,3 V com menos de ≈4,5 V na entrada, e o microSD e o GPS também precisam de 5 V. O step-up resolve os dois casos.</p>
     <p class="note"><b>USB e bateria juntos:</b> com o step-up ligado no 5V, não conecte o cabo USB ao mesmo tempo até medir se a placa tem diodo entre o USB e o pino 5V (Etapa 1, “Para conferir”).</p>
+  </div>
+
+  <div class="card">
+    <h3>No carregador: onde soldar os fios</h3>
+    <p class="sub">Placa 03962A (TP4056 + DW01 + 8205A). Em cada LED a ligação é: IN+ (5 V) → LED → resistor de 1 kΩ (R1 ou R2, marcado <b>102</b>) → pino do chip. O fio sai do <b>terminal do resistor que vai ao chip</b>.</p>
+    <div class="scroll"><svg viewBox="0 0 760 410" role="img" aria-label="Onde soldar CHRG e STDBY no módulo do carregador e como ligar no ESP32" class="dia tp">
+<rect x="20" y="215" width="310" height="180" rx="6" fill="#2f5d8c" stroke="#24476b" stroke-width="1.4"/>
+<rect x="8" y="285" width="40" height="46" rx="4" fill="#d6d3d1" stroke="#a8a29e" stroke-width="1.2"/>
+<text x="28" y="345" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#cbd5e1">USB</text>
+<rect x="41" y="225" width="22" height="14" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="52" y="252" style="font-size:9px;font-weight:600;text-anchor:middle;fill:#f5f5f4">IN+</text>
+<rect x="41" y="371" width="22" height="14" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="68" y="381.5" style="font-size:9px;font-weight:600;text-anchor:start;fill:#f5f5f4">IN−</text>
+<rect x="297" y="225" width="22" height="14" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="292" y="235.5" style="font-size:9px;font-weight:600;text-anchor:end;fill:#f5f5f4">OUT+</text>
+<rect x="297" y="270" width="22" height="14" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="292" y="280.5" style="font-size:9px;font-weight:600;text-anchor:end;fill:#f5f5f4">B+</text>
+<rect x="297" y="315" width="22" height="14" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="292" y="325.5" style="font-size:9px;font-weight:600;text-anchor:end;fill:#f5f5f4">B−</text>
+<rect x="297" y="371" width="22" height="14" rx="2" fill="#d4a72c" stroke="#a16207" stroke-width="1"/>
+<text x="292" y="381.5" style="font-size:9px;font-weight:600;text-anchor:end;fill:#f5f5f4">OUT−</text>
+<text x="255" y="268" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#cbd5e1">03962A</text>
+<path d="M63 232 H78" stroke="#c7d2fe" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+<rect x="78" y="229.0" width="18" height="10" rx="1.5" fill="#ef4444" stroke="#0c0a09" stroke-width="0.8"/>
+<text x="87" y="225" style="font-size:8.5px;font-weight:500;text-anchor:middle;fill:#e2e8f0">vermelho</text>
+<rect x="226" y="229.0" width="18" height="10" rx="1.5" fill="#3b82f6" stroke="#0c0a09" stroke-width="0.8"/>
+<text x="235" y="225" style="font-size:8.5px;font-weight:500;text-anchor:middle;fill:#e2e8f0">azul</text>
+<path d="M96 234 H104 V262 H110" stroke="#c7d2fe" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+<path d="M226 234 H218 V262 H210" stroke="#c7d2fe" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+<rect x="110" y="256.0" width="28" height="12" rx="1.5" fill="#1c1917" stroke="#0c0a09" stroke-width="0.8"/>
+<text x="124.0" y="265" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#e7e5e4">102</text>
+<text x="124" y="282" style="font-size:9px;font-weight:700;text-anchor:middle;fill:#f5f5f4">R2</text>
+<rect x="182" y="256.0" width="28" height="12" rx="1.5" fill="#1c1917" stroke="#0c0a09" stroke-width="0.8"/>
+<text x="196.0" y="265" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#e7e5e4">102</text>
+<text x="196" y="282" style="font-size:9px;font-weight:700;text-anchor:middle;fill:#f5f5f4">R1</text>
+<rect x="120" y="292" width="80" height="48" rx="3" fill="#1c1917"/>
+<path d="M130 286 V292" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<path d="M130 340 V346" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<text x="130" y="303" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">8</text>
+<text x="130" y="336" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">1</text>
+<path d="M150 286 V292" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<path d="M150 340 V346" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<text x="150" y="303" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">7</text>
+<text x="150" y="336" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">2</text>
+<path d="M170 286 V292" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<path d="M170 340 V346" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<text x="170" y="303" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">6</text>
+<text x="170" y="336" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">3</text>
+<path d="M190 286 V292" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<path d="M190 340 V346" stroke="#a8a29e" stroke-width="4" fill="none" stroke-linejoin="round"/>
+<text x="190" y="303" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">5</text>
+<text x="190" y="336" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#a8a29e">4</text>
+<text x="160" y="320" style="font-size:9.5px;font-weight:700;text-anchor:middle;fill:#f5f5f4">TP4056</text>
+<path d="M138 262 H150 V286" stroke="#c7d2fe" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+<path d="M182 262 H170 V286" stroke="#c7d2fe" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+<rect x="146" y="366.0" width="28" height="12" rx="1.5" fill="#b45309" stroke="#0c0a09" stroke-width="0.8"/>
+<text x="160.0" y="375" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#fff7ed">425</text>
+<text x="180" y="375" style="font-size:8.5px;font-weight:700;text-anchor:start;fill:#fde68a">R3 · trocado: 425 Ω</text>
+<rect x="232" y="292.0" width="34" height="16" rx="1.5" fill="#1c1917" stroke="#0c0a09" stroke-width="0.8"/>
+<text x="249.0" y="303" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#e7e5e4">DW01</text>
+<rect x="232" y="326.0" width="44" height="20" rx="1.5" fill="#1c1917" stroke="#0c0a09" stroke-width="0.8"/>
+<text x="254.0" y="339" style="font-size:7.5px;font-weight:600;text-anchor:middle;fill:#e7e5e4">8205A</text>
+<path d="M138 262 V50 H380" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M440 50 H640" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M182 262 V170 H380" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M440 170 H640" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<circle cx="138" cy="262" r="5.5" fill="#16a34a" stroke="#fafaf8" stroke-width="1.8"/>
+<circle cx="182" cy="262" r="5.5" fill="#16a34a" stroke="#fafaf8" stroke-width="1.8"/>
+<text x="150" y="42" style="font-size:11.5px;font-weight:600;text-anchor:start;fill:#0e7490">CHRG · R2, lado do pino 7</text>
+<text x="194" y="162" style="font-size:11.5px;font-weight:600;text-anchor:start;fill:#0e7490">STDBY · R1, lado do pino 6</text>
+<rect x="380" y="40" width="60" height="20" rx="4" fill="#fafaf8" stroke="#57534e" stroke-width="1.5"/>
+<text x="410" y="54" style="font-size:10.5px;font-weight:700;text-anchor:middle;fill:#44403c">1 kΩ</text>
+<rect x="380" y="160" width="60" height="20" rx="4" fill="#fafaf8" stroke="#57534e" stroke-width="1.5"/>
+<text x="410" y="174" style="font-size:10.5px;font-weight:700;text-anchor:middle;fill:#44403c">1 kΩ</text>
+<text x="410" y="196" style="font-size:10px;font-weight:500;text-anchor:middle;fill:#78716c">em série</text>
+<text x="410" y="76" style="font-size:10px;font-weight:500;text-anchor:middle;fill:#78716c">em série</text>
+<path d="M520 110 H640" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M520 50 V62" stroke="#06b6d4" stroke-width="2.4" fill="none" stroke-linejoin="round"/>
+<path d="M520 98 V110" stroke="#f59e0b" stroke-width="2.4" fill="none" stroke-linejoin="round"/>
+<path d="M570 110 V122" stroke="#f59e0b" stroke-width="2.4" fill="none" stroke-linejoin="round"/>
+<path d="M570 158 V170" stroke="#06b6d4" stroke-width="2.4" fill="none" stroke-linejoin="round"/>
+<rect x="512" y="62" width="16" height="36" rx="2" fill="#fafaf8" stroke="#f59e0b" stroke-width="1.8"/>
+<rect x="562" y="122" width="16" height="36" rx="2" fill="#fafaf8" stroke="#f59e0b" stroke-width="1.8"/>
+<text x="530" y="84" style="font-size:10.5px;font-weight:700;text-anchor:start;fill:#b45309">10 kΩ</text>
+<text x="580" y="144" style="font-size:10.5px;font-weight:700;text-anchor:start;fill:#b45309">10 kΩ</text>
+<circle cx="520" cy="50" r="4" fill="#1c1917"/>
+<circle cx="570" cy="170" r="4" fill="#1c1917"/>
+<circle cx="520" cy="110" r="4" fill="#1c1917"/>
+<circle cx="570" cy="110" r="4" fill="#1c1917"/>
+<text x="600" y="104" style="font-size:10.5px;font-weight:700;text-anchor:middle;fill:#b45309">3V3</text>
+<rect x="640" y="20" width="110" height="180" rx="10" fill="#44403c"/>
+<text x="695" y="36" style="font-size:12px;font-weight:700;text-anchor:middle;fill:#fafaf9">ESP32</text>
+<circle cx="640" cy="50" r="4.5" fill="#1c1917"/>
+<text x="652" y="51" style="font-size:12px;font-weight:600;text-anchor:start;fill:#e7e5e4">GPIO39</text>
+<text x="652" y="65" style="font-size:9.5px;font-weight:500;text-anchor:start;fill:#a8a29e">VN · Esq. 4</text>
+<circle cx="640" cy="110" r="4.5" fill="#1c1917"/>
+<text x="652" y="111" style="font-size:12px;font-weight:600;text-anchor:start;fill:#e7e5e4">3V3</text>
+<text x="652" y="125" style="font-size:9.5px;font-weight:500;text-anchor:start;fill:#a8a29e">Esq. 1</text>
+<circle cx="640" cy="170" r="4.5" fill="#1c1917"/>
+<text x="652" y="171" style="font-size:12px;font-weight:600;text-anchor:start;fill:#e7e5e4">GPIO34</text>
+<text x="652" y="185" style="font-size:9.5px;font-weight:500;text-anchor:start;fill:#a8a29e">Esq. 5</text>
+<circle cx="380" cy="262" r="5.5" fill="#16a34a" stroke="#fafaf8" stroke-width="1.8"/>
+<text x="392" y="266" style="font-size:11px;font-weight:600;text-anchor:start;fill:#16a34a">solde aqui: terminal do resistor que vai ao chip</text>
+<text x="392" y="284" style="font-size:10.5px;font-weight:500;text-anchor:start;fill:#78716c">(≈0 V com o LED aceso · 2,2 V é o outro terminal)</text>
+</svg></div>
+    <p class="note"><b>Pull-up:</b> cada GPIO recebe um resistor de 10 kΩ ligado ao pino <b>3V3</b> do ESP32 (Esq. 1). Os dois pull-ups usam o mesmo fio de 3V3. Os GPIO34 e 39 não têm pull-up interno: sem esse resistor, o pino fica solto quando o LED está apagado.</p>
+    <p class="note"><b>Medido neste módulo</b> (alimentado pelo USB, LED azul aceso, ponta preta no negativo): 5 V num terminal do LED e 2,2 V no outro. Os 2,2 V são a queda no resistor de 1 kΩ do módulo, que fica entre o LED e o chip. Por isso o ponto certo é o outro terminal do resistor, ligado direto no pino do chip.</p>
+    <p class="note"><b>Para confirmar antes de soldar:</b></p>
+    <ol class="note">
+      <li>Sem alimentação, multímetro em continuidade (bipe): o terminal do resistor que bipa com o <b>pino 7</b> é o CHRG (LED vermelho); o que bipa com o <b>pino 6</b> é o STDBY (LED azul). No esquema do fabricante o R2 vai ao pino 7 e o R1 ao 6, mas a cor dos LEDs aparece trocada nele, então confie no bipe.</li>
+      <li>Ligado no USB, multímetro em DC, escala de 20 V: no ponto escolhido, com o LED dele aceso, ≈0,1 V.</li>
+      <li>Depois de ligar no ESP32 (com os pull-ups): ativo ≈0,3 V, inativo ≈3,3 V.</li>
+    </ol>
+    <p class="note"><b>R3 (PROG): trocado por 425 Ω</b> (o original é 122 = 1,2 kΩ, para 1 A). Ele define a corrente de carga: com 425 Ω o chip tenta ≈2,8 A, acima do máximo de 1 A do TP4056, para carregar as duas células usadas com um único carregador. Na prática a proteção térmica do chip reduz a corrente quando ele esquenta; o valor real só sai medindo no B+ (veja a ficha abaixo).</p>
   </div>
 
   <div class="card">
@@ -1634,12 +1780,12 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
 <text x="327" y="652" class="t-pill" fill="#57534e">CLK</text></g>
 <rect x="8" y="287" width="228" height="22" rx="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="1.4"/>
-<text x="16" y="302" class="t-term">LED carregando<tspan class="t-term2"> · 10 kΩ em série</tspan></text>
+<text x="16" y="302" class="t-term">CHRG<tspan class="t-term2"> · 1 kΩ série · 10 kΩ ao 3V3</tspan></text>
 <path d="M236 298 H338" stroke="#06b6d4" stroke-width="3" fill="none"/>
 <circle cx="236" cy="298" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
 <circle cx="338" cy="298" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
 <rect x="8" y="313" width="228" height="22" rx="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="1.4"/>
-<text x="16" y="328" class="t-term">LED carregado<tspan class="t-term2"> · 10 kΩ em série</tspan></text>
+<text x="16" y="328" class="t-term">STDBY<tspan class="t-term2"> · 1 kΩ série · 10 kΩ ao 3V3</tspan></text>
 <path d="M236 324 H338" stroke="#06b6d4" stroke-width="3" fill="none"/>
 <circle cx="236" cy="324" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
 <circle cx="338" cy="324" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
@@ -1659,18 +1805,18 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <circle cx="236" cy="688" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
 <circle cx="338" cy="688" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>
 </svg></div>
-    <ul class="legend"><li><i style="background:#ef4444"></i>bateria 3,0–4,2 V</li><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>analógico (ADC1)</li><li><b>┄</b> peça a instalar</li></ul>
+    <ul class="legend"><li><i style="background:#ef4444"></i>bateria 3,0–4,2 V</li><li><i style="background:#f97316"></i>5 V</li><li><i style="background:#a8a29e"></i>GND</li><li><i style="background:#06b6d4"></i>analógico (ADC1)</li><li><b>┄</b> peça a instalar</li><li><b>⏚</b> GND comum (todos no mesmo ponto)</li><li><i style="background:#16a34a;border-radius:50%"></i>ponto de solda (lado do chip)</li></ul>
     <div class="scroll" style="margin-top:18px"><table class="pecas bme">
       <thead><tr><th>De</th><th>Para no ESP32</th><th>Por quê</th></tr></thead>
       <tbody>
 <tr><td><b>Step-up 5 V · saída +</b></td><td>5V (Esq. 19)</td><td>Alimenta a placa. O mesmo pino 5V já alimenta o microSD e o GPS: os três ficam no mesmo trilho de 5 V.</td></tr>
 <tr><td><b>GND (OUT− e step-up −)</b></td><td>GND (Esq. 14)</td><td>Terra comum. O GPS já usa esse GND: em placa, todos os GND são o mesmo ponto.</td></tr>
 <tr><td><b>Bateria: meio de R1/R2</b></td><td>GPIO35 · ADC1_7 (Esq. 6)</td><td>Medido: bateria 4,10 V → 1,40 V no pino (razão ≈2,93). O firmware multiplica a leitura por ≈2,79 (calibrado com o multímetro).</td></tr>
-<tr><td><b>LED carregando, via 10 kΩ em série</b></td><td>GPIO39 · VN · ADC1_3 (Esq. 4)</td><td>Sem resistor para o GND: com sol o pino recebe a tensão do fio (carregando ≈3,1 V · carregada ≈2,6 V); sem sol o pino fica solto e lê tensão “fantasma” (visto 0,65–1,30 V), tratada como sem sol.</td></tr>
-<tr><td><b>LED carregado, via 10 kΩ em série</b></td><td>GPIO34 · ADC1_6 (Esq. 5)</td><td>Se um fio só já distingue os três estados, este fica livre (a confirmar).</td></tr>
+<tr><td><b>CHRG (pino do chip, lado do LED que vai ao chip) → 1 kΩ série</b></td><td>GPIO39 · VN (Esq. 4) + 10 kΩ do GPIO ao 3V3</td><td>Digital, ativo em 0: 0 = carregando. Sem o pull-up externo o pino flutua (34–39 não têm pull-up interno).</td></tr>
+<tr><td><b>STDBY (pino do chip) → 1 kΩ série</b></td><td>GPIO34 (Esq. 5) + 10 kΩ do GPIO ao 3V3</td><td>Digital, ativo em 0: 0 = carregada. Os dois em 1 = sem sol (painel sem carga).</td></tr>
       </tbody></table></div>
-    <p class="note"><b>Como funciona:</b> o divisor R1/R2 entrega ao ESP32 ≈1/2,93 da tensão da bateria (medido), porque o ADC só mede até ≈3,1 V. No sinal dos LEDs foi medido: 3,10–3,13 V carregando, 2,6 V carregada e 0 V sem sol. Na montagem, cada fio passa por um resistor de 10 kΩ em série até o pino, sem resistor para o GND: com sol o pino recebe a tensão do fio (≈3,1 / 2,6 V, abaixo do limite de 3,6 V do ESP32); sem sol o pino fica solto e lê uma tensão “fantasma” baixa (0,65–1,30 V), que o firmware trata como sem sol.</p>
-    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, ≈1/2,93 da tensão da bateria (medido: 4,10 V → 1,40 V). No fio dos LEDs (já medido): carregando 3,10–3,13 V, carregada 2,6 V, sem sol 0 V. No pino (10 kΩ em série, sem divisor): os mesmos valores com sol; à noite, leitura “fantasma” abaixo de ≈1,3 V. Na saída do step-up: 5,0–5,2 V, antes de ligar no pino 5V.</p>
+    <p class="note"><b>Como funciona:</b> o divisor R1/R2 entrega ao ESP32 ≈1/2,93 da tensão da bateria (medido), porque o ADC só mede até ≈3,1 V. Os sinais do carregador são os pinos CHRG e STDBY do TP4056: o chip só puxa para 0 V o estado ativo; o pull-up de 10 kΩ deixa o pino em 3,3 V nos outros casos, então o ESP32 lê 0 ou 1, sem tensão “fantasma”.</p>
+    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, ≈1/2,93 da tensão da bateria (medido: 4,10 V → 1,40 V). Nos GPIO39 e GPIO34, com o painel ligado: o estado ativo ≈0,3 V e o inativo ≈3,3 V; sem sol, os dois ≈3,3 V. Se algum ficar entre 1 e 2,5 V, confira se o resistor em série é de 1 kΩ (e não 10 kΩ). Na saída do step-up: 5,0–5,2 V, antes de ligar no pino 5V.</p>
   </div>
 
   <div class="card">
@@ -1678,21 +1824,22 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
     <h3 class="ft">Baterias e carregador</h3>
     <div class="hero"><div class="tile"><div class="big">2× Li-ion</div><div class="lbl">em paralelo</div></div><div class="tile"><div class="big">3,0–4,2 V</div><div class="lbl">vazia → cheia</div></div><div class="tile"><div class="big">3,1 / 2,6 / 0 V</div><div class="lbl">carregando / cheia / sem sol</div></div><div class="tile"><div class="big">ADC1</div><div class="lbl">34 · 35 · 39</div></div></div>
     <div class="specs">
-<div class="spec"><div class="k">Baterias</div><div class="val">2 células de lítio (provável 18650) em paralelo: 3,7 V nominal, 4,2 V cheias, ≈3,0 V vazias; a capacidade das duas se soma <span class="src c">a confirmar na placa</span></div></div>
+<div class="spec"><div class="k">Baterias</div><div class="val">2 células 18650 usadas, tiradas de notebook, em paralelo: 3,7 V nominal, 4,2 V cheias, ≈3,0 V vazias; a capacidade das duas se soma, mas a real é desconhecida (células usadas perdem capacidade e podem não chegar a 4,2 V) <span class="src c">a confirmar na placa</span></div></div>
 <div class="spec"><div class="k">Carregador</div><div class="val">Placa com entrada 5 V, B+/B−, OUT+/OUT− e 2 LEDs: provável TP4056 com proteção (DW01A + 8205A) <span class="src c">a confirmar na placa</span></div></div>
 <div class="spec"><div class="k">Entrada do carregador</div><div class="val">4,5–5,5 V (máximo absoluto 8 V): o painel de 5 V serve; em aberto ele pode passar de 6 V, ainda dentro do limite <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">Saída OUT</div><div class="val">É a tensão da bateria (3,0–4,2 V), não 5 V. Por isso o step-up entre o OUT e o pino 5V <span class="src d">datasheet</span></div></div>
-<div class="spec"><div class="k">Corrente de carga</div><div class="val">Até 1 A no padrão. Um painel pequeno não chega a isso; a carga só fica mais lenta <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Corrente de carga</div><div class="val">R3 trocado: 425 Ω no lugar do original de 1,2 kΩ (122). Pede ≈1200 ÷ 425 ≈ 2,8 A, acima do máximo do TP4056 (1 A). Motivo: um único TP4056 carregando as duas células. Ver a observação abaixo <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Observação sobre o R3</div><div class="val">Acima de 1 A o TP4056 sai da faixa especificada: esquenta e reduz a corrente sozinho quando passa de ≈145 °C por dentro (proteção térmica), então a corrente real fica abaixo de 2,8 A e não é conhecida. A corrente também nunca passa do que o painel entrega. A medir: corrente no B+ ao meio-dia (escala de 10 A) e a temperatura do chip. Alternativas para depois: voltar para 1,2 kΩ (1 A) ou trocar por um carregador feito para corrente maior <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">LEDs</div><div class="val">Vermelho = carregando · azul ou verde = carregada · os dois apagados = sem sol, a estação está na bateria <span class="src d">datasheet</span></div></div>
-<div class="spec"><div class="k">Sinal dos LEDs (medido)</div><div class="val">Carregando: 3,10–3,13 V · carregada (LED de 100 % aceso): 2,6 V · nenhum aceso (painel sem carga): 0 V · medido no fio <span class="src v">medido</span></div></div>
-<div class="spec"><div class="k">No pino (10 kΩ em série, sem divisor)</div><div class="val">Com sol, a tensão do fio: carregando ≈3,1 V · carregada ≈2,6 V · sem sol: pino solto, leitura “fantasma” de 0,65–1,30 V <span class="src v">medido</span></div></div>
-<div class="spec"><div class="k">Sem sol (pino solto)</div><div class="val">Os pinos 34–39 não têm pull interno: sem o resistor para o GND, à noite o pino lê tensão “fantasma” (0,65–1,30 V) em vez de 0 V; os limites ficam acima dessa faixa <span class="src v">medido</span></div></div>
-<div class="spec"><div class="k">Pull-down recomendado</div><div class="val">Pinos de LED do TP4056 são dreno aberto: sem LED aceso o sinal flutua. Soldar 100 kΩ entre o fio do sinal e o OUT− na placa do carregador fixa 0 V sem sol <span class="src d">datasheet</span></div></div>
-<div class="spec"><div class="k">Limites para o firmware</div><div class="val">Entrar em painel ativo exige 10 leituras seguidas (≈30 s); sair, 3 (≈9 s). Com histerese: acima de 2,3 V no pino = painel ativo, volta a sem sol abaixo de 2,0 V · carregando acima de 2,85 V, volta abaixo de 2,75 V (a confirmar com leituras de dia) · antes de ler o GPIO39 o firmware lê o GPIO32 (≈1,65 V) para a sobra no pino solto ficar baixa <span class="src d">no firmware</span></div></div>
-<div class="spec"><div class="k">Economia no firmware</div><div class="val">CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-V1 desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min <span class="src d">no firmware</span></div></div>
+<div class="spec"><div class="k">Sinais do carregador</div><div class="val">CHRG e STDBY do TP4056: dreno aberto, ativos em 0 (o chip puxa para 0 V; senão o pino fica solto). Leitura digital, como é o uso padrão: 1 kΩ em série e pull-up de 10 kΩ para o 3V3 em cada GPIO <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Tabela de estados</div><div class="val">CHRG 0 · STDBY 1 = carregando · CHRG 1 · STDBY 0 = carregada · 1 · 1 = sem sol · 0 · 0 = inválido (mantém o estado anterior) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Por que 1 kΩ e não 10 kΩ em série</div><div class="val">Com 10 kΩ em série e 10 kΩ de pull-up, o estado ativo ficaria em 1,65 V (indefinido). Com 1 kΩ fica em ≈0,3 V, um 0 claro <span class="src d">calculado</span></div></div>
+<div class="spec"><div class="k">Os LEDs continuam iguais</div><div class="val">O pull-up não acende o LED: inativo, o LED fica com ≈1,7 V (pouco para acender) ou polarizado ao contrário sem sol <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">No firmware</div><div class="val">digitalRead em GPIO39 (CHRG) e GPIO34 (STDBY) a cada 3 s; o estado muda depois de 3 leituras iguais (≈9 s) <span class="src d">no firmware</span></div></div>
+<div class="spec"><div class="k">Economia no firmware</div><div class="val">CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-XXXX (final do MAC) desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min <span class="src d">no firmware</span></div></div>
 <div class="spec"><div class="k">Divisor ideal</div><div class="val">R1 = R2 = 100 kΩ: bateria 4,2 → 2,10 V e 3,0 → 1,50 V no pino, gastando ≈21 µA. Capacitor de 100 nF do meio para o GND é OPCIONAL: melhora a leitura (o ADC puxa um pulso a cada amostra e o capacitor segura a tensão; também filtra ruído do Wi-Fi). Sem capacitor funciona, com a calibração e a média de 32 leituras do firmware <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">Divisor da bateria (medido)</div><div class="val">Bateria 4,10 V → 1,40 V no meio de R1/R2 (multímetro): razão ≈2,93. Calibrado contra o multímetro (4,10 V na bateria): o firmware usa ≈2,79 <span class="src v">medido</span></div></div>
-<div class="spec"><div class="k">No firmware</div><div class="val">Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria · leitura a cada 3 s <span class="src d">no firmware</span></div></div>
+<div class="spec"><div class="k">Na página</div><div class="val">Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria <span class="src d">no firmware</span></div></div>
     </div>
   </div>
 </section>
