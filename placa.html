@@ -509,8 +509,9 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
         <tr><td><b>Módulo microSD</b> (6 pinos)</td><td>Guardar o histórico das medições (SPI)</td><td>5 V no VCC · sinais 3,3 V</td><td>≈20–100 mA gravando · ≈1 mA parado</td><td>5V, GND, GPIO18 (SCK), GPIO19 (MISO), GPIO23 (MOSI), GPIO5 (CS)</td></tr>
         <tr><td><b>GPS GP-02-Kit</b> (Ai-Thinker)</td><td>Posição, altitude e hora por satélite (GPS + BeiDou), UART2 a 9600 baud</td><td>5 V no VCC (regulador no kit) · sinais 3,3 V</td><td>≈25–45 mA (a confirmar)</td><td>5V (junto com o microSD), GND (Esq. 14), GPIO16 (RX2 ← TX do GPS), GPIO17 (TX2 → RX do GPS)</td></tr>
         <tr><td><b>2× bateria Li-ion</b> em paralelo</td><td>Energia da estação</td><td>3,0–4,2 V</td><td>Fornece ≈100–200 mA (direto no pino 5V)</td><td>— (ligadas ao carregador)</td></tr>
-        <tr><td><b>Carregador TP4056</b></td><td>Carrega as baterias pelo painel solar de 5 V</td><td>Entrada 5 V · saída = bateria</td><td>Carga: R3 trocado por 425 Ω (pede ≈2,8 A; o TP4056 é de 1 A, ver observação na Etapa 5)</td><td>GPIO39 (CHRG), GPIO34 (STDBY): diodo 1N5819 em cada fio e 10 kΩ de pull-up para o 3V3 em cada (1 kΩ em série opcional)</td></tr>
-        <tr><td><b>Divisor R1/R2</b> da bateria</td><td>Leitura da tensão da bateria</td><td>≈1/2,93 da bateria (medido; ≈1,4 V com 4,1 V)</td><td>≈21 µA se forem 100 kΩ + 100 kΩ (valores montados a confirmar)</td><td>GPIO35</td></tr>
+        <tr><td><b>Painel solar TRX-9</b></td><td>Energia para carregar as baterias</td><td>Máx. potência 6,3 V · em aberto 8,1 V · saída USB 5 V</td><td>9 W (1,57 A em 6,3 V) · USB até 1,8 A</td><td>— (saída USB → IN+ / IN− do carregador)</td></tr>
+        <tr><td><b>Carregador TP4056</b></td><td>Carrega as baterias pelo painel solar (saída USB de 5 V)</td><td>Entrada 5 V · saída = bateria</td><td>Carga: R3 trocado por 425 Ω (pede ≈2,8 A; o TP4056 é de 1 A, ver observação na Etapa 5)</td><td>GPIO39 (CHRG), GPIO34 (STDBY): diodo 1N5819 em cada fio e 10 kΩ de pull-up para o 3V3 em cada (1 kΩ em série opcional)</td></tr>
+        <tr><td><b>Divisor R1/R2</b> da bateria</td><td>Leitura da tensão da bateria</td><td>Metade da bateria (≤2,1 V)</td><td>≈21 µA (2 × 100 kΩ)</td><td>B+ e B− do carregador, meio no GPIO35</td></tr>
         <tr><td><b>Buzzer ativo</b></td><td>Avisos sonoros: 3 bipes ao ligar · 1 bipe ao conectar no Wi-Fi · 2 bipes longos em erro (cartão SD, BME280, reinício por falha) · 1 bipe longo por hora com bateria abaixo de 10 % sem sol</td><td>3,3 V (GPIO)</td><td>a medir: o GPIO dá ≈20 mA (máx. absoluto 40 mA)</td><td>GPIO25 (+, Esq. 9), GND (−) · ligado direto, sem transistor</td></tr>
         <tr><td><b>Chave liga/desliga</b></td><td>Desliga a estação para transportar (o carregador continua carregando a bateria)</td><td>3,0–4,2 V</td><td>Passa toda a corrente da estação</td><td>— (entre o OUT+ do carregador e o pino 5V)</td></tr>
         <tr><td><b>Sensor Hall SS41F</b> (pluviômetro)</td><td>Conta as viradas da báscula (digital com trava, por interrupção)</td><td>Pino 5V no VCC (sem conversor: 3,0–4,2 V da bateria; pede 4,5 V) · saída coletor aberto</td><td>até ≈10 mA (medir)</td><td>5V (Esq. 19), GND (Esq. 14), GPIO32 (OUT, pull-up interno)</td></tr>
@@ -1399,7 +1400,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <section class="etapa" id="etapa-5">
   <div class="n">Etapa 5</div>
   <h2>Energia: baterias, painel solar e medição</h2>
-  <p>Duas baterias de lítio em paralelo, carregadas por um painel solar de 5 V através do carregador. O ESP32 lê a tensão da bateria (GPIO35) e os pinos CHRG (GPIO39) e STDBY (GPIO34) do carregador e mostra na página: “Carregando”, “Carregada” ou a % da bateria quando não há sol.</p>
+  <p>Duas baterias de lítio em paralelo, carregadas por um painel solar de 9 W (saída USB de 5 V) através do carregador. O ESP32 lê a tensão da bateria (GPIO35) e os pinos CHRG (GPIO39) e STDBY (GPIO34) do carregador e mostra na página: “Carregando”, “Carregada” ou a % da bateria quando não há sol.</p>
 
   <div class="card">
     <h3>Caminho da energia</h3>
@@ -1453,7 +1454,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <path d="M430 412 V420 M420 420 H440 M424 424 H436 M427.5 428 H432.5" stroke="#a8a29e" stroke-width="2.2" fill="none"/>
 <path d="M430 376 L630 376" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
 <circle cx="430" cy="376" r="4.5" fill="#1c1917"/>
-<rect x="20" y="37" width="120" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="80.0" y="57" class="t-box">Painel solar</text><text x="80.0" y="73" class="t-wire" style="font-weight:400">5 V</text>
+<rect x="20" y="37" width="120" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="80.0" y="57" class="t-box">Painel TRX-9</text><text x="80.0" y="73" class="t-wire" style="font-weight:400">9 W · USB 5 V</text>
 <rect x="220" y="320" width="140" height="50" rx="8" fill="#fafaf8" stroke="#a8a29e" stroke-width="1.4"/><text x="290.0" y="340" class="t-box">2× 18650 em paralelo</text><text x="290.0" y="356" class="t-wire" style="font-weight:400">3,0–4,2 V</text>
 <rect x="450" y="89" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="104" class="t-fp" fill="#44403c">1 kΩ série</text>
 <rect x="450" y="114" width="74" height="22" rx="5" fill="#fafaf8" stroke="#57534e" stroke-width="1.4"/><text x="487" y="129" class="t-fp" fill="#44403c">1 kΩ série</text>
@@ -1491,7 +1492,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
   <div class="card">
     <h3>No carregador: onde soldar os fios</h3>
     <p class="sub">Módulo TP4056. Em cada LED a ligação é: IN+ (5 V) → LED → resistor de 1 kΩ (R1 ou R2, marcado <b>102</b>) → pino do chip. O fio sai do <b>terminal do resistor que vai ao chip</b>.</p>
-    <div class="scroll"><svg viewBox="0 0 760 410" role="img" aria-label="Onde soldar CHRG e STDBY no módulo do carregador e como ligar no ESP32" class="dia tp">
+    <div class="scroll"><svg viewBox="0 0 760 470" role="img" aria-label="Onde soldar CHRG, STDBY e o divisor da bateria no módulo do carregador e como ligar no ESP32" class="dia tp">
 <rect x="20" y="215" width="310" height="180" rx="6" fill="#2f5d8c" stroke="#24476b" stroke-width="1.4"/>
 <rect x="8" y="285" width="40" height="46" rx="4" fill="#d6d3d1" stroke="#a8a29e" stroke-width="1.2"/>
 <text x="28" y="345" style="font-size:8.5px;font-weight:600;text-anchor:middle;fill:#cbd5e1">USB</text>
@@ -1579,7 +1580,7 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <circle cx="520" cy="110" r="4" fill="#1c1917"/>
 <circle cx="570" cy="110" r="4" fill="#1c1917"/>
 <text x="600" y="104" style="font-size:10.5px;font-weight:700;text-anchor:middle;fill:#b45309">3V3</text>
-<rect x="640" y="20" width="110" height="180" rx="10" fill="#44403c"/>
+<rect x="640" y="20" width="110" height="340" rx="10" fill="#44403c"/>
 <text x="695" y="36" style="font-size:12px;font-weight:700;text-anchor:middle;fill:#fafaf9">ESP32</text>
 <circle cx="640" cy="50" r="4.5" fill="#1c1917"/>
 <text x="652" y="51" style="font-size:12px;font-weight:600;text-anchor:start;fill:#e7e5e4">GPIO39</text>
@@ -1590,9 +1591,24 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <circle cx="640" cy="170" r="4.5" fill="#1c1917"/>
 <text x="652" y="171" style="font-size:12px;font-weight:600;text-anchor:start;fill:#e7e5e4">GPIO34</text>
 <text x="652" y="185" style="font-size:9.5px;font-weight:500;text-anchor:start;fill:#a8a29e">Esq. 5</text>
-<circle cx="380" cy="262" r="5.5" fill="#16a34a" stroke="#fafaf8" stroke-width="1.8"/>
-<text x="392" y="266" style="font-size:11px;font-weight:600;text-anchor:start;fill:#16a34a">solde aqui: terminal do resistor que vai ao chip</text>
-<text x="392" y="284" style="font-size:10.5px;font-weight:500;text-anchor:start;fill:#78716c">(≈0 V com o LED aceso · 2,2 V é o outro terminal)</text>
+<circle cx="640" cy="326" r="4.5" fill="#1c1917"/>
+<text x="652" y="327" style="font-size:12px;font-weight:600;text-anchor:start;fill:#e7e5e4">GPIO35</text>
+<text x="652" y="341" style="font-size:9.5px;font-weight:500;text-anchor:start;fill:#a8a29e">Esq. 6</text>
+<circle cx="30" cy="428" r="5.5" fill="#16a34a" stroke="#fafaf8" stroke-width="1.8"/>
+<text x="42" y="432" style="font-size:11px;font-weight:600;text-anchor:start;fill:#16a34a">solde aqui: terminal do resistor que vai ao chip</text>
+<text x="42" y="450" style="font-size:10.5px;font-weight:500;text-anchor:start;fill:#78716c">(≈0 V com o LED aceso · 2,2 V é o outro terminal)</text>
+<path d="M319 277 H470 V286" stroke="#ef4444" stroke-width="2.6" fill="none" stroke-linejoin="round"/>
+<path d="M319 322 H420 V400 H470 V372" stroke="#a8a29e" stroke-width="2.6" fill="none" stroke-linejoin="round"/>
+<rect x="462" y="286" width="16" height="28" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.8"/>
+<text x="484" y="304" style="font-size:10.5px;font-weight:700;text-anchor:start;fill:#44403c">R1 · 100 kΩ</text>
+<rect x="462" y="344" width="16" height="28" rx="2" fill="#fafaf8" stroke="#57534e" stroke-width="1.8"/>
+<text x="484" y="362" style="font-size:10.5px;font-weight:700;text-anchor:start;fill:#44403c">R2 · 100 kΩ</text>
+<path d="M470 314 V344" stroke="#06b6d4" stroke-width="2.6" fill="none" stroke-linejoin="round"/>
+<path d="M470 326 H640" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<circle cx="470" cy="326" r="4" fill="#1c1917"/>
+<text x="560" y="318" style="font-size:10px;font-weight:500;text-anchor:middle;fill:#0e7490">metade da bateria</text>
+<text x="395" y="271" style="font-size:10px;font-weight:700;text-anchor:middle;fill:#b91c1c">B+</text>
+<text x="395" y="316" style="font-size:10px;font-weight:700;text-anchor:middle;fill:#57534e">B−</text>
 </svg></div>
     <p class="note"><b>Pull-up:</b> cada GPIO recebe o seu resistor de 10 kΩ ligado ao pino <b>3V3</b> do ESP32 (Esq. 1); os dois saem do mesmo fio de 3V3, mas um resistor só para os dois ligaria CHRG e STDBY entre si e o ESP32 leria os dois sempre iguais. Os GPIO34 e 39 não têm pull-up interno: sem esse resistor, o pino fica solto quando o LED está apagado. Sem 10 kΩ, qualquer valor de 4,7 a 47 kΩ serve (12, 8,2 ou 15 kΩ são os mais próximos).</p>
     <p class="note"><b>Diodo 1N5819 (Schottky) em cada fio.</b> Sem ele, com o ESP32 desligado o 3V3 fica em 0 V e o pull-up vira um caminho para o GND: os dois LEDs do carregador acendem (≈0,3 mA, sem dano; visto na montagem). O 1N5819 bloqueia isso (o 1N5818 também serve). A <b>faixa (catodo) fica virada para o carregador</b>, e o pull-up de 10 kΩ liga <b>depois</b> do diodo, do lado do ESP32; o 1 kΩ pode ficar antes ou depois dele. Com o diodo, o estado ativo fica em ≈0,4 V (ainda lido como 0). Não use diodo comum (1N4001 a 1N4007, 1N4148): o 0 ficaria em ≈0,6–0,8 V, perto do limite.</p>
@@ -1807,12 +1823,12 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
       <tbody>
 <tr><td><b>Bateria: OUT+ do carregador → chave</b></td><td>5V (Esq. 19)</td><td>Alimenta a placa direto com a tensão da bateria (3,0–4,2 V), sem conversor. O mesmo pino 5V alimenta o microSD, o GPS e o SS41F: todos recebem a tensão da bateria.</td></tr>
 <tr><td><b>GND (OUT− do carregador)</b></td><td>GND (Esq. 14)</td><td>Terra comum. O GPS já usa esse GND: em placa, todos os GND são o mesmo ponto.</td></tr>
-<tr><td><b>Bateria: meio de R1/R2</b></td><td>GPIO35 · ADC1_7 (Esq. 6)</td><td>Medido: bateria 4,10 V → 1,40 V no pino (razão ≈2,93). O firmware multiplica a leitura por ≈2,79 (calibrado com o multímetro).</td></tr>
+<tr><td><b>Bateria: B+ → 100 kΩ → meio → 100 kΩ → B−</b></td><td>GPIO35 · ADC1_7 (Esq. 6), no meio do divisor</td><td>Dois resistores iguais: o pino recebe metade da bateria (4,20 V → 2,10 V). O firmware multiplica a leitura por 2,0.</td></tr>
 <tr><td><b>CHRG (pino do chip, lado do LED que vai ao chip) → 1 kΩ em série (opcional) → diodo 1N5819 (faixa para o carregador)</b></td><td>GPIO39 · VN (Esq. 4) + 10 kΩ do GPIO ao 3V3</td><td>Digital, ativo em 0: 0 = carregando. Sem o pull-up externo o pino flutua (34–39 não têm pull-up interno).</td></tr>
 <tr><td><b>STDBY (pino do chip) → 1 kΩ em série (opcional) → diodo 1N5819 (faixa para o carregador)</b></td><td>GPIO34 (Esq. 5) + 10 kΩ do GPIO ao 3V3</td><td>Digital, ativo em 0: 0 = carregada. Os dois em 1 = sem sol (painel sem carga).</td></tr>
       </tbody></table></div>
-    <p class="note"><b>Como funciona:</b> o divisor R1/R2 entrega ao ESP32 ≈1/2,93 da tensão da bateria (medido), porque o ADC só mede até ≈3,1 V. Os sinais do carregador são os pinos CHRG e STDBY do TP4056: o chip só puxa para 0 V o estado ativo; o pull-up de 10 kΩ deixa o pino em 3,3 V nos outros casos, então o ESP32 lê 0 ou 1, sem tensão “fantasma”.</p>
-    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, ≈1/2,93 da tensão da bateria (medido: 4,10 V → 1,40 V). Nos GPIO39 e GPIO34, com o painel ligado: o estado ativo ≈0,3–0,5 V (queda no 1N5819) e o inativo ≈3,3 V; sem sol, os dois ≈3,3 V. Se algum ficar entre 1 e 2,5 V, confira se o resistor em série é de 1 kΩ (e não 10 kΩ). No OUT+ do carregador, antes de ligar no pino 5V: a tensão da bateria (3,0–4,2 V).</p>
+    <p class="note"><b>Como funciona:</b> o divisor R1/R2 (dois de 100 kΩ) entrega ao ESP32 metade da tensão da bateria, porque o ADC só mede até ≈3,1 V. Os sinais do carregador são os pinos CHRG e STDBY do TP4056: o chip só puxa para 0 V o estado ativo; o pull-up de 10 kΩ deixa o pino em 3,3 V nos outros casos, então o ESP32 lê 0 ou 1, sem tensão “fantasma”.</p>
+    <p class="note"><b>Para conferir antes de ligar no ESP32</b> (multímetro em DC, escala de 20 V, ponta preta no B−): no meio de R1/R2, metade da tensão da bateria (ex.: 4,10 V → 2,05 V). Se não der metade, os resistores não são iguais ou um deles está mal soldado. Nos GPIO39 e GPIO34, com o painel ligado: o estado ativo ≈0,3–0,5 V (queda no 1N5819) e o inativo ≈3,3 V; sem sol, os dois ≈3,3 V. Se algum ficar entre 1 e 2,5 V, confira se o resistor em série é de 1 kΩ (e não 10 kΩ). No OUT+ do carregador, antes de ligar no pino 5V: a tensão da bateria (3,0–4,2 V).</p>
   </div>
 
   <div class="card">
@@ -1822,7 +1838,9 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
     <div class="specs">
 <div class="spec"><div class="k">Baterias</div><div class="val">2 células 18650 usadas, tiradas de notebook, em paralelo: 3,7 V nominal, 4,2 V cheias, ≈3,0 V vazias; a capacidade das duas se soma, mas a real é desconhecida (células usadas perdem capacidade e podem não chegar a 4,2 V) <span class="src c">a confirmar na placa</span></div></div>
 <div class="spec"><div class="k">Carregador</div><div class="val">Módulo TP4056: entrada 5 V, B+/B−, OUT+/OUT− e 2 LEDs <span class="src v">visto na placa</span></div></div>
-<div class="spec"><div class="k">Entrada do carregador</div><div class="val">4,5–5,5 V (máximo absoluto 8 V): o painel de 5 V serve; em aberto ele pode passar de 6 V, ainda dentro do limite <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Painel solar</div><div class="val">TRX Solar TRX-9 (Pet Panel), 340 × 220 × 2 mm · potência máxima 9 W · tensão de máxima potência 6,3 V · corrente de máxima potência 1,57 A · tensão em aberto 8,1 V · corrente de curto 1,57 A · saída USB 5 V até 1,8 A · tolerância ±5 % · medido a 1000 W/m², AM 1,5, 25 °C (Inmetro 000565/2022) <span class="src v">visto na placa</span></div></div>
+<div class="spec"><div class="k">Painel na prática</div><div class="val">Os 9 W são no sol de teste; no campo costuma render 60–80 % disso (≈5,5–7 W). Pela saída USB, com sol bom, ≈0,9–1,2 A em 5 V <span class="src d">calculado</span></div></div>
+<div class="spec"><div class="k">Entrada do carregador</div><div class="val">4,5–5,5 V (máximo absoluto 8 V): ligar pela saída USB do painel (5 V regulados). Os fios direto do painel chegam a 8,1 V em aberto, acima do máximo do TP4056 <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">Saída OUT</div><div class="val">É a tensão da bateria (3,0–4,2 V), não 5 V. Vai direto no pino 5V, passando pela chave, sem conversor <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">Sem conversor: o que esperar</div><div class="val">O regulador da placa (provável AMS1117) perde ≈1 V: com a bateria cheia (4,2 V) o 3V3 fica perto de 3,2 V, e com menos de ≈4 V cai abaixo dos 3,0 V mínimos do ESP32 (reinícios). microSD, GPS e SS41F recebem 3,0–4,2 V no lugar de 5 V; o SS41F pede no mínimo 4,5 V. A medir: tensão no pino 3V3 e na bateria ao longo da descarga, e se cada peça funciona <span class="src c">a confirmar na placa</span></div></div>
 <div class="spec"><div class="k">Chave liga/desliga</div><div class="val">Entre o OUT+ do carregador e o pino 5V do ESP32: desligada, corta a estação inteira; o carregador continua carregando a bateria pelo painel. Passa toda a corrente da estação (≈130–200 mA, picos maiores no Wi-Fi): use chave para pelo menos 1 A</div></div>
@@ -1831,13 +1849,13 @@ code { font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; ba
 <div class="spec"><div class="k">Observação sobre o R3</div><div class="val">Acima de 1 A o TP4056 sai da faixa especificada: esquenta e reduz a corrente sozinho quando passa de ≈145 °C por dentro (proteção térmica), então a corrente real fica abaixo de 2,8 A e não é conhecida. A corrente também nunca passa do que o painel entrega. A medir: corrente no B+ ao meio-dia (escala de 10 A) e a temperatura do chip. Alternativas para depois: voltar para 1,2 kΩ (1 A) ou trocar por um carregador feito para corrente maior <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">LEDs</div><div class="val">Vermelho = carregando · azul ou verde = carregada · os dois apagados = sem sol, a estação está na bateria <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">Sinais do carregador</div><div class="val">CHRG e STDBY do TP4056: dreno aberto, ativos em 0 (o chip puxa para 0 V; senão o pino fica solto). Leitura digital, como é o uso padrão: pull-up de 10 kΩ para o 3V3 em cada GPIO (um resistor por pino: um só para os dois ligaria CHRG e STDBY entre si). Sem 10 kΩ, qualquer valor de 4,7 a 47 kΩ serve, e os dois não precisam ser iguais. Em cada fio, um diodo Schottky 1N5819 (faixa para o carregador) antes do pull-up. 1 kΩ em série é opcional <span class="src d">datasheet</span></div></div>
-<div class="spec"><div class="k">Tabela de estados</div><div class="val">CHRG 0 · STDBY 1 = carregando · CHRG 1 · STDBY 0 = carregada · 1 · 1 = sem sol · 0 · 0 = inválido (mantém o estado anterior) <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">Tabela de estados</div><div class="val">CHRG 0 · STDBY 1 = carregando · CHRG 1 · STDBY 0 = carregada · 1 · 1 ou 0 · 0 = sem sol (sem energia na entrada o TP4056 desliga e os pinos ficam numa tensão intermediária: uma estação lê 1 · 1, a outra 0 · 0) <span class="src d">no firmware</span></div></div>
 <div class="spec"><div class="k">Se usar resistor em série: 1 kΩ, não 10 kΩ</div><div class="val">Com 10 kΩ em série e 10 kΩ de pull-up, o estado ativo ficaria em 1,65 V (indefinido). Com 1 kΩ fica em ≈0,3 V, um 0 claro <span class="src d">calculado</span></div></div>
 <div class="spec"><div class="k">Os LEDs continuam iguais</div><div class="val">Com o ESP32 ligado, o pull-up não acende o LED: inativo, o LED fica com ≈1,7 V (pouco para acender) ou polarizado ao contrário sem sol. Com o ESP32 desligado, o 3V3 vai a 0 V e acenderia os dois LEDs; o 1N5819 bloqueia esse caminho <span class="src d">datasheet</span></div></div>
 <div class="spec"><div class="k">No firmware</div><div class="val">digitalRead em GPIO39 (CHRG) e GPIO34 (STDBY) a cada 3 s; o estado muda depois de 3 leituras iguais (≈9 s) <span class="src d">no firmware</span></div></div>
 <div class="spec"><div class="k">Economia no firmware</div><div class="val">CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-XXXX (final do MAC) desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min <span class="src d">no firmware</span></div></div>
-<div class="spec"><div class="k">Divisor ideal</div><div class="val">R1 = R2 = 100 kΩ: bateria 4,2 → 2,10 V e 3,0 → 1,50 V no pino, gastando ≈21 µA. Capacitor de 100 nF do meio para o GND é OPCIONAL: melhora a leitura (o ADC puxa um pulso a cada amostra e o capacitor segura a tensão; também filtra ruído do Wi-Fi). Sem capacitor funciona, com a calibração e a média de 32 leituras do firmware <span class="src d">datasheet</span></div></div>
-<div class="spec"><div class="k">Divisor da bateria (medido)</div><div class="val">Bateria 4,10 V → 1,40 V no meio de R1/R2 (multímetro): razão ≈2,93. Calibrado contra o multímetro (4,10 V na bateria): o firmware usa ≈2,79. Com 100 kΩ + 100 kΩ a razão seria 2,0: os resistores montados provavelmente são outros. Para saber: bateria desligada, escala de 200 kΩ, medir cada um <span class="src v">medido</span></div></div>
+<div class="spec"><div class="k">Divisor da bateria</div><div class="val">R1 = R2 = 100 kΩ, do B+ ao B− do carregador, com o meio no GPIO35: bateria 4,2 → 2,10 V e 3,0 → 1,50 V no pino, gastando ≈21 µA. Capacitor de 100 nF do meio para o GND é OPCIONAL: melhora a leitura (o ADC puxa um pulso a cada amostra e o capacitor segura a tensão; também filtra ruído do Wi-Fi). Sem capacitor funciona, com a calibração e a média de 32 leituras do firmware <span class="src d">datasheet</span></div></div>
+<div class="spec"><div class="k">No firmware (bateria)</div><div class="val">Razão 2,0 (dois resistores iguais) · 4,20 V = 100 %, sem margem; acima disso a página mostra mais de 100 % (sinal de erro de leitura ou sobrecarga) · a % segue a curva de uma célula de lítio (4,10 V → 90 %, 4,00 V → 80 %, 3,85 V → 60 %, 3,30 V → 0 %) <span class="src d">no firmware</span></div></div>
 <div class="spec"><div class="k">Na página</div><div class="val">Carregando → mostra “Carregando” em vez de 100 % · carregada → “Carregada” · sem sol → % pela tensão da bateria <span class="src d">no firmware</span></div></div>
     </div>
   </div>

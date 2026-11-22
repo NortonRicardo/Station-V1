@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ligações do ESP32</title>
+<style>
+@page { size: A4 landscape; margin: 8mm; }
+* { box-sizing:border-box; }
+body { margin:0; background:#fff; color:#1c1917; font:13px/1.4 Inter, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width:1180px; margin:0 auto; padding:16px; }
+h1 { font-size:20px; margin:0 0 2px; } .sub { color:#57534e; margin:0 0 10px; font-size:12px; }
+svg.folha { display:block; width:100%; height:auto; }
+.t-term { font-size:12.5px; font-weight:600; fill:#1c1917; }
+.t-pill { font-size:11px; font-weight:700; text-anchor:middle; }
+.t-num { font-size:11px; fill:#78716C; }
+.t-mod { font-size:12px; font-weight:700; text-anchor:middle; fill:#1c1917; }
+.t-mod2 { font-size:9.5px; text-anchor:middle; fill:#44403c; }
+.t-chip { font-size:9px; font-weight:600; text-anchor:middle; fill:#e7e5e4; }
+.t-silk { font-size:9px; text-anchor:middle; fill:#d6d3d1; }
+.t-cap { font-size:10px; text-anchor:middle; fill:#78716C; }
+table { border-collapse:collapse; width:100%; font-size:11.5px; margin-top:6px; }
+th, td { text-align:left; padding:5px 7px; border-bottom:1px solid #e7e5e4; vertical-align:top; }
+th { font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:#57534e; }
+td:nth-child(1), td:nth-child(2), td:nth-child(3) { white-space:nowrap; }
+.dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:0; }
+.quebra { break-before:page; }
+@media print { svg.folha { height:170mm; width:auto; margin:0 auto; } main { padding:0; max-width:none; } }
+.nota { font-size:11px; color:#57534e; margin-top:8px; }
+@media screen and (max-width:700px) { .tab { overflow-x:auto; } table { min-width:760px; } }
+</style></head><body><main>
+<h1>Station · ligações do ESP32</h1>
+<p class="sub">ESP32 DevKitC 38 pinos, vista de cima, USB embaixo. Esquerda e direita como na placa.</p>
+<svg viewBox="0 0 1140 780" role="img" aria-label="Placa ESP32 com todas as ligações" class="folha">
+<g transform="translate(390,40)"><rect x="95" y="10" width="170" height="690" rx="12" fill="#44403c"/>
+<rect x="125" y="18" width="110" height="140" rx="4" fill="#a8a29e"/>
+<rect x="132" y="40" width="96" height="110" rx="3" fill="#e7e5e4"/>
+<rect x="206" y="21" width="16" height="16" rx="2" fill="#d4a24c"/><circle cx="214" cy="29" r="4" fill="#a16207"/>
+<text x="196" y="33" class="t-silk" text-anchor="end" style="text-anchor:end;fill:#44403c">U.FL</text>
+<text x="180" y="82" class="t-mod" style="font-size:9.5px">ESP32-WROOM-32U</text>
+<text x="180" y="100" class="t-mod2">D0WD-V3 · 4 MB</text>
+<text x="180" y="115" class="t-mod2">24:dc:c3:cf:fc:30</text>
+<text x="180" y="138" class="t-mod2">antena externa</text>
+<rect x="140" y="330" width="44" height="40" rx="2" fill="#292524"/><rect x="146" y="322" width="32" height="8" fill="#78716c"/><text x="162" y="388" class="t-silk">regulador</text>
+<rect x="212" y="330" width="18" height="14" rx="2" fill="#292524"/>
+<rect x="212" y="362" width="18" height="14" rx="2" fill="#292524"/>
+<text x="221" y="392" class="t-silk">Q1 Q2</text>
+<rect x="155" y="420" width="50" height="50" rx="3" fill="#292524"/><text x="180" y="449" class="t-chip">CP2102</text>
+<circle cx="130" cy="450" r="5" fill="#ef4444"/><text x="130" y="470" class="t-silk">PWR</text>
+<rect x="126" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="137" cy="609" r="5" fill="#78716c"/><text x="137" y="590" class="t-silk">EN</text>
+<rect x="212" y="600" width="22" height="18" rx="3" fill="#d6d3d1"/><circle cx="223" cy="609" r="5" fill="#78716c"/><text x="223" y="590" class="t-silk">BOOT</text>
+<rect x="160" y="660" width="40" height="48" rx="4" fill="#a8a29e"/><text x="180" y="724" class="t-cap">micro-USB</text>
+<circle cx="108" cy="180" r="6" fill="#fafaf8" stroke="#f59e0b" stroke-width="3.5"/>
+<rect x="8" y="171" width="50" height="18" rx="9" fill="#f59e0b"/>
+<text x="33" y="184" class="t-pill" fill="#1c1917">3V3</text>
+<circle cx="108" cy="206" r="6" fill="#fafaf8" stroke="#44403c" stroke-width="3.5"/>
+<rect x="8" y="197" width="50" height="18" rx="9" fill="#44403c"/>
+<text x="33" y="210" class="t-pill" fill="#fff">EN</text>
+<circle cx="108" cy="232" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="236" text-anchor="end" class="t-num">36</text>
+<rect x="8" y="223" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="236" class="t-pill" fill="#1c1917">VP</text>
+<circle cx="108" cy="258" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="262" text-anchor="end" class="t-num">39</text>
+<rect x="8" y="249" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="262" class="t-pill" fill="#1c1917">VN</text>
+<circle cx="108" cy="284" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="288" text-anchor="end" class="t-num">34</text>
+<rect x="8" y="275" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="288" class="t-pill" fill="#1c1917">34</text>
+<circle cx="108" cy="310" r="6" fill="#fafaf8" stroke="#06b6d4" stroke-width="3.5"/>
+<text x="88" y="314" text-anchor="end" class="t-num">35</text>
+<rect x="8" y="301" width="50" height="18" rx="9" fill="#06b6d4"/>
+<text x="33" y="314" class="t-pill" fill="#1c1917">35</text>
+<circle cx="108" cy="336" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="340" text-anchor="end" class="t-num">32</text>
+<rect x="8" y="327" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="340" class="t-pill" fill="#fff">32</text>
+<circle cx="108" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="366" text-anchor="end" class="t-num">33</text>
+<rect x="8" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="366" class="t-pill" fill="#fff">33</text>
+<circle cx="108" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="392" text-anchor="end" class="t-num">25</text>
+<rect x="8" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="392" class="t-pill" fill="#fff">25</text>
+<circle cx="108" cy="414" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="418" text-anchor="end" class="t-num">26</text>
+<rect x="8" y="405" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="418" class="t-pill" fill="#fff">26</text>
+<circle cx="108" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="444" text-anchor="end" class="t-num">27</text>
+<rect x="8" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="444" class="t-pill" fill="#fff">27</text>
+<circle cx="108" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="470" text-anchor="end" class="t-num">14</text>
+<rect x="8" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="470" class="t-pill" fill="#fff">14</text>
+<circle cx="108" cy="492" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="88" y="496" text-anchor="end" class="t-num">12</text>
+<rect x="8" y="483" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="33" y="496" class="t-pill" fill="#fff">12</text>
+<circle cx="108" cy="518" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="8" y="509" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="33" y="522" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="108" cy="544" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="88" y="548" text-anchor="end" class="t-num">13</text>
+<rect x="8" y="535" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="33" y="548" class="t-pill" fill="#fff">13</text>
+<circle cx="108" cy="570" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="574" text-anchor="end" class="t-num">9</text>
+<rect x="8" y="561" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="574" class="t-pill" fill="#57534e">D2</text>
+<circle cx="108" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="600" text-anchor="end" class="t-num">10</text>
+<rect x="8" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="600" class="t-pill" fill="#57534e">D3</text>
+<circle cx="108" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="88" y="626" text-anchor="end" class="t-num">11</text>
+<rect x="8" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="33" y="626" class="t-pill" fill="#57534e">CMD</text>
+<circle cx="108" cy="648" r="6" fill="#fafaf8" stroke="#f97316" stroke-width="3.5"/>
+<rect x="8" y="639" width="50" height="18" rx="9" fill="#f97316"/>
+<text x="33" y="652" class="t-pill" fill="#fff">5V</text>
+<circle cx="252" cy="180" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="171" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="184" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="206" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="210" text-anchor="start" class="t-num">23</text>
+<rect x="302" y="197" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="210" class="t-pill" fill="#fff">23</text>
+<circle cx="252" cy="232" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="236" text-anchor="start" class="t-num">22</text>
+<rect x="302" y="223" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="236" class="t-pill" fill="#fff">22</text>
+<circle cx="252" cy="258" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="262" text-anchor="start" class="t-num">1</text>
+<rect x="302" y="249" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="262" class="t-pill" fill="#fff">TX</text>
+<circle cx="252" cy="284" r="6" fill="#fafaf8" stroke="#8b5cf6" stroke-width="3.5"/>
+<text x="272" y="288" text-anchor="start" class="t-num">3</text>
+<rect x="302" y="275" width="50" height="18" rx="9" fill="#8b5cf6"/>
+<text x="327" y="288" class="t-pill" fill="#fff">RX</text>
+<circle cx="252" cy="310" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="314" text-anchor="start" class="t-num">21</text>
+<rect x="302" y="301" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="314" class="t-pill" fill="#fff">21</text>
+<circle cx="252" cy="336" r="6" fill="#fafaf8" stroke="#a8a29e" stroke-width="3.5"/>
+<rect x="302" y="327" width="50" height="18" rx="9" fill="#a8a29e"/>
+<text x="327" y="340" class="t-pill" fill="#1c1917">GND</text>
+<circle cx="252" cy="362" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="366" text-anchor="start" class="t-num">19</text>
+<rect x="302" y="353" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="366" class="t-pill" fill="#fff">19</text>
+<circle cx="252" cy="388" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="392" text-anchor="start" class="t-num">18</text>
+<rect x="302" y="379" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="392" class="t-pill" fill="#fff">18</text>
+<circle cx="252" cy="414" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="418" text-anchor="start" class="t-num">5</text>
+<rect x="302" y="405" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="418" class="t-pill" fill="#fff">5</text>
+<circle cx="252" cy="440" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="444" text-anchor="start" class="t-num">17</text>
+<rect x="302" y="431" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="444" class="t-pill" fill="#fff">17</text>
+<circle cx="252" cy="466" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="470" text-anchor="start" class="t-num">16</text>
+<rect x="302" y="457" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="470" class="t-pill" fill="#fff">16</text>
+<circle cx="252" cy="492" r="6" fill="#fafaf8" stroke="#3b82f6" stroke-width="3.5"/>
+<text x="272" y="496" text-anchor="start" class="t-num">4</text>
+<rect x="302" y="483" width="50" height="18" rx="9" fill="#3b82f6"/>
+<text x="327" y="496" class="t-pill" fill="#fff">4</text>
+<circle cx="252" cy="518" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="522" text-anchor="start" class="t-num">0</text>
+<rect x="302" y="509" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="522" class="t-pill" fill="#fff">0</text>
+<circle cx="252" cy="544" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="548" text-anchor="start" class="t-num">2</text>
+<rect x="302" y="535" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="548" class="t-pill" fill="#fff">2</text>
+<circle cx="252" cy="570" r="6" fill="#fafaf8" stroke="#ec4899" stroke-width="3.5"/>
+<text x="272" y="574" text-anchor="start" class="t-num">15</text>
+<rect x="302" y="561" width="50" height="18" rx="9" fill="#ec4899"/>
+<text x="327" y="574" class="t-pill" fill="#fff">15</text>
+<circle cx="252" cy="596" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="600" text-anchor="start" class="t-num">8</text>
+<rect x="302" y="587" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="600" class="t-pill" fill="#57534e">D1</text>
+<circle cx="252" cy="622" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="626" text-anchor="start" class="t-num">7</text>
+<rect x="302" y="613" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="626" class="t-pill" fill="#57534e">D0</text>
+<circle cx="252" cy="648" r="6" fill="#fafaf8" stroke="#d6d3d1" stroke-width="3.5"/>
+<text x="272" y="652" text-anchor="start" class="t-num">6</text>
+<rect x="302" y="639" width="50" height="18" rx="9" fill="#d6d3d1"/>
+<text x="327" y="652" class="t-pill" fill="#57534e">CLK</text></g>
+<rect x="20" y="209" width="300" height="22" rx="6" fill="#fff" stroke="#f59e0b" stroke-width="1.6"/>
+<text x="30" y="224" class="t-term">3,3 V → BME280 · microSD · GPS · pull-ups</text>
+<path d="M320 220 H398" stroke="#f59e0b" stroke-width="3" fill="none"/>
+<circle cx="320" cy="220" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="220" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="20" y="287" width="300" height="22" rx="6" fill="#fff" stroke="#06b6d4" stroke-width="1.6"/>
+<text x="30" y="302" class="t-term">CHRG · carregador pino 7</text>
+<path d="M320 298 H398" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="320" cy="298" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="298" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="20" y="313" width="300" height="22" rx="6" fill="#fff" stroke="#06b6d4" stroke-width="1.6"/>
+<text x="30" y="328" class="t-term">STDBY · carregador pino 6</text>
+<path d="M320 324 H398" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="320" cy="324" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="324" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="20" y="339" width="300" height="22" rx="6" fill="#fff" stroke="#06b6d4" stroke-width="1.6"/>
+<text x="30" y="354" class="t-term">Bateria · meio do divisor</text>
+<path d="M320 350 H398" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="320" cy="350" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="350" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="20" y="365" width="300" height="22" rx="6" fill="#fff" stroke="#06b6d4" stroke-width="1.6"/>
+<text x="30" y="380" class="t-term">Chuva · SS41F pino 3 (OUT)</text>
+<path d="M320 376 H398" stroke="#06b6d4" stroke-width="3" fill="none"/>
+<circle cx="320" cy="376" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="376" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="20" y="417" width="300" height="22" rx="6" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+<text x="30" y="432" class="t-term">Buzzer +</text>
+<path d="M320 428 H398" stroke="#7c3aed" stroke-width="3" fill="none"/>
+<circle cx="320" cy="428" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="428" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="20" y="547" width="300" height="22" rx="6" fill="#fff" stroke="#a8a29e" stroke-width="1.6"/>
+<text x="30" y="562" class="t-term">GND comum</text>
+<path d="M320 558 H398" stroke="#a8a29e" stroke-width="3" fill="none"/>
+<circle cx="320" cy="558" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="558" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="20" y="677" width="300" height="22" rx="6" fill="#fff" stroke="#f97316" stroke-width="1.6"/>
+<text x="30" y="692" class="t-term">Bateria (pela chave) · SS41F VCC</text>
+<path d="M320 688 H398" stroke="#f97316" stroke-width="3" fill="none"/>
+<circle cx="320" cy="688" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="398" cy="688" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="209" width="300" height="22" rx="6" fill="#fff" stroke="#a8a29e" stroke-width="1.6"/>
+<text x="830" y="224" class="t-term">BME280 GND</text>
+<path d="M742 220 H820" stroke="#a8a29e" stroke-width="3" fill="none"/>
+<circle cx="742" cy="220" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="220" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="235" width="300" height="22" rx="6" fill="#fff" stroke="#10b981" stroke-width="1.6"/>
+<text x="830" y="250" class="t-term">microSD MOSI</text>
+<path d="M742 246 H820" stroke="#10b981" stroke-width="3" fill="none"/>
+<circle cx="742" cy="246" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="246" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="261" width="300" height="22" rx="6" fill="#fff" stroke="#10b981" stroke-width="1.6"/>
+<text x="830" y="276" class="t-term">BME280 SCL</text>
+<path d="M742 272 H820" stroke="#10b981" stroke-width="3" fill="none"/>
+<circle cx="742" cy="272" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="272" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="339" width="300" height="22" rx="6" fill="#fff" stroke="#10b981" stroke-width="1.6"/>
+<text x="830" y="354" class="t-term">BME280 SDA</text>
+<path d="M742 350 H820" stroke="#10b981" stroke-width="3" fill="none"/>
+<circle cx="742" cy="350" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="350" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="365" width="300" height="22" rx="6" fill="#fff" stroke="#a8a29e" stroke-width="1.6"/>
+<text x="830" y="380" class="t-term">microSD GND</text>
+<path d="M742 376 H820" stroke="#a8a29e" stroke-width="3" fill="none"/>
+<circle cx="742" cy="376" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="376" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="391" width="300" height="22" rx="6" fill="#fff" stroke="#10b981" stroke-width="1.6"/>
+<text x="830" y="406" class="t-term">microSD MISO</text>
+<path d="M742 402 H820" stroke="#10b981" stroke-width="3" fill="none"/>
+<circle cx="742" cy="402" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="402" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="417" width="300" height="22" rx="6" fill="#fff" stroke="#10b981" stroke-width="1.6"/>
+<text x="830" y="432" class="t-term">microSD SCK</text>
+<path d="M742 428 H820" stroke="#10b981" stroke-width="3" fill="none"/>
+<circle cx="742" cy="428" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="428" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="443" width="300" height="22" rx="6" fill="#fff" stroke="#10b981" stroke-width="1.6"/>
+<text x="830" y="458" class="t-term">microSD CS</text>
+<path d="M742 454 H820" stroke="#10b981" stroke-width="3" fill="none"/>
+<circle cx="742" cy="454" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="454" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="469" width="300" height="22" rx="6" fill="#fff" stroke="#8b5cf6" stroke-width="1.6"/>
+<text x="830" y="484" class="t-term">GPS RX ← TX2</text>
+<path d="M742 480 H820" stroke="#8b5cf6" stroke-width="3" fill="none"/>
+<circle cx="742" cy="480" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="480" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<rect x="820" y="495" width="300" height="22" rx="6" fill="#fff" stroke="#8b5cf6" stroke-width="1.6"/>
+<text x="830" y="510" class="t-term">GPS TX → RX2</text>
+<path d="M742 506 H820" stroke="#8b5cf6" stroke-width="3" fill="none"/>
+<circle cx="742" cy="506" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+<circle cx="820" cy="506" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
+</svg>
+<div class="quebra"></div>
+<h1>O que vai em cada pino</h1>
+<div class="tab"><table>
+<thead><tr><th>Posição</th><th>Nome</th><th>GPIO</th><th>Ligação</th><th>Detalhe</th></tr></thead>
+<tbody>
+<tr><td><span class="dot" style="background:#f59e0b"></span>Esq. 1</td><td><b>3V3</b></td><td>3V3</td><td>3,3 V → BME280 · microSD · GPS · pull-ups</td><td>VCC do BME280, do microSD e do GPS (os três em 3,3 V) e os dois pull-ups de 10 kΩ do CHRG e do STDBY</td></tr>
+<tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 4</td><td><b>VN</b></td><td>GPIO39</td><td>CHRG · carregador pino 7</td><td>Terminal do R2 (102) do lado do pino 7 do TP4056 → 1 kΩ (opcional) → diodo 1N5819 (faixa para o carregador) → GPIO39; 10 kΩ do GPIO39 ao 3V3</td></tr>
+<tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 5</td><td><b>34</b></td><td>GPIO34</td><td>STDBY · carregador pino 6</td><td>Terminal do R1 (102) do lado do pino 6 do TP4056 → 1 kΩ (opcional) → diodo 1N5819 (faixa para o carregador) → GPIO34; 10 kΩ do GPIO34 ao 3V3</td></tr>
+<tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 6</td><td><b>35</b></td><td>GPIO35</td><td>Bateria · meio do divisor</td><td>B+ → 100 kΩ → meio → 100 kΩ → B− do carregador; o meio vai no GPIO35 (metade da bateria)</td></tr>
+<tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 7</td><td><b>32</b></td><td>GPIO32</td><td>Chuva · SS41F pino 3 (OUT)</td><td>Saída do sensor Hall da báscula; pull-up interno ligado (10 kΩ externo ao 3V3 opcional)</td></tr>
+<tr><td><span class="dot" style="background:#7c3aed"></span>Esq. 9</td><td><b>25</b></td><td>GPIO25</td><td>Buzzer +</td><td>+ do buzzer ativo (− no GND)</td></tr>
+<tr><td><span class="dot" style="background:#a8a29e"></span>Esq. 14</td><td><b>GND</b></td><td>GND</td><td>GND comum</td><td>OUT−/B− do carregador, GND do GPS, pino 2 do SS41F, − do buzzer (todos os GND no mesmo ponto)</td></tr>
+<tr><td><span class="dot" style="background:#f97316"></span>Esq. 19</td><td><b>5V</b></td><td>5V</td><td>Bateria (pela chave) · SS41F VCC</td><td>OUT+ do carregador → chave liga/desliga → 5V (bateria direto, 3,0–4,2 V) e pino 1 do SS41F</td></tr>
+<tr><td><span class="dot" style="background:#a8a29e"></span>Dir. 1</td><td><b>GND</b></td><td>GND</td><td>BME280 GND</td><td>GND do BME280</td></tr>
+<tr><td><span class="dot" style="background:#10b981"></span>Dir. 2</td><td><b>23</b></td><td>GPIO23</td><td>microSD MOSI</td><td>MOSI do módulo microSD (SPI)</td></tr>
+<tr><td><span class="dot" style="background:#10b981"></span>Dir. 3</td><td><b>22</b></td><td>GPIO22</td><td>BME280 SCL</td><td>SCL do BME280 (I2C)</td></tr>
+<tr><td><span class="dot" style="background:#10b981"></span>Dir. 6</td><td><b>21</b></td><td>GPIO21</td><td>BME280 SDA</td><td>SDA do BME280 (I2C)</td></tr>
+<tr><td><span class="dot" style="background:#a8a29e"></span>Dir. 7</td><td><b>GND</b></td><td>GND</td><td>microSD GND</td><td>GND do módulo microSD</td></tr>
+<tr><td><span class="dot" style="background:#10b981"></span>Dir. 8</td><td><b>19</b></td><td>GPIO19</td><td>microSD MISO</td><td>MISO do módulo microSD (SPI)</td></tr>
+<tr><td><span class="dot" style="background:#10b981"></span>Dir. 9</td><td><b>18</b></td><td>GPIO18</td><td>microSD SCK</td><td>SCK do módulo microSD (SPI)</td></tr>
+<tr><td><span class="dot" style="background:#10b981"></span>Dir. 10</td><td><b>5</b></td><td>GPIO5</td><td>microSD CS</td><td>CS do módulo microSD (SPI)</td></tr>
+<tr><td><span class="dot" style="background:#8b5cf6"></span>Dir. 11</td><td><b>17</b></td><td>GPIO17</td><td>GPS RX ← TX2</td><td>RX do GPS (o ESP32 transmite pelo GPIO17)</td></tr>
+<tr><td><span class="dot" style="background:#8b5cf6"></span>Dir. 12</td><td><b>16</b></td><td>GPIO16</td><td>GPS TX → RX2</td><td>TX do GPS (o ESP32 recebe pelo GPIO16)</td></tr>
+</tbody></table></div>
+<p class="nota">Antes de ligar: chave da bateria desligada sempre que o cabo USB estiver conectado. Nunca 5 V ou a bateria num GPIO ou no 3V3.</p>
+</main></body></html>
