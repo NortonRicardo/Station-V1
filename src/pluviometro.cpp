@@ -34,6 +34,9 @@ static volatile int64_t ultimaContagemUs = -FILTRO_US;
 static volatile uint32_t desdeBoot = 0;        // basculadas desde que ligou
 static volatile uint32_t pendentes = 0;        // ainda não salvas/registradas pelo loop
 static volatile uint32_t ignorados = 0;        // pulsos curtos ou repetidos descartados
+// diagnóstico: por que cada pulso foi ignorado, e a duração em 0 do último ignorado (µs)
+static volatile uint32_t ignCurto = 0, ignRepetido = 0, ignSemDescida = 0;
+static volatile int64_t ultimoIgnoradoUs = -1;
 static uint32_t total_ = 0;                    // acumulado salvo na flash
 static int64_t ultimaUptime = -1;
 static uint32_t emZeroDesde = 0;               // millis() em que o pino foi a 0 (0: está em 1)
@@ -55,10 +58,13 @@ static void IRAM_ATTR aoMudar() {
       pendentes++;
     } else {
       ignorados++;
+      if (agora - descidaUs < MIN_EM_SUL_US) ignCurto++; else ignRepetido++;
+      ultimoIgnoradoUs = agora - descidaUs;
     }
     descidaUs = -1;
   } else {
     ignorados++;  // subida sem descida antes: pulso curto demais para ver o 0
+    ignSemDescida++;
   }
   portEXIT_CRITICAL_ISR(&trava);
 }
@@ -95,6 +101,15 @@ void cuidar() {
     avisouPreso = false;
   }
 
+  // diagnóstico: registra quando aparecem pulsos ignorados (no máximo 1 linha por segundo)
+  static uint32_t ignAntes = 0, ultimoDiag = 0;
+  if (ignorados != ignAntes && millis() - ultimoDiag > 1000) {
+    registrar("Pluviômetro ignorou " + String(ignorados - ignAntes) + " pulso(s) · curtos " + String(ignCurto) +
+              " · repetidos " + String(ignRepetido) + " · sem descida " + String(ignSemDescida) +
+              " · último ficou " + String((long)ultimoIgnoradoUs) + " µs em 0");
+    ignAntes = ignorados;
+    ultimoDiag = millis();
+  }
   portENTER_CRITICAL(&trava);
   uint32_t n = pendentes;
   pendentes = 0;
@@ -148,7 +163,8 @@ String statusJson() {
   bool preso = !nivel && emZeroDesde && millis() - emZeroDesde > PRESO_MS;
   String j = "{\"total\":" + String(total_) + ",\"desde_boot\":" + String(desdeBoot) +
              ",\"nivel\":" + String(nivel) + ",\"perto\":" + String(nivel ? "false" : "true") +
-             ",\"ignorados\":" + String(ignorados) + ",\"sinal_ok\":" + String(preso ? "false" : "true");
+             ",\"ignorados\":" + String(ignorados) + ",\"ign_curtos\":" + String(ignCurto) +
+             ",\"ign_repetidos\":" + String(ignRepetido) + ",\"ign_sem_descida\":" + String(ignSemDescida) + ",\"sinal_ok\":" + String(preso ? "false" : "true");
   if (ultimaUptime >= 0) j += ",\"ultima\":\"" + relogio::formatar(ultimaUptime) + "\"";
   String ini, fim;
   uint32_t bh = basculadasDaHora(ini, fim);
