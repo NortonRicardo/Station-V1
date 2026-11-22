@@ -71,11 +71,10 @@ Várias estações podem ficar na mesma rede: cada uma tem o seu nome e o seu en
 
 ## 🛠️ Gravar o código
 
-**Antes da primeira compilação**, copie `.env.example` para `.env` e defina as senhas (o `.env` não vai para o git):
+**Antes da primeira compilação**, copie `.env.example` para `.env` e defina a senha da gravação pelo Wi-Fi (o `.env` não vai para o git). A rede própria `Station-XXXX` é aberta, sem senha:
 
 ```ini
-STATION_AP_PASS=senha-da-rede-Station-XXXX  # mínimo 8 caracteres
-STATION_OTA_PASS=senha-da-gravacao-pelo-wifi  # opcional; se faltar, usa a de cima
+STATION_OTA_PASS=senha-da-gravacao-pelo-wifi  # mínimo 8 caracteres
 ```
 
 | Como | Quando | Comando |

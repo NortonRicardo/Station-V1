@@ -13,16 +13,12 @@ if os.path.isfile(caminho):
             k, v = linha.split("=", 1)
             valores[k.strip()] = v.strip().strip('"').strip("'")
 
-senha = valores.get("STATION_AP_PASS", "")
-if len(senha) < 8:
-    print("\nERRO: defina STATION_AP_PASS (mínimo 8 caracteres) no arquivo .env. Veja .env.example.\n")
+# A rede própria (Station-XXXX) é aberta, sem senha: só a gravação pelo Wi-Fi (OTA) pede senha.
+ota = valores.get("STATION_OTA_PASS", "")
+if len(ota) < 8:
+    print("\nERRO: defina STATION_OTA_PASS (mínimo 8 caracteres) no arquivo .env. Veja .env.example.\n")
     env.Exit(1)
-
-ota = valores.get("STATION_OTA_PASS", "") or senha
-env.Append(CPPDEFINES=[
-    ("STATION_AP_PASS", env.StringifyMacro(senha)),
-    ("STATION_OTA_PASS", env.StringifyMacro(ota)),
-])
+env.Append(CPPDEFINES=[("STATION_OTA_PASS", env.StringifyMacro(ota))])
 
 # Upload pelo Wi-Fi: a senha vai como --auth (não fica no platformio.ini)
 if env.GetProjectOption("upload_protocol", "") == "espota":

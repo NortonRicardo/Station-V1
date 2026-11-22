@@ -1,6 +1,6 @@
 // Station V1 - estação meteorológica com ESP32.
 //
-// Rede própria "Station-XXXX" (final do MAC) (senha no .env) com a página em http://192.168.4.1; pela página
+// Rede própria "Station-XXXX" (final do MAC), aberta, com a página em http://192.168.4.1; pela página
 // você escolhe o Wi-Fi de casa, e a estação também fica em http://station.local.
 // Uma rede ou a outra: conectada no Wi-Fi de casa, a rede própria desliga na hora e o rádio
 // dorme entre os avisos do roteador (economia máxima); sem Wi-Fi de casa (ou se ele cair), a
@@ -31,13 +31,10 @@
 #include "pluviometro.h"
 #include "buzzer.h"
 
-#ifndef STATION_AP_PASS
-#error "STATION_AP_PASS não definida: crie o .env (veja .env.example)"
-#endif
-static_assert(sizeof(STATION_AP_PASS) - 1 >= 8, "STATION_AP_PASS precisa de 8+ caracteres");
 #ifndef STATION_OTA_PASS
-#define STATION_OTA_PASS STATION_AP_PASS
+#error "STATION_OTA_PASS não definida: crie o .env (veja .env.example)"
 #endif
+static_assert(sizeof(STATION_OTA_PASS) - 1 >= 8, "STATION_OTA_PASS precisa de 8+ caracteres");
 
 // nomes na rede: final do MAC, para várias estações na mesma rede não se confundirem
 // (ex.: MAC …fc:30 → rede própria "Station-FC30" e página em station-fc30.local)
@@ -198,7 +195,7 @@ void relogioAcertado(const char *fonte) {
 // ---------- rede própria (AP): só sem Wi-Fi de casa ----------
 static void apLigar(const char *motivo) {
   if (apLigado) return;
-  WiFi.softAP(AP_SSID, STATION_AP_PASS);  // acrescenta o AP ao modo atual (STA continua)
+  WiFi.softAP(AP_SSID);  // rede aberta, sem senha (só para configurar); acrescenta o AP ao modo atual
   dns.start(53, "*", WiFi.softAPIP());
   apLigado = true;
   registrar(String("Rede ") + AP_SSID + " ligada" + (motivo ? String(" (") + motivo + ")" : String("")));
