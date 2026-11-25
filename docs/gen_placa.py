@@ -944,10 +944,10 @@ ficha_e = [
     ("Observação sobre o R3", "Acima de 1 A o TP4056 sai da faixa especificada: esquenta e reduz a corrente sozinho quando passa de ≈145 °C por dentro (proteção térmica), então a corrente real fica abaixo de 2,8 A e não é conhecida. A corrente também nunca passa do que o painel entrega. A medir: corrente no B+ ao meio-dia (escala de 10 A) e a temperatura do chip. Alternativas para depois: voltar para 1,2 kΩ (1 A) ou trocar por um carregador feito para corrente maior", "d"),
     ("LEDs", "Vermelho = carregando · azul ou verde = carregada · os dois apagados = sem sol, a estação está na bateria", "d"),
     ("Sinais do carregador", "CHRG e STDBY do TP4056: dreno aberto, ativos em 0 (o chip puxa para 0 V; senão o pino fica solto). Leitura digital, como é o uso padrão: pull-up de 10 kΩ para o 3V3 em cada GPIO (um resistor por pino: um só para os dois ligaria CHRG e STDBY entre si). Sem 10 kΩ, qualquer valor de 4,7 a 47 kΩ serve, e os dois não precisam ser iguais. Em cada fio, um diodo Schottky 1N5819 (faixa para o carregador) antes do pull-up. 1 kΩ em série é opcional", "d"),
-    ("Tabela de estados", "CHRG 0 · STDBY 1 = carregando · CHRG 1 · STDBY 0 = carregada · 1 · 1 ou 0 · 0 = sem sol (sem energia na entrada o TP4056 desliga e os pinos ficam numa tensão intermediária: uma estação lê 1 · 1, a outra 0 · 0)", "f"),
+    ("Tabela de estados", "CHRG ≈0,4 V · STDBY ≈3,3 V = carregando · CHRG ≈3,3 V · STDBY ≈0,4 V = carregada · nenhum perto de 3,3 V = sem sol (sem energia na entrada o TP4056 desliga e os pinos ficam numa tensão intermediária)", "f"),
     ("Se usar resistor em série: 1 kΩ, não 10 kΩ", "Com 10 kΩ em série e 10 kΩ de pull-up, o estado ativo ficaria em 1,65 V (indefinido). Com 1 kΩ fica em ≈0,3 V, um 0 claro", "k"),
     ("Os LEDs continuam iguais", "Com o ESP32 ligado, o pull-up não acende o LED: inativo, o LED fica com ≈1,7 V (pouco para acender) ou polarizado ao contrário sem sol. Com o ESP32 desligado, o 3V3 vai a 0 V e acenderia os dois LEDs; o 1N5819 bloqueia esse caminho", "d"),
-    ("No firmware", "digitalRead em GPIO39 (CHRG) e GPIO34 (STDBY) a cada 3 s; o estado muda depois de 3 leituras iguais (≈9 s)", "f"),
+    ("No firmware", "Lê a TENSÃO do GPIO39 (CHRG) e do GPIO34 (STDBY) pelo ADC a cada 3 s: ativo abaixo de 0,7 V, inativo acima de 2,5 V. Carregando = CHRG ativo e STDBY inativo · carregada = o contrário · qualquer outra combinação = sem sol (sem energia na entrada os pinos ficam no meio: medido 0,52 V e 0,98 V). O estado muda depois de 3 leituras iguais (≈9 s)", "f"),
     ("Economia no firmware", "CPU a 80 MHz · conectada no Wi-Fi de casa, a rede Station-XXXX (final do MAC) desliga (2 min depois) e o rádio dorme; sem Wi-Fi de casa ela liga para configurar · botão BOOT religa por 15 min", "f"),
     ("Divisor da bateria", "R1 = R2 = 100 kΩ, do B+ ao B− do carregador, com o meio no GPIO35: bateria 4,2 → 2,10 V e 3,0 → 1,50 V no pino, gastando ≈21 µA. Capacitor de 100 nF do meio para o GND é OPCIONAL: melhora a leitura (o ADC puxa um pulso a cada amostra e o capacitor segura a tensão; também filtra ruído do Wi-Fi). Sem capacitor funciona, com a calibração e a média de 32 leituras do firmware", "d"),
     ("No firmware (bateria)", "Razão 2,0 (dois resistores iguais) · 4,20 V = 100 %, sem margem; acima disso a página mostra mais de 100 % (sinal de erro de leitura ou sobrecarga) · a % segue a curva de uma célula de lítio (4,10 V → 90 %, 4,00 V → 80 %, 3,85 V → 60 %, 3,30 V → 0 %)", "f"),
@@ -1055,7 +1055,7 @@ hall_leg = (f'<li><i style="background:{VIN_C}"></i>5 V</li><li><i style="backgr
             f'<li><i style="background:{ANA}"></i>saída digital (0 / 1)</li>')
 
 # --- ligação: placa completa, sensor do lado esquerdo ---
-TERM_H = [(6, ANA, "SS41F pino 3 · OUT", "digital"), (13, STN, "SS41F pino 2 · GND", "terra"),
+TERM_H = [(6, ANA, "SS41F pino 3 · OUT", "GPIO32"), (13, STN, "SS41F pino 2 · GND", "terra"),
           (18, VIN_C, "SS41F pino 1 · VCC", "5 V")]
 w = [f'<svg viewBox="0 0 {GX2 + 380} {GY + H + 10}" role="img" aria-label="Ligação do sensor SS41F no ESP32" class="dia lig2">']
 w.append(f'<g transform="translate({GX2},{GY})">' + "\n".join(_inner) + '</g>')
@@ -1066,13 +1066,24 @@ for idx, cor, t1, t2 in TERM_H:
     w.append(f'<path d="M236 {y} H{XE}" stroke="{cor}" stroke-width="3" fill="none"/>')
     for x in (236, XE):
         w.append(f'<circle cx="{x}" cy="{y}" r="5.5" fill="#1c1917" stroke="#fafaf8" stroke-width="1.5"/>')
+# capacitor 104 do GPIO32 (fio OUT) ao GND (fio GND), junto do ESP32
+CX, ya, yb = 292, py(6), py(13)
+ym = (ya + yb) / 2
+w.append(f'<path d="M{CX} {ya} V{ym-5}" stroke="{ANA}" stroke-width="2.2" fill="none"/>')
+w.append(f'<path d="M{CX} {ym+5} V{yb}" stroke="{STN}" stroke-width="2.2" fill="none"/>')
+w.append(f'<path d="M{CX-14} {ym-5} H{CX+14} M{CX-14} {ym+5} H{CX+14}" stroke="#1c1917" stroke-width="3" fill="none"/>')
+for y in (ya, yb):
+    w.append(f'<circle cx="{CX}" cy="{y}" r="4" fill="#1c1917"/>')
+w.append(f'<text x="{CX-22}" y="{ym-4}" class="t-term" style="text-anchor:end">capacitor 104</text>')
+w.append(f'<text x="{CX-22}" y="{ym+11}" class="t-term2" style="text-anchor:end">100 nF cerâmico · GPIO32 ↔ GND</text>')
+w.append(f'<text x="{CX-22}" y="{ym+25}" class="t-term2" style="text-anchor:end">soldado junto do ESP32</text>')
 w.append('</svg>')
 hall_lig_svg = "\n".join(w)
 
 TAB_H = [  # pino, nome, ESP32, cuidado
     ("1", "VCC", "5V (Esq. 19), junto com bateria, microSD e GPS", "Pede 4,5–24 V. Sem conversor, o pino 5V fica com a tensão da bateria (3,0–4,2 V), abaixo do mínimo: testar se conta com a bateria descarregando. Trocar VCC e GND pode queimar o sensor."),
     ("2", "GND", "GND (Esq. 14), junto com GPS e energia", "Terra comum."),
-    ("3", "OUT", "GPIO32 (Esq. 7)", "Coletor aberto: só puxa para 0 V, nunca joga 5 V no pino. Pull-up interno do GPIO32 ligado no firmware."),
+    ("3", "OUT", "GPIO32 (Esq. 7) + capacitor 104 do GPIO32 ao GND (perto do ESP32)", "Coletor aberto: só puxa para 0 V, nunca joga 5 V no pino. Sem resistor externo: o pull-up interno do GPIO32 segura o 1, e o 104 (cerâmico) engole os pulsos de microssegundos. Não use eletrolítico: ficaria lento demais e perderia basculadas."),
 ]
 tab_h_html = "\n".join(f'<tr><td><b>{a}</b></td><td><b>{b}</b></td><td>{esc(c)}</td><td>{esc(d)}</td></tr>' for a, b, c, d in TAB_H)
 
@@ -1081,7 +1092,8 @@ ficha_h = [
     ("Pinos", "De frente (lado escrito para você, pernas para baixo): 1 VCC · 2 GND · 3 OUT", "d"),
     ("Alimentação", "4,5–24 V (datasheet) · ligado no pino 5V, que sem conversor recebe a tensão da bateria (3,0–4,2 V): abaixo do mínimo, a testar com a bateria descarregando", "d"),
     ("Saída", "Polo sul na frente → 0 e fica em 0 depois que o ímã sai · polo norte → 1. Sem pull-up a saída fica solta", "d"),
-    ("Pull-up", "Interno do GPIO32 (≈45 kΩ), ligado no firmware. Com fio longo, um 10 kΩ externo do OUT ao 3V3 ajuda contra ruído (4,7–47 kΩ servem); nunca ao 5V", "f"),
+    ("Pull-up e filtro", "Só o capacitor cerâmico 104 (100 nF) do GPIO32 ao GND, junto do ESP32; o pull-up é o interno do GPIO32 (≈45 kΩ, ligado no firmware), sem resistor externo. Filtro de ≈4,5 ms: os pulsos falsos (12–460 µs) somem e as viradas reais (18 ms ou mais em 0) passam inteiras. Com o ímã parado na frente gasta só ≈70 µA (com 10 kΩ externo seriam 0,33 mA). Se faltar basculada ou o pino ficar abaixo de 3 V parado, acrescente 10 kΩ do GPIO32 ao 3V3", "k"),
+    ("Medido na chuva (FC30)", "23/11, 13:21–13:29: 10 basculadas (uma a cada 37–98 s) e 369 pulsos ignorados, todos de 12 a 460 µs em 0 (tremedeira na troca do sensor, que recebe menos de 4,5 V na bateria); nenhuma virada real descartada", "m"),
     ("Consumo", "Até ≈10 mA (datasheet); medir: 200 mA DC em série no fio do VCC, esperado 5–10 mA", "d"),
     ("Face sensível", "A da frente, com a escrita", "d"),
     ("Testado na báscula", "Cada passagem do ímã dá um par sul → norte, nos dois sentidos: 20 passagens = 20 pares; 76 viradas rápidas (≈7 por segundo) sem nenhum erro; tempo em 0 de 18 a 318 ms", "m"),
@@ -1401,7 +1413,7 @@ code {{ font-family:ui-monospace, "SF Mono", Menlo, monospace; font-size:.9em; b
         <tr><td><b>Divisor R1/R2</b> da bateria</td><td>Leitura da tensão da bateria</td><td>Metade da bateria (≤2,1 V)</td><td>≈21 µA (2 × 100 kΩ)</td><td>B+ e B− do carregador, meio no GPIO35</td></tr>
         <tr><td><b>Buzzer ativo</b></td><td>Avisos sonoros: 3 bipes ao ligar · 1 bipe ao conectar no Wi-Fi · 2 bipes longos em erro (cartão SD, BME280, reinício por falha) · 1 bipe longo por hora com bateria abaixo de 10 % sem sol</td><td>3,3 V (GPIO)</td><td>a medir: o GPIO dá ≈20 mA (máx. absoluto 40 mA)</td><td>GPIO25 (+, Esq. 9), GND (−) · ligado direto, sem transistor</td></tr>
         <tr><td><b>Chave liga/desliga</b></td><td>Desliga a estação para transportar (o carregador continua carregando a bateria)</td><td>3,0–4,2 V</td><td>Passa toda a corrente da estação</td><td>— (entre o OUT+ do carregador e o pino 5V)</td></tr>
-        <tr><td><b>Sensor Hall SS41F</b> (pluviômetro)</td><td>Conta as viradas da báscula (digital com trava, por interrupção)</td><td>Pino 5V no VCC (sem conversor: 3,0–4,2 V da bateria; pede 4,5 V) · saída coletor aberto</td><td>até ≈10 mA (medir)</td><td>5V (Esq. 19), GND (Esq. 14), GPIO32 (OUT, pull-up interno)</td></tr>
+        <tr><td><b>Sensor Hall SS41F</b> (pluviômetro)</td><td>Conta as viradas da báscula (digital com trava, por interrupção)</td><td>Pino 5V no VCC (sem conversor: 3,0–4,2 V da bateria; pede 4,5 V) · saída coletor aberto</td><td>até ≈10 mA (medir)</td><td>5V (Esq. 19), GND (Esq. 14), GPIO32 (OUT) + 104 ao GND</td></tr>
       </tbody></table></div>
     <p class="note"><b>Como funciona:</b> o CP2102 converte USB em serial na UART0 (GPIO1/3). Dois transistores ligam DTR/RTS do CP2102 ao EN e ao GPIO0, e por isso o esptool reinicia e entra em gravação sozinho. O AMS1117 baixa os 5 V para 3,3 V. O resistor e o capacitor no EN seguram o reset até a tensão estabilizar.</p>
   </div>
@@ -1445,11 +1457,11 @@ CORES = {"pot": "#f97316", "v33": "#f59e0b", "gnd": "#a8a29e", "sin": "#06b6d4",
          "spi": "#10b981", "uart": "#8b5cf6", "buz": "#7c3aed"}
 # (lado, índice, cor, etiqueta curta, de onde vem / detalhe para a tabela)
 LIGA = [
-    ("L", 0, "v33", "3,3 V → BME280 · microSD · GPS · pull-ups", "VCC do BME280, do microSD e do GPS (os três em 3,3 V) e os dois pull-ups de 10 kΩ do CHRG e do STDBY"),
+    ("L", 0, "v33", "3,3 V → BME280 · microSD · GPS · pull-ups", "VCC do BME280, do microSD e do GPS (os três em 3,3 V) e os dois pull-ups de 10 kΩ: CHRG e STDBY"),
     ("L", 3, "sin", "CHRG · carregador pino 7", "Terminal do R2 (102) do lado do pino 7 do TP4056 → 1 kΩ (opcional) → diodo 1N5819 (faixa para o carregador) → GPIO39; 10 kΩ do GPIO39 ao 3V3"),
     ("L", 4, "sin", "STDBY · carregador pino 6", "Terminal do R1 (102) do lado do pino 6 do TP4056 → 1 kΩ (opcional) → diodo 1N5819 (faixa para o carregador) → GPIO34; 10 kΩ do GPIO34 ao 3V3"),
     ("L", 5, "sin", "Bateria · meio do divisor", "B+ → 100 kΩ → meio → 100 kΩ → B− do carregador; o meio vai no GPIO35 (metade da bateria)"),
-    ("L", 6, "sin", "Chuva · SS41F pino 3 (OUT)", "Saída do sensor Hall da báscula; pull-up interno ligado (10 kΩ externo ao 3V3 opcional)"),
+    ("L", 6, "sin", "Chuva · SS41F OUT · 104", "Saída do sensor Hall da báscula; capacitor cerâmico 104 do GPIO32 ao GND, junto do ESP32 (pull-up interno)"),
     ("L", 8, "buz", "Buzzer +", "+ do buzzer ativo (− no GND)"),
     ("L", 13, "gnd", "GND comum", "OUT−/B− do carregador, GND do GPS, pino 2 do SS41F, − do buzzer (todos os GND no mesmo ponto)"),
     ("L", 18, "pot", "Bateria (pela chave) · SS41F VCC", "OUT+ do carregador → chave liga/desliga → 5V (bateria direto, 3,0–4,2 V) e pino 1 do SS41F"),

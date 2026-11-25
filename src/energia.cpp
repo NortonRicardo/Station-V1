@@ -10,7 +10,7 @@ static const int PINO_BATERIA = 35;       // ADC1_7
 // Sinais do TP4056, lidos como DIGITAIS (o jeito padrão): os pinos CHRG e STDBY do chip são
 // dreno aberto, ativos em 0. Ligação: pino do chip (lado do LED que vai ao chip) → 1 kΩ em série
 // → GPIO, e 10 kΩ do GPIO para o 3V3 (pull-up EXTERNO: 34–39 não têm pull-up interno).
-//   CHRG 0 · STDBY 1 → carregando     CHRG 1 · STDBY 0 → carregada     1 · 1 ou 0 · 0 → sem sol
+//   CHRG baixo · STDBY alto → carregando   CHRG alto · STDBY baixo → carregada   outro caso → sem sol
 static const int PINO_CHRG = 39;   // VN
 static const int PINO_STDBY = 34;
 // Divisor: dois resistores de 100 kΩ (nominal) em série, ≈21 µA. Medidos: 98 kΩ em cima (B+ → meio)
@@ -30,11 +30,22 @@ static const float BATERIA_MIN_V = 2.5f;    // abaixo disso: bateria não conect
 enum Carga { SEM_SOL, CARREGANDO, CARREGADA };
 static Carga carga = SEM_SOL;
 static bool primeira = true;
-static float bateriaV = 0;
+static float bateriaV = 0;          // tensão suavizada (média de alguns minutos): é a que aparece
+static float bateriaInstV = 0;      // leitura de agora (varia com o consumo do Wi-Fi e o ruído do ADC)
+static int pctMostrado = -1;        // % exibida: só muda quando a variação chega a PASSO_PCT
+// Suavização: média móvel exponencial de ≈3 min (leituras a cada 3 s) e % que só muda de 2 em 2 pontos.
+static const float SUAVIZA = 3.0f / 180.0f;
+static const int PASSO_PCT = 2;
 static int bateriaPinoMv = 0;
 static bool divisorSolto = false;  // GPIO35 no teto: falta o resistor do meio para o B−
 static const int TETO_ADC_MV = 2900; // com o divisor de 2 × 100 kΩ o pino fica em ≈2,07 V no máximo
-static bool chrg = false, stdby = false;  // true = pino em 0 (estado ativo)
+static bool chrg = false, stdby = false;  // true = pino baixo (estado ativo)
+static int chrgMv = 0, stdbyMv = 0;       // tensão lida em cada pino (ADC)
+// Leitura dos sinais pela TENSÃO (os dois pinos são ADC1), não só 0/1:
+//   ativo (o TP4056 puxa, com o 1N5819 no caminho) ≈0,3–0,5 V · inativo com sol (pull-up) ≈3,3 V
+//   sem energia na entrada: os dois ficam no meio (medido 0,52 V e 0,98 V), nunca perto de 3,3 V
+static const int ATIVO_MAX_MV = 700;      // abaixo disso: pino ativo
+static const int INATIVO_MIN_MV = 2500;   // acima disso: pino inativo com o carregador ligado
 static uint32_t proxima = 0;
 
 static int lerMv(int pino) {
@@ -66,8 +77,8 @@ static int porcentagem(float v) {
 
 void iniciar() {
   analogSetPinAttenuation(PINO_BATERIA, ADC_11db);
-  pinMode(PINO_CHRG, INPUT);   // pull-up externo de 10 kΩ para o 3V3
-  pinMode(PINO_STDBY, INPUT);
+  analogSetPinAttenuation(PINO_CHRG, ADC_11db);   // pull-up externo de 10 kΩ para o 3V3
+  analogSetPinAttenuation(PINO_STDBY, ADC_11db);
   proxima = millis();
 }
 
@@ -75,22 +86,29 @@ void cuidar() {
   if ((int32_t)(millis() - proxima) < 0) return;
   proxima = millis() + INTERVALO_MS;
   bateriaPinoMv = lerMv(PINO_BATERIA);
-  bateriaV = bateriaPinoMv * RAZAO_BATERIA / 1000.0f;
+  bateriaInstV = bateriaPinoMv * RAZAO_BATERIA / 1000.0f;
+  // começa direto na leitura (ou se a bateria foi ligada/desligada); depois, média lenta
+  if (bateriaV < BATERIA_MIN_V || bateriaInstV < BATERIA_MIN_V) bateriaV = bateriaInstV;
+  else bateriaV += SUAVIZA * (bateriaInstV - bateriaV);
+  int pNovo = porcentagem(bateriaV);
+  if (pctMostrado < 0 || abs(pNovo - pctMostrado) >= PASSO_PCT) pctMostrado = pNovo;
   bool soltoAgora = bateriaPinoMv > TETO_ADC_MV;
   if (soltoAgora != divisorSolto) {
     divisorSolto = soltoAgora;
     registrar(divisorSolto ? "Bateria: divisor R1/R2 solto (GPIO35 no teto) · tensão e carregador não confiáveis"
                            : "Bateria: divisor R1/R2 de volta ao normal");
   }
-  chrg = digitalRead(PINO_CHRG) == LOW;
-  stdby = digitalRead(PINO_STDBY) == LOW;
+  chrgMv = lerMv(PINO_CHRG);
+  stdbyMv = lerMv(PINO_STDBY);
+  chrg = chrgMv < ATIVO_MAX_MV;
+  stdby = stdbyMv < ATIVO_MAX_MV;
   if (divisorSolto) return;
   // bateria fraca, sem sol: 1 bipe longo por hora
   static uint32_t ultimoAviso = 0;
   static bool avisou = false;
-  if (carga == SEM_SOL && bateriaV >= BATERIA_MIN_V && porcentagem(bateriaV) <= FRACA_PCT) {
+  if (carga == SEM_SOL && bateriaV >= BATERIA_MIN_V && pctMostrado <= FRACA_PCT) {
     if (!avisou || millis() - ultimoAviso >= 3600000UL) {
-      if (!avisou) registrar("Bateria fraca (" + String(porcentagem(bateriaV)) + " %)");
+      if (!avisou) registrar("Bateria fraca (" + String(pctMostrado) + " %)");
       buzzer::tocar(buzzer::BATERIA_FRACA);
       ultimoAviso = millis();
       avisou = true;
@@ -98,10 +116,11 @@ void cuidar() {
   } else {
     avisou = false;
   }
-  // Só um dos dois ativo = há sol: CHRG em 0 → carregando · STDBY em 0 → carregada.
-  // Os dois iguais (1·1 ou 0·0) = sem sol: sem energia na entrada, o TP4056 desliga e os pinos ficam
-  // numa tensão intermediária que cada ESP32 lê de um jeito (uma estação lê 1·1, a outra 0·0).
-  Carga lida = (chrg && !stdby) ? CARREGANDO : (stdby && !chrg) ? CARREGADA : SEM_SOL;
+  // Há sol só quando um pino está ativo (baixo) E o outro claramente inativo (perto de 3,3 V):
+  //   CHRG baixo + STDBY alto → carregando · STDBY baixo + CHRG alto → carregada
+  // Qualquer outra combinação = sem sol (sem energia na entrada os pinos ficam no meio).
+  Carga lida = (chrg && stdbyMv > INATIVO_MIN_MV) ? CARREGANDO
+             : (stdby && chrgMv > INATIVO_MIN_MV) ? CARREGADA : SEM_SOL;
   // confirmação: o estado novo precisa aparecer CONFIRMAR vezes seguidas
   static Carga candidata = SEM_SOL;
   static int vezes = 0;
@@ -124,15 +143,16 @@ bool conectada() { return !divisorSolto && bateriaV >= BATERIA_MIN_V; }
 float tensao() { return bateriaV; }
 // carregando: o carregador eleva a tensão e a % pela tensão não vale → -1 (sem porcentagem)
 // carregada: 100 %, ou mais se a tensão passar de 4,20 V (aí é erro de leitura ou sobrecarga)
-int pct() { return carga == CARREGADA ? max(100, porcentagem(bateriaV)) : (carga == CARREGANDO ? -1 : porcentagem(bateriaV)); }
+int pct() { return carga == CARREGADA ? max(100, pctMostrado) : (carga == CARREGANDO ? -1 : pctMostrado); }
 const char *estadoCarga() { return NOMES[carga]; }
 
 String statusJson() {
   const char **nomes = NOMES;
   bool conectada = energia::conectada();
-  String j = "{\"conectada\":" + String(conectada ? "true" : "false") + ",\"tensao\":" + String(bateriaV, 2) +
+  String j = "{\"conectada\":" + String(conectada ? "true" : "false") + ",\"tensao\":" + String(bateriaV, 2) + ",\"tensao_agora\":" + String(bateriaInstV, 2) +
              ",\"divisor_solto\":" + String(divisorSolto ? "true" : "false") + ",\"pino_bateria_mv\":" + String(bateriaPinoMv) +
-             ",\"carga\":\"" + String(nomes[carga]) + "\",\"chrg\":" + String(chrg ? "true" : "false") + ",\"stdby\":" + String(stdby ? "true" : "false");
+             ",\"carga\":\"" + String(nomes[carga]) + "\",\"chrg\":" + String(chrg ? "true" : "false") + ",\"stdby\":" + String(stdby ? "true" : "false") +
+             ",\"chrg_mv\":" + String(chrgMv) + ",\"stdby_mv\":" + String(stdbyMv);
   if (conectada && pct() >= 0) j += ",\"porcentagem\":" + String(pct());
   return j + "}";
 }

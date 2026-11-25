@@ -214,7 +214,7 @@ td:nth-child(1), td:nth-child(2), td:nth-child(3) { white-space:nowrap; }
 <circle cx="320" cy="350" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
 <circle cx="398" cy="350" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
 <rect x="20" y="365" width="300" height="22" rx="6" fill="#fff" stroke="#06b6d4" stroke-width="1.6"/>
-<text x="30" y="380" class="t-term">Chuva · SS41F pino 3 (OUT)</text>
+<text x="30" y="380" class="t-term">Chuva · SS41F OUT · 104</text>
 <path d="M320 376 H398" stroke="#06b6d4" stroke-width="3" fill="none"/>
 <circle cx="320" cy="376" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
 <circle cx="398" cy="376" r="5" fill="#1c1917" stroke="#fff" stroke-width="1.5"/>
@@ -289,11 +289,11 @@ td:nth-child(1), td:nth-child(2), td:nth-child(3) { white-space:nowrap; }
 <div class="tab"><table>
 <thead><tr><th>Posição</th><th>Nome</th><th>GPIO</th><th>Ligação</th><th>Detalhe</th></tr></thead>
 <tbody>
-<tr><td><span class="dot" style="background:#f59e0b"></span>Esq. 1</td><td><b>3V3</b></td><td>3V3</td><td>3,3 V → BME280 · microSD · GPS · pull-ups</td><td>VCC do BME280, do microSD e do GPS (os três em 3,3 V) e os dois pull-ups de 10 kΩ do CHRG e do STDBY</td></tr>
+<tr><td><span class="dot" style="background:#f59e0b"></span>Esq. 1</td><td><b>3V3</b></td><td>3V3</td><td>3,3 V → BME280 · microSD · GPS · pull-ups</td><td>VCC do BME280, do microSD e do GPS (os três em 3,3 V) e os dois pull-ups de 10 kΩ: CHRG e STDBY</td></tr>
 <tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 4</td><td><b>VN</b></td><td>GPIO39</td><td>CHRG · carregador pino 7</td><td>Terminal do R2 (102) do lado do pino 7 do TP4056 → 1 kΩ (opcional) → diodo 1N5819 (faixa para o carregador) → GPIO39; 10 kΩ do GPIO39 ao 3V3</td></tr>
 <tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 5</td><td><b>34</b></td><td>GPIO34</td><td>STDBY · carregador pino 6</td><td>Terminal do R1 (102) do lado do pino 6 do TP4056 → 1 kΩ (opcional) → diodo 1N5819 (faixa para o carregador) → GPIO34; 10 kΩ do GPIO34 ao 3V3</td></tr>
 <tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 6</td><td><b>35</b></td><td>GPIO35</td><td>Bateria · meio do divisor</td><td>B+ → 100 kΩ → meio → 100 kΩ → B− do carregador; o meio vai no GPIO35 (metade da bateria)</td></tr>
-<tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 7</td><td><b>32</b></td><td>GPIO32</td><td>Chuva · SS41F pino 3 (OUT)</td><td>Saída do sensor Hall da báscula; pull-up interno ligado (10 kΩ externo ao 3V3 opcional)</td></tr>
+<tr><td><span class="dot" style="background:#06b6d4"></span>Esq. 7</td><td><b>32</b></td><td>GPIO32</td><td>Chuva · SS41F OUT · 104</td><td>Saída do sensor Hall da báscula; capacitor cerâmico 104 do GPIO32 ao GND, junto do ESP32 (pull-up interno)</td></tr>
 <tr><td><span class="dot" style="background:#7c3aed"></span>Esq. 9</td><td><b>25</b></td><td>GPIO25</td><td>Buzzer +</td><td>+ do buzzer ativo (− no GND)</td></tr>
 <tr><td><span class="dot" style="background:#a8a29e"></span>Esq. 14</td><td><b>GND</b></td><td>GND</td><td>GND comum</td><td>OUT−/B− do carregador, GND do GPS, pino 2 do SS41F, − do buzzer (todos os GND no mesmo ponto)</td></tr>
 <tr><td><span class="dot" style="background:#f97316"></span>Esq. 19</td><td><b>5V</b></td><td>5V</td><td>Bateria (pela chave) · SS41F VCC</td><td>OUT+ do carregador → chave liga/desliga → 5V (bateria direto, 3,0–4,2 V) e pino 1 do SS41F</td></tr>

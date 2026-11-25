@@ -414,7 +414,7 @@ function pluvCard(p){
   set('pSinal',p.nivel?'1 · livre':'0 · ímã na frente');
   set('pIgn',String(p.ignorados));
 }
-const sinais=b=>(b.chrg?'0':'1')+' · '+(b.stdby?'0':'1')+'  ('+(b.chrg&&b.stdby?'os dois: carregador sem energia':b.chrg?'CHRG ativo':b.stdby?'STDBY ativo':'nenhum ativo')+')';
+const sinais=b=>b.chrg_mv===undefined?((b.chrg?'0':'1')+' · '+(b.stdby?'0':'1')):(fx(b.chrg_mv/1000,2)+' V · '+fx(b.stdby_mv/1000,2)+' V  ('+({carregando:'CHRG ativo',carregada:'STDBY ativo'}[b.carga]||'carregador sem energia')+')');
 function batCard(b){
   const sol={carregando:['Carregando','p-wait'],carregada:['Carregada','p-ok'],sem_sol:['Sem sol','p-off']}[b.carga]||['—','p-off'];
   if(b.divisor_solto){set('batEstado',pill('Divisor solto','p-err'));set('bPct','—');set('bPctU','');set('bV','—');set('bSol','—');
