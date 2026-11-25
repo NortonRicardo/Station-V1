@@ -1,17 +1,23 @@
 // Station V1 - estação meteorológica com ESP32.
 //
-// Rede própria "Station-XXXX" (final do MAC), aberta, com a página em http://192.168.4.1; pela página
-// você escolhe o Wi-Fi de casa, e a estação também fica em http://station.local.
-// Uma rede ou a outra: conectada no Wi-Fi de casa, a rede própria desliga na hora e o rádio
-// dorme entre os avisos do roteador (economia máxima); sem Wi-Fi de casa (ou se ele cair), a
-// rede própria liga na hora para dar acesso e configurar. CPU a 80 MHz.
-// Gravação pelo Wi-Fi (OTA): pio run -e ota -t upload
+// Ao LIGAR (energia ou botão EN): janela de 10 min com a rede própria "Station-XXXX" (final do MAC),
+// aberta, e a página em http://192.168.4.1 (só por essa rede). Pela página você escolhe o Wi-Fi de casa.
+// Logo ao ligar: uma leitura e um envio na hora (ex.: 01:47); depois, cravado a cada 5 min (01:50, 01:55…),
+// também dentro da janela. Na janela ela aceita a gravação pelo Wi-Fi (OTA).
+// Depois dos 10 min: sono leve. A cada 5 min (xx:00, xx:05…) ela acorda, lê os sensores, grava no
+// SD, conecta no Wi-Fi de casa, acerta a hora e envia ao climora-ingest o que estiver pendente, e
+// volta a dormir. A chuva é contada por interrupção: dormindo, o pino do pluviômetro acorda a
+// estação em ~1 ms, a mudança é tratada e ela volta a dormir.
+// Para abrir a página de novo: desligar e ligar (ou apertar EN). CPU a 80 MHz.
+// Gravação pelo Wi-Fi (OTA), só na janela: pio run -e ota -t upload
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
 #include <esp_system.h>
-#include <ESPmDNS.h>
+#include <esp_sleep.h>
+#include <esp_timer.h>
+#include <driver/gpio.h>
 #include <Preferences.h>
 #include <ArduinoOTA.h>
 #include <esp_sntp.h>
@@ -30,6 +36,8 @@
 #include "energia.h"
 #include "pluviometro.h"
 #include "buzzer.h"
+#include "envio.h"
+#include "versao.h"
 
 #ifndef STATION_OTA_PASS
 #error "STATION_OTA_PASS não definida: crie o .env (veja .env.example)"
@@ -44,6 +52,24 @@ static const uint32_t TEMPO_CONEXAO_MS = 20000;  // desiste da tentativa depois 
 static const uint32_t ESPERA_RETRY_MS = 60000;   // nova tentativa após falha
 static const uint32_t VALIDADE_SCAN_MS = 15000;
 static const uint32_t CPU_MHZ = 80;                         // mínimo para o Wi-Fi; economiza ≈20–30 mA
+static const uint32_t JANELA_MS = 10UL * 60 * 1000;         // rede própria + página depois de ligar
+static const uint32_t CICLO_MS = 5UL * 60 * 1000;           // acorda a cada 5 min (alinhado ao relógio)
+static const uint32_t WIFI_CICLO_MS = 12000;                // no ciclo: desiste do Wi-Fi depois disso
+static const uint32_t NTP_CICLO_MS = 4000;                  // no ciclo: espera da hora pela internet
+static const uint32_t ENVIO_CICLO_MS = 20000;               // no ciclo: tempo máximo enviando
+static const uint32_t ENVIO_JANELA_MS = 15000;              // na janela: tempo máximo por envio
+static const uint64_t TRAVA_CICLO_US = 90ULL * 1000000;     // ciclo travado: reinicia depois disso
+static uint32_t janelaFim = 0;
+static bool envioPedido = false;   // na janela: enviar assim que tiver Wi-Fi e hora
+// Ao ligar: uma leitura e um envio na hora (ex.: 01:47), sem esperar o horário redondo; depois
+// segue cravado (01:50, 01:55…). Espera a hora certa e o Wi-Fi de casa por até 2 min.
+static bool registroInicial = true;
+static const uint32_t ESPERA_INICIAL_MS = 120000;
+static const uint32_t ESPERA_SENSORES_MS = 5000;  // dá tempo ao GPS e às primeiras leituras
+// último roteador que funcionou: no ciclo conecta direto no canal e BSSID (≈1 s em vez de ≈3 s)
+static uint8_t wifiCanal = 0;
+static uint8_t wifiBssid[6] = {0};
+static bool modoCiclo = false;     // passou a janela: dorme e acorda a cada 5 min
 
 WebServer server(80);
 DNSServer dns;
@@ -166,6 +192,8 @@ static void cuidarSta() {
     staConectouAgora = false;
     registrar("Wi-Fi conectado: " + staSsid + " · IP " + WiFi.localIP().toString());
     buzzer::tocar(buzzer::WIFI);
+    envio::anotarRssi(WiFi.RSSI());
+    envioPedido = true;  // manda o que estiver pendente assim que a hora estiver certa
   }
   if (estado == CONECTADO && !ntpIniciado) {
     sntp_set_time_sync_notification_cb([](struct timeval *) { ntpAcertou = true; });
@@ -201,21 +229,14 @@ static void apLigar(const char *motivo) {
   registrar(String("Rede ") + AP_SSID + " ligada" + (motivo ? String(" (") + motivo + ")" : String("")));
 }
 
-static void apDesligar() {
-  if (!apLigado) return;
-  dns.stop();
-  WiFi.softAPdisconnect(true);  // fica só o Wi-Fi de casa: o rádio pode dormir
-  WiFi.setSleep(WIFI_PS_MAX_MODEM);  // acorda a cada 3 avisos do roteador (≈0,3 s): página ainda responde
-  apLigado = false;
-  registrar(String("Rede ") + AP_SSID + " desligada: página em http://" + HOSTNAME + ".local ou http://" +
-            WiFi.localIP().toString());
-}
+// Na janela, a rede própria fica ligada os 10 min inteiros (mesmo conectada no Wi-Fi de casa).
 
-static void cuidarAp() {
-  // sem Wi-Fi de casa (ou caiu): a rede própria liga para dar acesso e configurar
-  if (estado != CONECTADO) apLigar("sem Wi-Fi de casa");
-  // conectada no Wi-Fi de casa: a página fica em station-xxxx.local e a rede própria desliga na hora
-  else apDesligar();
+// A página e a API só respondem pela rede própria (192.168.4.1), nunca pelo Wi-Fi de casa.
+static WebServer::THandlerFunction soRedePropria(void (*rota)()) {
+  return [rota]() {
+    if (server.client().localIP() != WiFi.softAPIP()) { server.send(404, "text/plain", "não encontrado"); return; }
+    rota();
+  };
 }
 
 // ---------- busca de redes (assíncrona) ----------
@@ -258,7 +279,8 @@ static void rotaPagina() {
 static void rotaStatus() {
   String j = "{";
   j.reserve(1800);
-  j += "\"nome\":\"" + String(HOSTNAME) + "\",";
+  j += "\"nome\":\"" + String(HOSTNAME) + "\",\"firmware\":\"" FIRMWARE_VERSAO "\",";
+  j += "\"janela_s\":" + String((int32_t)(janelaFim - millis()) > 0 ? (janelaFim - millis()) / 1000 : 0) + ",";
   j += "\"ap\":{\"ssid\":\"" + String(AP_SSID) + "\",\"ip\":\"192.168.4.1\",\"ligado\":" +
        String(apLigado ? "true" : "false") + ",\"clientes\":" + String(apLigado ? WiFi.softAPgetStationNum() : 0);
   j += "},";
@@ -275,6 +297,7 @@ static void rotaStatus() {
   j += ",\"gps\":" + gps::statusJson();
   j += ",\"bateria\":" + energia::statusJson();
   j += ",\"pluviometro\":" + pluviometro::statusJson();
+  j += ",\"envio\":" + envio::statusJson();
   j += ",\"mac\":\"" + WiFi.macAddress() + "\"}";
   enviarJson(200, j);
 }
@@ -357,23 +380,41 @@ static void rotaOutras() {
   server.send(302, "text/plain", "");
 }
 
-// Comando pela serial (só com a placa no cabo USB): "ZERAR TUDO" apaga o cartão SD, o total de
-// basculadas, o contador de ligações e a posição salva do GPS, e reinicia. O Wi-Fi salvo é mantido.
+// Zerar tudo: apaga o cartão SD (registros e o controle do envio), o total de basculadas, o contador
+// de ligações, a posição salva do GPS e a versão anotada; o registro de eventos some no reinício.
+// O Wi-Fi salvo é mantido. Pela página (botão no fim) ou pela serial ("ZERAR TUDO").
+static bool zerarTudo() {
+  registrar("Zerando tudo (Wi-Fi salvo mantido)");
+  pluviometro::pausar(true);  // nada contando enquanto apaga
+  bool sd = sdlog::apagar();
+  Preferences p;
+  for (const char *ns : {"pluv", "sistema", "gps"}) { p.begin(ns, false); p.clear(); p.end(); }
+  return sd;
+}
+
+static void reiniciarDepoisDeZerar() {
+  Serial.flush();
+  delay(500);  // deixa a resposta sair
+  ESP.restart();
+}
+
+static void rotaZerar() {
+  bool sd = zerarTudo();
+  enviarJson(200, String("{\"ok\":true,\"sd\":") + (sd ? "true" : "false") + "}");
+  reiniciarDepoisDeZerar();
+}
+
+// Comando pela serial (só com a placa no cabo USB): "ZERAR TUDO" faz o mesmo que o botão da página.
 static void cuidarSerial() {
   static String linha;
   while (Serial.available()) {
     char c = (char)Serial.read();
     if (c != '\n' && c != '\r') { if (linha.length() < 32) linha += c; continue; }
     if (linha == "ZERAR TUDO") {
-      registrar("Zerando todo o histórico (pedido pela serial)");
-      bool sd = sdlog::apagar();
-      Preferences p;
-      for (const char *ns : {"pluv", "sistema", "gps"}) { p.begin(ns, false); p.clear(); p.end(); }
+      bool sd = zerarTudo();
       Serial.printf("ZERADO: cartão %s, basculadas, contador de ligações e posição do GPS. Reiniciando.\n",
                     sd ? "apagado" : "NÃO apagado (cartão ausente)");
-      Serial.flush();
-      delay(300);
-      ESP.restart();
+      reiniciarDepoisDeZerar();
     }
     linha = "";
   }
@@ -395,46 +436,173 @@ static const char *motivoReinicio() {
   }
 }
 
+// ---------- ciclo de 5 min (depois da janela, entre sonos leves) ----------
+
+// Conecta no Wi-Fi de casa só para enviar. Usa o canal/BSSID da última vez (mais rápido); se
+// falhar, esquece e na próxima vez procura a rede normalmente.
+static bool conectarCiclo(const String &ssid, const String &senha) {
+  WiFi.persistent(false);
+  WiFi.setAutoReconnect(false);
+  WiFi.mode(WIFI_STA);
+  WiFi.setHostname(HOSTNAME);
+  uint32_t ini = millis();
+  if (wifiCanal) {  // direto no roteador da última vez; se ele mudou de canal, procura normalmente
+    WiFi.begin(ssid.c_str(), senha.c_str(), wifiCanal, wifiBssid);
+    while (WiFi.status() != WL_CONNECTED && millis() - ini < WIFI_CICLO_MS / 2) delay(50);
+    if (WiFi.status() != WL_CONNECTED) {
+      WiFi.disconnect(false, false);
+      wifiCanal = 0;
+    }
+  }
+  if (WiFi.status() != WL_CONNECTED) WiFi.begin(ssid.c_str(), senha.c_str());
+  while (WiFi.status() != WL_CONNECTED && millis() - ini < WIFI_CICLO_MS) delay(50);
+  if (WiFi.status() != WL_CONNECTED) {
+    registrar("Ciclo: Wi-Fi " + ssid + " não conectou em " + String(WIFI_CICLO_MS / 1000) + " s");
+    wifiCanal = 0;
+    return false;
+  }
+  wifiCanal = WiFi.channel();
+  memcpy(wifiBssid, WiFi.BSSID(), 6);
+  envio::anotarRssi(WiFi.RSSI());
+  registrar("Ciclo: Wi-Fi conectado em " + String(millis() - ini) + " ms · " + String(WiFi.RSSI()) + " dBm");
+  return true;
+}
+
+// Hora pela internet a cada envio (o relógio do chip escorrega um pouco dormindo).
+static void acertarHoraCiclo() {
+  ntpAcertou = false;
+  sntp_set_time_sync_notification_cb([](struct timeval *) { ntpAcertou = true; });
+  configTzTime("<-03>3", "pool.ntp.org", "time.google.com");
+  uint32_t ini = millis();
+  while (!ntpAcertou && millis() - ini < NTP_CICLO_MS) delay(20);
+  if (ntpAcertou) relogioAcertado("internet");
+  else registrar("Ciclo: hora pela internet não chegou (segue com o relógio do chip)");
+}
+
+// Próximo horário redondo de 5 min (epoch ms) ou, sem hora certa, 5 min depois do último ciclo.
+static uint32_t inicioUltimoCiclo = 0;
+static uint64_t esperaAteProximoMs() {
+  if (relogio::sincronizado()) {
+    int64_t ep = relogio::agoraEpochMs();
+    int64_t prox = (ep / CICLO_MS + 1) * CICLO_MS;
+    if (prox <= sdlog::ultimoHorario()) prox = sdlog::ultimoHorario() + CICLO_MS;  // já gravou este
+    return prox - ep;
+  }
+  uint32_t passou = millis() - inicioUltimoCiclo;
+  return passou >= CICLO_MS ? 0 : CICLO_MS - passou;
+}
+
+// Sono leve até o próximo ciclo. A CPU para, mas a memória e o programa continuam; o relógio
+// continua contando. O pino do pluviômetro acorda a estação a cada mudança (~1 ms), a mudança é
+// tratada como na interrupção e ela volta a dormir.
+static void dormirAteProximoCiclo() {
+  pluviometro::salvar();
+  WiFi.disconnect(true, false);
+  WiFi.mode(WIFI_OFF);
+  digitalWrite(25, LOW);  // buzzer mudo
+  uint64_t espera = esperaAteProximoMs();
+  registrar("Dormindo " + String((uint32_t)(espera / 1000)) + " s (sono leve)");
+  Serial.flush();
+  while ((espera = esperaAteProximoMs()) > 20) {
+    pluviometro::prepararSono();
+    esp_sleep_enable_timer_wakeup(espera * 1000ULL);
+    esp_light_sleep_start();
+    pluviometro::aoAcordar();
+    pluviometro::cuidar();  // soma e registra a basculada (se foi ela que acordou)
+    Serial.flush();
+  }
+}
+
+// Trava de segurança: um ciclo pendurado (Wi-Fi ou HTTPS) por mais de 90 s reinicia a estação.
+static void travaCiclo(void *) { esp_restart(); }
+static esp_timer_handle_t trava = nullptr;
+
+static void rodarCiclo() {
+  if (!trava) {
+    esp_timer_create_args_t args = {};
+    args.callback = travaCiclo;
+    args.name = "trava";
+    esp_timer_create(&args, &trava);
+  }
+  if (trava) esp_timer_start_once(trava, TRAVA_CICLO_US);
+  inicioUltimoCiclo = millis();
+  registrar("Ciclo: acordou");
+
+  energia::lerAgora();  // antes do Wi-Fi: bateria em repouso
+  bme::lerAgora();
+  pluviometro::cuidar();
+  gps::aguardar(2000);  // a UART ficou parada dormindo: lê posição e hora novas
+  if (relogio::sincronizado()) sdlog::aoSincronizar();  // linhas sem hora ganham a hora certa
+  String linha = sdlog::gravarCiclo();
+
+  if (!envio::configurado()) registrar("Ciclo: envio desligado (firmware sem STATION_KEY)");
+  else if (staSsid.isEmpty()) registrar("Ciclo: sem Wi-Fi salvo (configure pela página, ligando a estação)");
+  else if (conectarCiclo(staSsid, staSenha)) {
+    acertarHoraCiclo();
+    if (relogio::sincronizado()) sdlog::aoSincronizar();  // linhas sem hora ganham a hora e entram no envio
+    if (!relogio::sincronizado()) registrar("Ciclo: sem hora certa, não envia");
+    else if (sdlog::ativo()) envio::enviarPendentes(ENVIO_CICLO_MS);
+    else if (linha.length()) envio::enviarLinha(linha);
+  }
+  pluviometro::cuidar();
+  if (trava) esp_timer_stop(trava);
+}
+
+// Fim da janela: desliga a rede própria, a página e a gravação pelo Wi-Fi e passa ao ciclo.
+static void entrarNoCiclo() {
+  registrar("Fim da janela de 10 min: rede própria e página desligadas, entrando no ciclo de 5 min");
+  buzzer::cuidar();
+  server.stop();
+  dns.stop();
+  ArduinoOTA.end();
+  WiFi.softAPdisconnect(true);
+  apLigado = false;
+  modoCiclo = true;
+  inicioUltimoCiclo = millis();
+}
+
 void setup() {
-  buzzer::iniciar();  // primeiro: pino do buzzer em 0 (mudo) o quanto antes
+  buzzer::iniciar();  // pino do buzzer em 0 (mudo) o quanto antes
   setCpuFrequencyMhz(CPU_MHZ);
   Serial.begin(115200);
-  delay(300);
   setenv("TZ", "<-03>3", 1);  // horário de Brasília, mesmo sem internet (hora pelo GPS)
   tzset();
-  registrar(String("Estação ligada · ") + motivoReinicio());
+
+  uint8_t mac[6];
+  esp_read_mac(mac, ESP_MAC_WIFI_STA);
+  snprintf(AP_SSID, sizeof AP_SSID, "Station-%02X%02X", mac[4], mac[5]);
+  snprintf(HOSTNAME, sizeof HOSTNAME, "station-%02x%02x", mac[4], mac[5]);
+
+  // ---------- ligou: janela de 10 min com a rede própria e a página ----------
+  delay(300);
+  registrar(String("Estação ligada · ") + motivoReinicio() + " · firmware " FIRMWARE_VERSAO);
   buzzer::tocar(buzzer::LIGOU);
   switch (esp_reset_reason()) {  // reinício por falha: avisa também
     case ESP_RST_BROWNOUT: case ESP_RST_PANIC: case ESP_RST_INT_WDT: case ESP_RST_TASK_WDT: case ESP_RST_WDT:
       buzzer::tocar(buzzer::ERRO); break;
     default: break;
   }
-
-  uint8_t mac[6];
-  esp_read_mac(mac, ESP_MAC_WIFI_STA);
-  snprintf(AP_SSID, sizeof AP_SSID, "Station-%02X%02X", mac[4], mac[5]);
-  snprintf(HOSTNAME, sizeof HOSTNAME, "station-%02x%02x", mac[4], mac[5]);
-  registrar(String("Nome na rede: ") + HOSTNAME + ".local · rede própria " + AP_SSID);
+  registrar(String("Rede própria ") + AP_SSID + " por 10 min · página em http://192.168.4.1");
+  janelaFim = millis() + JANELA_MS;
 
   WiFi.persistent(false);  // credenciais só no nosso Preferences
   WiFi.setAutoReconnect(false);
   WiFi.onEvent(aoEventoWifi);
   WiFi.mode(WIFI_AP_STA);
   WiFi.setHostname(HOSTNAME);
-  WiFi.setSleep(WIFI_PS_MAX_MODEM);  // economia máxima no Wi-Fi de casa (vale quando a rede própria desliga)
   apLigar("ao ligar");
-  if (MDNS.begin(HOSTNAME)) MDNS.addService("http", "tcp", 80);
 
-  server.on("/", HTTP_GET, rotaPagina);
-  server.on("/api/status", HTTP_GET, rotaStatus);
-  server.on("/api/redes", HTTP_GET, rotaRedes);
-  server.on("/api/eventos", HTTP_GET, rotaEventos);
-  server.on("/api/sd", HTTP_GET, rotaSd);
-  server.on("/api/sd/registros", HTTP_GET, rotaSdRegistros);
-  server.on("/api/pluviometro", HTTP_GET, rotaPluv);
-  server.on("/api/sd/apagar", HTTP_POST, rotaSdApagar);
-  server.on("/api/conectar", HTTP_POST, rotaConectar);
-  server.on("/api/esquecer", HTTP_POST, rotaEsquecer);
+  server.on("/", HTTP_GET, soRedePropria(rotaPagina));
+  server.on("/api/status", HTTP_GET, soRedePropria(rotaStatus));
+  server.on("/api/redes", HTTP_GET, soRedePropria(rotaRedes));
+  server.on("/api/eventos", HTTP_GET, soRedePropria(rotaEventos));
+  server.on("/api/sd", HTTP_GET, soRedePropria(rotaSd));
+  server.on("/api/sd/registros", HTTP_GET, soRedePropria(rotaSdRegistros));
+  server.on("/api/pluviometro", HTTP_GET, soRedePropria(rotaPluv));
+  server.on("/api/sd/apagar", HTTP_POST, soRedePropria(rotaSdApagar));
+  server.on("/api/conectar", HTTP_POST, soRedePropria(rotaConectar));
+  server.on("/api/esquecer", HTTP_POST, soRedePropria(rotaEsquecer));
+  server.on("/api/zerar", HTTP_POST, soRedePropria(rotaZerar));
   server.onNotFound(rotaOutras);
   server.begin();
 
@@ -446,14 +614,15 @@ void setup() {
 
   bme::iniciar();
   pluviometro::iniciar();  // antes do cartão: o registro usa o total de basculadas
-  sdlog::iniciar();
+  sdlog::iniciar(false);
   gps::iniciar();
   energia::iniciar();
+  if (!envio::configurado()) registrar("Envio para o ingest desligado: firmware sem STATION_KEY");
 
-  // gravação pelo Wi-Fi (pio run -e ota -t upload)
+  // gravação pelo Wi-Fi (pio run -e ota -t upload), só durante a janela, pelo IP
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.setPassword(STATION_OTA_PASS);
-  ArduinoOTA.setMdnsEnabled(false);  // o mDNS já foi iniciado acima
+  ArduinoOTA.setMdnsEnabled(false);  // sem nome .local: grava pelo IP (192.168.4.1 na rede própria)
   // durante a atualização: rádio sem economia (transferência mais firme).
   // A frequência da CPU NÃO é trocada aqui: mudar com o Wi-Fi em uso travou a estação.
   ArduinoOTA.onStart([]() {
@@ -461,13 +630,16 @@ void setup() {
     WiFi.scanDelete();
     scanRodando = false;
     WiFi.setSleep(false);
-    pluviometro::pausar(true);  // sem leituras concorrendo com a gravação da flash
+    pluviometro::pausar(true);
     // a 80 MHz, receber + gravar a flash pode deixar o núcleo 0 sem folga por mais de 5 s e o
     // watchdog reinicia a placa no meio do upload: durante a atualização ele fica desligado
     esp_task_wdt_delete(xTaskGetIdleTaskHandleForCPU(0));
     registrar("Atualização pelo Wi-Fi iniciada");
   });
-  ArduinoOTA.onEnd([]() { registrar("Atualização concluída, reiniciando"); });
+  ArduinoOTA.onEnd([]() {
+    pluviometro::salvar();  // o reinício recomeça o total pela flash
+    registrar("Atualização concluída, reiniciando");
+  });
   ArduinoOTA.onError([](ota_error_t e) {
     otaRodando = false;
     pluviometro::pausar(false);
@@ -477,17 +649,20 @@ void setup() {
     registrar(String("Atualização falhou: ") + ((int)e < 5 ? txt[(int)e] : "erro") + " (erro " + String((int)e) + ")");
   });
   ArduinoOTA.begin();
-  MDNS.enableArduino(3232, true);
 
   iniciarScan();
 }
 
 void loop() {
+  if (modoCiclo) {  // depois da janela: dorme até o próximo horário redondo, mede, grava e envia
+    dormirAteProximoCiclo();
+    rodarCiclo();
+    return;
+  }
   ArduinoOTA.handle();
   if (apLigado) dns.processNextRequest();
   server.handleClient();
   cuidarSta();
-  cuidarAp();
   cuidarScan();
   if (!otaRodando) {
     bme::cuidar();
@@ -495,8 +670,31 @@ void loop() {
   }
   gps::cuidar();  // só lê o que chegou; sem GPS não faz nada
   energia::cuidar();
-  pluviometro::cuidar();  // a contagem roda numa tarefa própria; aqui só registra e salva
+  pluviometro::cuidar();  // a contagem é por interrupção; aqui só soma, registra e salva
   buzzer::cuidar();
   cuidarSerial();
+
+  // registro de quando liga: assim que tiver hora certa e Wi-Fi (ou, sem eles, depois de 2 min)
+  if (registroInicial && !otaRodando && millis() > ESPERA_SENSORES_MS) {
+    bool pronto = relogio::sincronizado() && (estado == CONECTADO || staSsid.isEmpty());
+    if (pronto || millis() > ESPERA_INICIAL_MS) {
+      registroInicial = false;
+      bme::lerAgora();
+      String linha = sdlog::gravarAgora();
+      registrar("Leitura de quando ligou gravada" + String(estado == CONECTADO ? ", enviando" : ""));
+      if (!sdlog::ativo() && estado == CONECTADO && relogio::sincronizado()) envio::enviarLinha(linha);
+    }
+  }
+
+  // envio: quando conecta no Wi-Fi de casa e a cada registro novo (com hora certa)
+  if (sdlog::temNovo()) envioPedido = true;
+  if (envioPedido && !otaRodando && estado == CONECTADO && relogio::sincronizado()) {
+    envioPedido = false;
+    envio::anotarRssi(WiFi.RSSI());
+    if (sdlog::ativo()) envio::enviarPendentes(ENVIO_JANELA_MS);
+  }
+
+  // fim da janela: desliga a rede própria e a página e entra no ciclo de sono
+  if (!otaRodando && (int32_t)(millis() - janelaFim) >= 0) entrarNoCiclo();
   delay(5);  // libera a CPU entre voltas (o processador espera parado)
 }

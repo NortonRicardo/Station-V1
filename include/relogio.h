@@ -6,24 +6,26 @@
 //
 //     hora_real_do_registro = hora_real_agora - (uptime_agora - uptime_do_registro)
 //
-// Limite: o uptime zera a cada reinício. Registros de um boot anterior que não
-// foram convertidos antes de reiniciar não têm como ser corrigidos.
+// O "uptime" vem do relógio RTC do chip: continua contando durante o sono leve (entre os ciclos
+// de 5 min) e só zera quando a energia cai ou o EN é apertado. Assim um registro sem hora feito num
+// ciclo ainda é corrigido num ciclo seguinte.
+// Limite: registros de antes de uma queda de energia que não foram convertidos não têm correção.
 #pragma once
 #include <Arduino.h>
-#include <esp_timer.h>
+#include <esp_private/esp_clk.h>
 #include <sys/time.h>
 #include <time.h>
 
 namespace relogio {
 
-// ms desde que a estação ligou
-inline int64_t uptimeMs() { return esp_timer_get_time() / 1000; }
+// ms desde que a estação ligou (continua contando no sono leve)
+inline int64_t uptimeMs() { return (int64_t)(esp_clk_rtc_time() / 1000); }
 
-inline bool &sincronizadoRef() { static bool v = false; return v; }
-inline const char *&fonteRef() { static const char *v = ""; return v; }
-inline bool sincronizado() { return sincronizadoRef(); }
-inline const char *fonte() { return fonteRef(); }  // "internet" ou "gps"
-inline void marcarSincronizado(const char *f) { sincronizadoRef() = true; fonteRef() = f; }
+// "hora acertada" e a fonte ficam na memória RTC (src/relogio.cpp): sobrevivem ao sono e a reinícios pelo software,
+// junto com a hora do sistema, que o chip continua contando dormindo
+bool sincronizado();
+const char *fonte();  // "internet" ou "gps"
+void marcarSincronizado(const char *f);
 
 // hora real agora, em ms desde 1970 (só vale se sincronizado)
 inline int64_t agoraEpochMs() {

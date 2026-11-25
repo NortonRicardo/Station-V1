@@ -13,6 +13,8 @@
 #include "energia.h"
 #include "gps.h"
 #include "pluviometro.h"
+#include "envio.h"
+#include "versao.h"
 
 void registrar(const String &texto);  // em main.cpp
 
@@ -20,24 +22,29 @@ namespace sdlog {
 
 static const int PINO_SCK = 18, PINO_MISO = 19, PINO_MOSI = 23, PINO_CS = 5;
 static const uint32_t FREQ_SPI = 10000000;     // 10 MHz: folga para fios curtos
-static const uint32_t INTERVALO_MS = 10UL * 60 * 1000;  // um registro a cada 10 min
+static const uint32_t INTERVALO_MS = 5UL * 60 * 1000;   // um registro a cada 5 min (xx:00, xx:05…)
 static const uint32_t NOVA_BUSCA_MS = 15000;   // sem cartão: tenta montar de novo
 static const char *ARQUIVO = "/registros.csv";
 static const char *PENDENTES = "/pendentes.csv";  // linhas gravadas antes de a hora sincronizar
+static const char *ENVIADO = "/enviado.txt";      // até onde (byte de registros.csv) o ingest já recebeu
 // as 4 primeiras colunas são fixas (a correção de hora depende delas); campos sem dado ficam vazios
 static const char *CABECALHO =
     "boot;uptime_ms;epoch_ms;data_hora_utc;temperatura_c;umidade_pct;pressao_hpa;orvalho_c;umidade_abs_gm3;"
-    "chuva_mm_10min;basculadas_10min;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites";
+    "chuva_mm_5min;basculadas_5min;bateria_v;bateria_pct;bateria_estado;gps_lat;gps_lon;gps_alt_m;gps_satelites;"
+    "basculadas_total;wifi_rssi_dbm";
 enum Col { C_BOOT, C_UP, C_EPOCH, C_DATA, C_TEMP, C_UMID, C_PRES, C_ORV, C_UABS, C_CHUVA, C_BPER, C_BATV, C_BATP,
-           C_BATE, C_LAT, C_LON, C_ALT, C_SATS, N_COLS };
+           C_BATE, C_LAT, C_LON, C_ALT, C_SATS, C_BTOT, C_RSSI, N_COLS };
 
 static bool montado = false;
-static uint32_t boot = 0;
+// "boot" só conta quando a energia liga (não a cada ciclo de 5 min)
+static RTC_DATA_ATTR uint32_t boot = 0;
 static int bootDaLinha(const String &l) { int p = l.indexOf(';'); return p > 0 ? l.substring(0, p).toInt() : -1; }
 static uint32_t proximaGravacao = 0, proximaBusca = 0;  // sem hora real: a cada INTERVALO desde que ligou
 static int64_t proximoAlinhado = 0;                       // com hora real: próximo horário redondo (epoch ms)
-static uint32_t gravados = 0;    // registros gravados neste boot
-static uint32_t basculadasNoUltimo = 0;  // total do pluviômetro no último registro gravado
+static RTC_DATA_ATTR uint32_t gravados = 0;            // registros gravados desde que ligou
+static RTC_DATA_ATTR uint32_t basculadasNoUltimo = 0;  // total do pluviômetro no último registro gravado
+static RTC_DATA_ATTR int64_t ultimoSlot = 0;           // horário redondo do último registro (não repete)
+static bool novoRegistro = false;                      // avisa o envio (janela da página)
 static String ultimoErro;
 
 // data e hora em UTC, no padrão ISO 8601 (ex.: 2026-11-21T23:40:00Z); a página converte para Brasília
@@ -75,6 +82,7 @@ static bool garantirArquivo() {
   if (!f) return false;
   f.println(CABECALHO);
   f.close();
+  SD.remove(ENVIADO);  // arquivo novo: o envio recomeça do início dele
   return true;
 }
 
@@ -109,7 +117,7 @@ static void montar() {
 
 static String num(float v, int casas) { return isnan(v) ? String("") : String(v, casas); }
 
-static void gravar(int64_t epochFixo) {
+static String gravar(int64_t epochFixo, bool horarioRedondo = true) {
   const bme::Leitura &l = bme::ultima();
   int64_t up = relogio::uptimeMs();
   // com hora real, o registro leva o horário redondo exato (ex.: 23:20:00)
@@ -128,7 +136,7 @@ static void gravar(int64_t epochFixo) {
   // basculadas desde o último registro gravado (se um registro falhar, elas entram no próximo)
   uint32_t totalAgora = pluviometro::total();
   uint32_t basc = totalAgora - basculadasNoUltimo;
-  c[C_CHUVA] = String(basc * pluviometro::mmPorBasculada(), 2);  // chuva nesses 10 min
+  c[C_CHUVA] = String(basc * pluviometro::mmPorBasculada(), 2);  // chuva nesses 5 min
   c[C_BPER] = String(basc);
   c[C_BATV] = bat ? String(energia::tensao(), 2) : "";
   c[C_BATP] = (bat && energia::pct() >= 0) ? String(energia::pct()) : "";  // carregando: vazio
@@ -137,29 +145,83 @@ static void gravar(int64_t epochFixo) {
   c[C_LON] = pos ? String(gps::lon(), 6) : "";
   c[C_ALT] = pos ? num(gps::alt(), 1) : "";
   c[C_SATS] = gps::satelites() >= 0 ? String(gps::satelites()) : "";
+  c[C_BTOT] = String(totalAgora);
+  int rssi = envio::ultimoRssi();  // do último envio (o registro é feito antes de ligar o Wi-Fi)
+  c[C_RSSI] = rssi ? String(rssi) : "";
   String linha = c[0];
   for (int i = 1; i < N_COLS; i++) linha += ";" + c[i];
   // sem hora real: guarda à parte; na sincronização só essas linhas são corrigidas
+  if (epoch && horarioRedondo) ultimoSlot = epoch;  // o registro de quando liga não ocupa um horário redondo
+  basculadasNoUltimo = totalAgora;  // mesmo sem cartão: as basculadas já foram para esta linha
+  if (!montado) return linha;
   File f = SD.open(epoch ? ARQUIVO : PENDENTES, FILE_APPEND);
   if (!f || f.println(linha) == 0) {
     if (f) f.close();
     desmontar("falha ao gravar (cartão removido?)");
-    return;
+    return linha;
   }
   f.close();
   gravados++;
-  basculadasNoUltimo = totalAgora;
+  novoRegistro = true;
+  return linha;
 }
 
-void iniciar() {
-  Preferences p;
-  p.begin("sistema", false);
-  boot = p.getUInt("boot", 0) + 1;
-  p.putUInt("boot", boot);
-  p.end();
-  basculadasNoUltimo = pluviometro::total();  // o 1º registro conta as basculadas desde que ligou
+void iniciar(bool acordouDoSono) {
+  if (!acordouDoSono) {
+    Preferences p;
+    p.begin("sistema", false);
+    boot = p.getUInt("boot", 0) + 1;
+    p.putUInt("boot", boot);
+    p.end();
+    gravados = 0;
+    ultimoSlot = 0;
+    basculadasNoUltimo = pluviometro::total();  // o 1º registro conta as basculadas desde que ligou
+  }
   SPI.begin(PINO_SCK, PINO_MISO, PINO_MOSI, PINO_CS);
   montar();
+  if (!acordouDoSono && montado) {
+    // firmware novo: manda o arquivo do começo de novo (o ingest ignora o que já tem e recebe o que
+    // a versão anterior não conseguiu enviar)
+    Preferences p;
+    p.begin("sistema", false);
+    if (p.getString("fw", "") != FIRMWARE_VERSAO) {
+      salvarOffsetEnviado(0);
+      p.putString("fw", FIRMWARE_VERSAO);
+      registrar(String("Firmware novo (") + FIRMWARE_VERSAO + "): registros do cartão serão reenviados");
+    }
+    p.end();
+  }
+}
+
+void fechar() {
+  if (montado) SD.end();
+  montado = false;
+}
+
+bool ativo() { return montado; }
+int64_t ultimoHorario() { return ultimoSlot; }
+
+bool temNovo() {
+  bool n = novoRegistro;
+  novoRegistro = false;
+  return n;
+}
+
+// Ao ligar: um registro na hora exata de agora (ex.: 01:47:12), fora dos horários redondos.
+// Os seguintes seguem cravados (01:50, 01:55…). Sem hora real, vai para pendentes.csv.
+String gravarAgora() {
+  if (!relogio::sincronizado()) return gravar(0);
+  return gravar(relogio::agoraEpochMs() / 1000 * 1000, false);
+}
+
+// Ciclo de 5 min: um registro no horário redondo mais próximo (acorda perto dele, um pouco antes
+// ou depois). Se esse horário já foi gravado, não repete. Sem hora real, vai para pendentes.csv.
+String gravarCiclo() {
+  if (!relogio::sincronizado()) return gravar(0);
+  int64_t ep = relogio::agoraEpochMs();
+  int64_t slot = (ep + INTERVALO_MS / 2) / INTERVALO_MS * INTERVALO_MS;
+  if (slot == ultimoSlot) return String();
+  return gravar(slot);
 }
 
 void cuidar() {
@@ -176,7 +238,7 @@ void cuidar() {
     if (proximoAlinhado == 0 || proximoAlinhado > seguinte || ep - proximoAlinhado > (int64_t)INTERVALO_MS)
       proximoAlinhado = seguinte;
     if (ep >= proximoAlinhado) {
-      gravar(proximoAlinhado);
+      if (proximoAlinhado != ultimoSlot) gravar(proximoAlinhado);  // o ciclo pode ter gravado este horário
       proximoAlinhado += INTERVALO_MS;
     }
   } else if ((int32_t)(agora - proximaGravacao) >= 0) {
@@ -341,6 +403,109 @@ void registros(uint32_t horas, size_t max, const std::function<void(const String
   linhasDoFim(PENDENTES, cb);  // as pendentes são as mais novas
   if (n < max) linhasDoFim(ARQUIVO, cb);
   if (lote.length()) enviar(lote);
+}
+
+// ---------- envio para o ingest ----------
+
+// separa as colunas de uma linha; false se faltar coluna
+static bool dividir(const String &l, String (&c)[N_COLS]) {
+  int ini = 0, k = 0;
+  for (; k < N_COLS; k++) {
+    int p = l.indexOf(';', ini);
+    c[k] = p < 0 ? l.substring(ini) : l.substring(ini, p);
+    if (p < 0) { k++; break; }
+    ini = p + 1;
+  }
+  return k == N_COLS;
+}
+
+// Linha do CSV → uma leitura no formato do ingest. Vazio se a linha não tem hora real.
+String leituraIngest(const String &linha) {
+  String c[N_COLS];
+  if (!dividir(linha, c) || c[C_DATA].isEmpty() || atoll(c[C_EPOCH].c_str()) == 0) return String();
+  String j = "{\"measured_at\":\"" + c[C_DATA] + "\"";
+  // valores como foram lidos (o ingest só confere o formato: um valor absurdo aparece lá e mostra o defeito)
+  auto num = [&](const char *k, const String &v) { if (!v.isEmpty()) j += ",\"" + String(k) + "\":" + v; };
+  num("temperature", c[C_TEMP]);
+  num("humidity", c[C_UMID]);
+  num("pressure", c[C_PRES]);
+  num("rain_mm", c[C_CHUVA]);    // chuva no intervalo (desde o registro anterior)
+  num("rain_tips", c[C_BPER]);   // basculadas no mesmo intervalo
+  num("battery_v", c[C_BATV]);
+  num("battery_pct", c[C_BATP]);
+  // carregador em número: 0 sem sol · 1 carregando · 2 carregada (no CSV continua em texto)
+  if (c[C_BATE] == "sem_sol") j += ",\"charge\":0";
+  else if (c[C_BATE] == "carregando") j += ",\"charge\":1";
+  else if (c[C_BATE] == "carregada") j += ",\"charge\":2";
+  num("rssi", c[C_RSSI]);
+  return j + "}";
+}
+
+size_t offsetEnviado() {
+  if (!montado || !SD.exists(ENVIADO)) return 0;
+  File f = SD.open(ENVIADO, FILE_READ);
+  if (!f) return 0;
+  size_t v = (size_t)f.readStringUntil('\n').toInt();
+  f.close();
+  return v;
+}
+
+void salvarOffsetEnviado(size_t offset) {
+  if (!montado) return;
+  File f = SD.open(ENVIADO, FILE_WRITE);  // FILE_WRITE recria o arquivo
+  if (!f) return;
+  f.println((unsigned long)offset);
+  f.close();
+}
+
+// Lê de registros.csv a partir do byte `desde` até `maxLinhas` leituras (ou ~maxBytes de JSON).
+// readings = "{...},{...}" · ate = byte logo depois da última linha lida · n = leituras · puladas = sem hora.
+// Só usa linhas completas (com '\n'): uma linha sendo gravada fica para a próxima vez.
+bool lote(size_t desde, size_t maxLinhas, size_t maxBytes, String &readings, size_t &ate, size_t &n, size_t &puladas) {
+  readings = "";
+  n = puladas = 0;
+  ate = desde;
+  if (!montado) return false;
+  File f = SD.open(ARQUIVO, FILE_READ);
+  if (!f) return false;
+  size_t tam = f.size();
+  if (desde > tam) desde = ate = 0;  // arquivo recriado: recomeça
+  f.seek(desde);
+  size_t pos = desde;
+  while (pos < tam && n < maxLinhas && readings.length() < maxBytes) {
+    String l = f.readStringUntil('\n');
+    size_t fim = f.position();
+    bool completa = fim <= tam && (fim > pos + l.length());  // achou o '\n'
+    if (!completa) break;
+    pos = fim;
+    l.trim();
+    if (l.isEmpty() || !isDigit(l[0])) { ate = pos; continue; }  // cabeçalho ou linha vazia
+    String r = leituraIngest(l);
+    if (r.isEmpty()) puladas++;
+    else readings += (n++ ? "," : "") + r;
+    ate = pos;
+  }
+  f.close();
+  return true;
+}
+
+// quantas linhas ainda não foram para o ingest
+uint32_t pendentesEnvio() {
+  if (!montado) return 0;
+  File f = SD.open(ARQUIVO, FILE_READ);
+  if (!f) return 0;
+  size_t desde = offsetEnviado();
+  if (desde > f.size()) desde = 0;
+  f.seek(desde);
+  uint32_t n = 0;
+  uint8_t buf[256];
+  while (f.available()) {
+    int k = f.read(buf, sizeof buf);
+    for (int i = 0; i < k; i++) n += buf[i] == '\n';
+  }
+  f.close();
+  if (desde == 0 && n) n--;  // cabeçalho
+  return n;
 }
 
 String statusJson() {

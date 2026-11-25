@@ -135,6 +135,26 @@ void cuidar() {
   if (estado != SEM_MODULO && estado != ILEGIVEL) talvezAcertarRelogio();
 }
 
+// Ciclo de 5 min: o módulo ficou ligado enquanto o ESP32 dormia (já tem os satélites); lê a UART
+// até chegar posição nova e hora, ou até `ms`. Sem módulo, desiste em 1,5 s.
+void aguardar(uint32_t ms) {
+  uint32_t ini = millis();
+  while (millis() - ini < ms) {
+    cuidar();
+    if (estado == OK && nmea.location.isUpdated() && nmea.time.isValid() && nmea.date.isValid()) break;
+    if (!algumByte && millis() - ini > 1500) break;
+    delay(10);
+  }
+}
+
+// posição de agora ou, sem sinal, a última salva na flash
+bool posicaoConhecida(double &la, double &lo, float &al) {
+  if (estado == OK) { la = lat(); lo = lon(); al = alt(); return true; }
+  if (!salva.valida) return false;
+  la = salva.lat; lo = salva.lon; al = salva.alt;
+  return true;
+}
+
 bool temPosicao() { return estado == OK; }
 double lat() { return nmea.location.lat(); }
 double lon() { return nmea.location.lng(); }

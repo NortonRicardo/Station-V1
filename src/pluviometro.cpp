@@ -1,6 +1,8 @@
 #include "pluviometro.h"
 
 #include <Preferences.h>
+#include <driver/gpio.h>
+#include <esp_sleep.h>
 #include <esp_timer.h>
 #include <soc/gpio_struct.h>
 
@@ -10,10 +12,11 @@ void registrar(const String &texto);  // em main.cpp
 
 namespace pluviometro {
 
-static const int PINO = 32;                    // OUT do SS41F (pull-up interno ligado)
+static const int PINO = 32;                    // OUT do SS41F (pull-up interno ligado + 104 ao GND)
 static const int64_t MIN_EM_SUL_US = 5000;     // ficou menos que isso em 0: ruído, não conta
 static const int64_t FILTRO_US = 50000;        // ignora outra basculada dentro desse tempo
 static const uint32_t PRESO_MS = 5000;         // em 0 por mais que isso: ímã parado na frente ou fio em curto
+static const uint32_t SALVAR_MS = 60000;       // grava o total na flash no máx. 1×/min (e antes de dormir)
 
 // Milímetros de chuva por basculada = volume da basculada (mL) × 1000 ÷ área da boca do funil (mm²)
 // (1 mm de chuva = 1 L/m²). Funil de 160 mm e báscula calibrada com 4 mL → ≈0,199 mm (ver pluviometria.html).
@@ -29,15 +32,18 @@ static int nQuando = 0, iQuando = 0;
 // Cada passagem do ímã gera descida (polo sul) e subida (polo norte), nos dois sentidos.
 // Conta na subida, se o pino ficou pelo menos MIN_EM_SUL_US em 0.
 static portMUX_TYPE trava = portMUX_INITIALIZER_UNLOCKED;
+static volatile int nivelVisto = 1;            // último nível tratado (a mesma mudança não conta duas vezes)
 static volatile int64_t descidaUs = -1;        // quando foi a última descida (-1: nenhuma pendente)
 static volatile int64_t ultimaContagemUs = -FILTRO_US;
 static volatile uint32_t desdeBoot = 0;        // basculadas desde que ligou
-static volatile uint32_t pendentes = 0;        // ainda não salvas/registradas pelo loop
+static volatile uint32_t pendentes = 0;        // ainda não somadas pelo loop
 static volatile uint32_t ignorados = 0;        // pulsos curtos ou repetidos descartados
 // diagnóstico: por que cada pulso foi ignorado, e a duração em 0 do último ignorado (µs)
 static volatile uint32_t ignCurto = 0, ignRepetido = 0, ignSemDescida = 0;
 static volatile int64_t ultimoIgnoradoUs = -1;
-static uint32_t total_ = 0;                    // acumulado salvo na flash
+static uint32_t total_ = 0;                    // acumulado (também na flash)
+static uint32_t salvoNaFlash = 0;
+static uint32_t ultimoSalvar = 0;
 static int64_t ultimaUptime = -1;
 static uint32_t emZeroDesde = 0;               // millis() em que o pino foi a 0 (0: está em 1)
 static bool avisouPreso = false;
@@ -46,38 +52,46 @@ static bool ativo = false;
 // roda na IRAM (o ESP32 pode estar gravando a flash): lê o pino direto no registrador
 static inline int nivelPino() { return (GPIO.in1.val >> (PINO - 32)) & 1; }
 
-static void IRAM_ATTR aoMudar() {
-  int64_t agora = esp_timer_get_time();
+// Trata uma mudança do pino no instante `agora` (µs). Chamado pela interrupção e, ao acordar do
+// sono leve, pelo loop (a mudança que acordou a estação). Ignora se o nível não mudou desde a última.
+static void IRAM_ATTR tratar(int nivel, int64_t agora) {
   portENTER_CRITICAL_ISR(&trava);
-  if (!nivelPino()) {
-    descidaUs = agora;
-  } else if (descidaUs >= 0) {
-    if (agora - descidaUs >= MIN_EM_SUL_US && agora - ultimaContagemUs >= FILTRO_US) {
-      ultimaContagemUs = agora;
-      desdeBoot++;
-      pendentes++;
+  if (nivel != nivelVisto) {
+    nivelVisto = nivel;
+    if (!nivel) {
+      descidaUs = agora;
+    } else if (descidaUs >= 0) {
+      if (agora - descidaUs >= MIN_EM_SUL_US && agora - ultimaContagemUs >= FILTRO_US) {
+        ultimaContagemUs = agora;
+        desdeBoot++;
+        pendentes++;
+      } else {
+        ignorados++;
+        if (agora - descidaUs < MIN_EM_SUL_US) ignCurto++; else ignRepetido++;
+        ultimoIgnoradoUs = agora - descidaUs;
+      }
+      descidaUs = -1;
     } else {
-      ignorados++;
-      if (agora - descidaUs < MIN_EM_SUL_US) ignCurto++; else ignRepetido++;
-      ultimoIgnoradoUs = agora - descidaUs;
+      ignorados++;  // subida sem descida antes: pulso curto demais para ver o 0
+      ignSemDescida++;
     }
-    descidaUs = -1;
-  } else {
-    ignorados++;  // subida sem descida antes: pulso curto demais para ver o 0
-    ignSemDescida++;
   }
   portEXIT_CRITICAL_ISR(&trava);
 }
 
+static void IRAM_ATTR aoMudar() { tratar(nivelPino(), esp_timer_get_time()); }
+
 void iniciar() {
   Preferences p;
   p.begin("pluv", true);
-  total_ = p.getUInt("total", 0);
+  total_ = salvoNaFlash = p.getUInt("total", 0);
   p.end();
   pinMode(PINO, INPUT_PULLUP);
+  nivelVisto = nivelPino();
   attachInterrupt(digitalPinToInterrupt(PINO), aoMudar, CHANGE);
   ativo = true;
-  if (!nivelPino())
+  esp_sleep_enable_gpio_wakeup();  // o pino acorda a estação do sono leve (ver prepararSono)
+  if (!nivelVisto)
     registrar("Pluviômetro: sinal do SS41F em 0 ao ligar (ímã parado na frente?) · conta a partir do próximo polo norte");
 }
 
@@ -85,6 +99,35 @@ void pausar(bool p) {
   if (p && ativo) detachInterrupt(digitalPinToInterrupt(PINO));
   if (!p && !ativo) attachInterrupt(digitalPinToInterrupt(PINO), aoMudar, CHANGE);
   ativo = !p;
+}
+
+// Antes do sono leve: a interrupção não funciona com a CPU parada, então o pino passa a ACORDAR a
+// estação quando sair do nível atual (em 0 → acorda no 1; em 1 → acorda no 0). Leva ~1 ms.
+void prepararSono() {
+  detachInterrupt(digitalPinToInterrupt(PINO));
+  ativo = false;
+  int nivel = nivelPino();
+  if (nivel != nivelVisto) tratar(nivel, esp_timer_get_time());  // mudou agora há pouco
+  gpio_wakeup_enable((gpio_num_t)PINO, nivel ? GPIO_INTR_LOW_LEVEL : GPIO_INTR_HIGH_LEVEL);
+}
+
+// Depois do sono leve: trata a mudança que acordou (com a hora certa: o relógio continua contando
+// dormindo) e volta para a interrupção.
+void aoAcordar() {
+  gpio_wakeup_disable((gpio_num_t)PINO);
+  tratar(nivelPino(), esp_timer_get_time());
+  attachInterrupt(digitalPinToInterrupt(PINO), aoMudar, CHANGE);
+  ativo = true;
+}
+
+void salvar() {
+  if (total_ == salvoNaFlash) return;
+  Preferences p;
+  p.begin("pluv", false);
+  p.putUInt("total", total_);
+  p.end();
+  salvoNaFlash = total_;
+  ultimoSalvar = millis();
 }
 
 void cuidar() {
@@ -114,19 +157,17 @@ void cuidar() {
   uint32_t n = pendentes;
   pendentes = 0;
   portEXIT_CRITICAL(&trava);
-  if (!n) return;
-  total_ += n;
-  ultimaUptime = relogio::uptimeMs();
-  for (uint32_t i = 0; i < n; i++) {
-    quando[iQuando] = ultimaUptime;
-    iQuando = (iQuando + 1) % HISTORICO;
-    if (nQuando < HISTORICO) nQuando++;
+  if (n) {
+    total_ += n;
+    ultimaUptime = relogio::uptimeMs();
+    for (uint32_t i = 0; i < n; i++) {
+      quando[iQuando] = ultimaUptime;
+      iQuando = (iQuando + 1) % HISTORICO;
+      if (nQuando < HISTORICO) nQuando++;
+    }
+    registrar("Báscula virou · " + String(total_) + " no total");
   }
-  Preferences p;
-  p.begin("pluv", false);
-  p.putUInt("total", total_);
-  p.end();
-  registrar("Báscula virou · " + String(total_) + " no total");
+  if (total_ != salvoNaFlash && millis() - ultimoSalvar >= SALVAR_MS) salvar();
 }
 
 uint32_t total() { return total_; }
@@ -164,7 +205,8 @@ String statusJson() {
   String j = "{\"total\":" + String(total_) + ",\"desde_boot\":" + String(desdeBoot) +
              ",\"nivel\":" + String(nivel) + ",\"perto\":" + String(nivel ? "false" : "true") +
              ",\"ignorados\":" + String(ignorados) + ",\"ign_curtos\":" + String(ignCurto) +
-             ",\"ign_repetidos\":" + String(ignRepetido) + ",\"ign_sem_descida\":" + String(ignSemDescida) + ",\"sinal_ok\":" + String(preso ? "false" : "true");
+             ",\"ign_repetidos\":" + String(ignRepetido) + ",\"ign_sem_descida\":" + String(ignSemDescida) +
+             ",\"sinal_ok\":" + String(preso ? "false" : "true");
   if (ultimaUptime >= 0) j += ",\"ultima\":\"" + relogio::formatar(ultimaUptime) + "\"";
   String ini, fim;
   uint32_t bh = basculadasDaHora(ini, fim);

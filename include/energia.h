@@ -8,7 +8,8 @@
 namespace energia {
 
 void iniciar();
-void cuidar();        // lê a cada poucos segundos (não bloqueia)
+void cuidar();        // janela da página: lê a cada poucos segundos (não bloqueia)
+void lerAgora();      // ciclo de 5 min: uma leitura completa, sem bipe
 String statusJson();  // tensão, %, estado do carregador
 bool conectada();
 float tensao();

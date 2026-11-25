@@ -47,10 +47,12 @@ A função de cada pino e a alimentação estão em [`placa.html`](placa.html): 
 | 🔄 | **Atualização pelo Wi-Fi (OTA)**: grava o código novo sem cabo USB | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🕒 | **Relógio**: conta a partir de 0 ao ligar e acerta a hora pela internet, corrigindo o que foi registrado antes | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🌡️ | **BME280**: temperatura, umidade, pressão, ponto de orvalho e umidade absoluta | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
-| 💾 | **Cartão microSD**: registro a cada 10 minutos com todas as medições, GPS e bateria | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
+| 💾 | **Cartão microSD**: registro a cada 5 minutos com todas as medições, GPS e bateria | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🛰️ | **GPS**: posição, altitude, mapa e hora sem internet | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
 | 🌧️ | **Pluviômetro**: contagem de basculadas (milímetros depois da calibração) | ![parcial](https://img.shields.io/badge/parcial-f59e0b?style=flat-square) |
 | 🔋 | **Bateria e painel solar**: carga, estado do carregador e modo economia | ![pronto](https://img.shields.io/badge/pronto-10b981?style=flat-square) |
+| ☁️ | **Envio para a Climora**: a cada 5 min, por HTTPS, para o climora-ingest (com reenvio do que ficou pendente) | ![novo](https://img.shields.io/badge/novo-3b82f6?style=flat-square) |
+| 😴 | **Sono leve**: dorme entre os ciclos de 5 min; a chuva continua contada por interrupção (o pino acorda a estação) | ![novo](https://img.shields.io/badge/novo-3b82f6?style=flat-square) |
 
 ## 📶 Conectar a estação ao Wi-Fi
 
@@ -58,40 +60,34 @@ A função de cada pino e a alimentação estão em [`placa.html`](placa.html): 
 2. Conecte o celular nessa rede. A página abre sozinha; se não abrir, acesse **http://192.168.4.1**.
 3. Toque em **Procurar**, escolha a rede de casa, digite a senha e toque em **Conectar**.
 
-Pronto: a estação grava a rede, conecta na internet e acerta a hora. Na rede de casa, a página também abre em **http://station-xxxx.local**, com as mesmas 4 letras (a atual é `station-fc30.local`). O nome aparece no cartão **Estação**, em *Nome na rede*.
+Pronto: a estação grava a rede e passa a enviar por ela.
 
-Várias estações podem ficar na mesma rede: cada uma tem o seu nome e o seu endereço.
+### 😴 Janela de 10 minutos e sono leve
 
-### 🔋 Uma rede ou a outra
-
-- **Conectada no Wi-Fi de casa:** a rede `Station-XXXX` desliga 2 minutos depois, e a página fica em **http://station-xxxx.local** (ou no IP), com o celular na mesma rede. O rádio passa a dormir entre os avisos do roteador e gasta bem menos.
-- **Sem Wi-Fi de casa** (não configurado, senha errada, roteador fora): a `Station-XXXX` liga na hora, para configurar.
-- Para religar a `Station-XXXX` por 15 minutos: botão **BOOT** da placa, ou o botão no cartão **Estação** da página.
+- **Ao ligar** (energia ou botão **EN**): a rede `Station-XXXX` e a página em **http://192.168.4.1** ficam no ar por **10 minutos**. Só por essa rede: pelo Wi-Fi de casa a página não abre. Logo ao ligar ela faz **uma leitura e um envio na hora** (ex.: 01:47); depois segue nos horários cravados (01:50, 01:55, 02:00…), também durante os 10 minutos.
+- **Depois:** rede e página desligam e a estação entra em **sono leve**. A cada 5 minutos (xx:00, xx:05…) ela acorda, lê os sensores, grava no cartão, conecta no Wi-Fi de casa, acerta a hora e envia para a Climora o que estiver pendente; sem internet, guarda e manda no ciclo seguinte. Depois volta a dormir.
+- **Chuva:** contada por interrupção, como sempre. Dormindo, cada mudança do pino do pluviômetro acorda a estação em ~1 ms, a basculada é contada com o mesmo filtro (≥5 ms em 0, 50 ms entre basculadas) e ela volta a dormir.
+- **Para abrir a página de novo:** desligue e ligue a estação (ou aperte **EN**).
 - O processador roda a 80 MHz, o mínimo para o Wi-Fi.
 
 ## 🛠️ Gravar o código
 
-**Antes da primeira compilação**, copie `.env.example` para `.env` e defina a senha da gravação pelo Wi-Fi (o `.env` não vai para o git). A rede própria `Station-XXXX` é aberta, sem senha:
+**Antes da primeira compilação**, copie `.env.example` para `.env` e defina a senha da gravação pelo Wi-Fi e a chave do envio (o `.env` não vai para o git). A rede própria `Station-XXXX` é aberta, sem senha:
 
 ```ini
 STATION_OTA_PASS=senha-da-gravacao-pelo-wifi  # mínimo 8 caracteres
+STATION_KEY=a-mesma-do-climora-ingest        # sem ela, grava no SD mas não envia
 ```
 
 | Como | Quando | Comando |
 |---|---|---|
 | 🔌 **USB** | Primeira vez, ou se o Wi-Fi não responder | `pio run -t upload` |
-| 📶 **Wi-Fi** | Depois disso, com o computador na mesma rede da estação | `pio run -e ota -t upload` |
+| 📶 **Wi-Fi** | Nos 10 minutos depois de ligar, com o computador na rede `Station-XXXX` | `pio run -e ota -t upload` |
 
-O comando do Wi-Fi grava na estação `station-fc30.local` (definido no `platformio.ini`). Para outra estação, informe o nome dela; para ver as estações na rede: `dns-sd -B _arduino._tcp`.
-
-```sh
-pio run -e ota -t upload --upload-port station-xxxx.local
-```
-
-Se o computador estiver conectado na rede própria da estação (`Station-XXXX`), use o IP dela:
+O comando do Wi-Fi grava em `192.168.4.1` (a estação na própria rede, definido no `platformio.ini`). Não há mais nome `.local`. Ligue a estação, conecte o computador na `Station-XXXX` e grave dentro dos 10 minutos. Também funciona pelo IP dela no Wi-Fi de casa, durante a janela:
 
 ```sh
-pio run -e ota -t upload --upload-port 192.168.4.1
+pio run -e ota -t upload --upload-port 192.168.1.xx
 ```
 
 Para ver o que a estação está fazendo, abra o monitor serial com `pio device monitor` (pelo cabo USB).

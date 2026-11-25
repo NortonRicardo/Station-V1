@@ -20,6 +20,17 @@ if len(ota) < 8:
     env.Exit(1)
 env.Append(CPPDEFINES=[("STATION_OTA_PASS", env.StringifyMacro(ota))])
 
+# Envio para o climora-ingest: a chave (STATION_KEY, a mesma do Environment do ingest no Dokploy)
+# e, opcional, a URL. Sem chave, o firmware compila com o envio desligado.
+chave = valores.get("STATION_KEY", "")
+if chave:
+    env.Append(CPPDEFINES=[("STATION_KEY", env.StringifyMacro(chave))])
+else:
+    print("\nAVISO: STATION_KEY não está no .env: a estação vai gravar no SD mas não envia para o ingest.\n")
+url = valores.get("STATION_INGEST_URL", "")
+if url:
+    env.Append(CPPDEFINES=[("STATION_INGEST_URL", env.StringifyMacro(url))])
+
 # Upload pelo Wi-Fi: a senha vai como --auth (não fica no platformio.ini)
 if env.GetProjectOption("upload_protocol", "") == "espota":
     env.Append(UPLOAD_FLAGS=["--auth=" + ota])

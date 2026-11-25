@@ -17,6 +17,7 @@ struct Leitura {
 
 void iniciar();               // chama no setup (depois do Wire)
 void cuidar();                // chama no loop: lê a cada INTERVALO e tenta reconectar
+void lerAgora();              // ciclo de 5 min: uma medição agora
 const Leitura &ultima();
 String statusJson();          // {"estado":..., "chip":..., "endereco":..., leitura}
 

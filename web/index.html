@@ -167,11 +167,14 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <div class="row"><span>Wi-Fi</span><span id="sta">—</span></div>
   <div class="row"><span>Rede</span><span id="staSsid">—</span></div>
   <div class="row"><span>IP na rede</span><span id="staIp">—</span></div>
-  <div class="row"><span>Nome na rede</span><span id="host">—</span></div>
   <div class="row"><span>Sinal</span><span id="staRssi">—</span></div>
   <div class="row"><span>Hora</span><span id="hora">—</span></div>
   <div class="row"><span>Rede <span class="apNome">própria</span></span><span id="apEst">—</span></div>
   <div class="row"><span>Aparelhos na <span class="apNome">rede própria</span></span><span id="cli">—</span></div>
+  <div class="row"><span>Página e rede própria</span><span id="janela">—</span></div>
+  <div class="row"><span>Envio para a Climora</span><span id="envio">—</span></div>
+  <div class="row"><span>Último envio</span><span id="envioUlt">—</span></div>
+  <div class="row"><span>Firmware</span><span id="fw">—</span></div>
 </section>
 <section data-carga="redes" class="carregando card card-wifi">
   <div class="head">
@@ -180,7 +183,7 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   </div>
   <p class="msg" id="msg"></p>
   <ul id="lista" class="rolagem"></ul>
-  <p class="hint">Depois de conectar no Wi-Fi de casa, a rede <span class="apNome">própria</span> desliga na hora para economizar energia: a página passa a abrir em <b class="hostNome">station-xxxx.local</b> (ou no IP mostrado em Estação), com o celular na mesma rede. Se o Wi-Fi de casa cair, a <span class="apNome">rede própria</span> volta sozinha.</p>
+  <p class="hint">A <span class="apNome">rede própria</span> e esta página ficam no ar só nos <b>10 minutos depois de ligar</b> a estação. Depois ela dorme e acorda a cada 5 min para medir, gravar no cartão e enviar pelo Wi-Fi de casa escolhido aqui. Para abrir a página de novo: desligue e ligue a estação (ou aperte EN).</p>
   <button class="forget" id="btnEsquecer" type="button" hidden>Esquecer rede salva</button>
 </section>
 </div>
@@ -285,11 +288,19 @@ footer{text-align:center;font-size:10px;color:rgba(255,255,255,.3);padding:0 16p
   <ul id="eventos" class="ev"></ul>
   <p class="hint">Horários com <b>+</b> são contados desde que a estação ligou. Quando a internet acerta a hora, eles passam para a hora real: hora atual − (tempo ligado agora − tempo ligado no registro).</p>
 </section>
+
+<section class="card">
+  <div class="label">Manutenção</div>
+  <h2>Zerar tudo</h2>
+  <p class="hint">Apaga tudo da estação: o cartão SD (registros e o controle do que já foi enviado), o total de basculadas, o contador de ligações, a posição salva do GPS e o registro de eventos. Depois ela reinicia e abre esta página de novo por 10 minutos. <b>Só o Wi-Fi salvo continua.</b> As leituras que já estão na Climora não são apagadas por aqui.</p>
+  <button class="danger" id="btnZerar" type="button">Zerar tudo</button>
+  <p class="msg" id="zerarMsg"></p>
+</section>
 </main>
 <footer id="rodape"></footer>
 </div>
 <script>
-let NOME='station-xxxx.local',AP='Station';
+let NOME='station-xxxx',AP='Station';
 // ---------- rede de partículas (PlexusNetwork, modo faint) ----------
 (function(){
   const c=document.getElementById('plexus'),x=c.getContext('2d'),RGB='163,230,53';
@@ -440,7 +451,8 @@ async function cartao(){
     set('sdEstado',ativo?pill('Ativo','p-ok'):pill('Sem cartão','p-err'));
     set('sdTipo',z.tipo||'—');set('sdTam',bytes(z.cartao_bytes));set('sdUsado',bytes(z.usado_bytes));set('sdLivre',bytes(z.livre_bytes));
     $('sdBarra').style.width=ativo&&z.total_bytes?Math.max(1,100*z.usado_bytes/z.total_bytes)+'%':'0';
-    const iv=z.intervalo_s>=60?Math.round(z.intervalo_s/60)+' min (:00, :10, :20…)':z.intervalo_s+' s';
+    const mi=Math.round(z.intervalo_s/60),p2=n=>':'+String(n).padStart(2,'0');
+    const iv=z.intervalo_s>=60?mi+' min ('+p2(0)+', '+p2(mi)+', '+p2(2*mi)+'…)':z.intervalo_s+' s';
     set('sdArq',ativo?bytes(z.arquivo_bytes)+' · a cada '+iv:(z.erro||'—'));
     $('btnApagar').disabled=!ativo;
     pronto('sd');
@@ -477,6 +489,17 @@ $('btnApagar').onclick=async()=>{
   }catch(_){alert('Sem resposta da estação durante o apagamento. Confira o cartão.')}
   bt.textContent=txt;await cartao();
 };
+$('btnZerar').onclick=async()=>{
+  const v=prompt('Isto apaga TUDO da estação (cartão SD, chuva, contadores, posição do GPS, eventos). Só o Wi-Fi salvo continua.\n\nPara confirmar, digite ZERAR:');
+  if(v===null)return;
+  if(v.trim().toUpperCase()!=='ZERAR'){alert('Nada foi apagado (precisa digitar ZERAR).');return}
+  const bt=$('btnZerar');bt.disabled=true;bt.innerHTML='<span class="spin"></span>Zerando…';
+  try{
+    const r=await fetch('/api/zerar',{method:'POST'}),j=await r.json();
+    $('zerarMsg').textContent='Zerado'+(j.sd?'':' (o cartão SD não estava ativo e não foi apagado)')+'. A estação está reiniciando: reconecte na rede '+AP+' em uns 10 segundos e abra http://192.168.4.1 de novo.';
+    bt.textContent='Reiniciando…';
+  }catch(_){bt.disabled=false;bt.textContent='Zerar tudo';alert('Sem resposta da estação. Confira se ainda está conectado na rede '+AP+'.')}
+};
 async function eventos(){
   if(document.hidden)return;
   try{
@@ -490,6 +513,10 @@ function pronto(k){document.querySelectorAll('[data-carga="'+k+'"].carregando').
 function pill(t,c){const s=document.createElement('span');s.className='pill '+c;s.textContent=t;return s}
 function nivel(r){return r>=-55?4:r>=-67?3:r>=-78?2:1}
 function bars(r){const b=document.createElement('span');b.className='bars';const n=nivel(r);for(let i=1;i<=4;i++){const e=document.createElement('i');if(i<=n)e.className='on';b.appendChild(e)}return b}
+let janelaFim=0;
+function tickJanela(){const r=Math.max(0,Math.round((janelaFim-Date.now())/1000));
+  if(!janelaFim)return;set('janela',r>0?'desligam em '+Math.floor(r/60)+':'+String(r%60).padStart(2,'0'):'desligadas (estação dormindo)')}
+setInterval(tickJanela,1000);
 function set(id,v){const e=$(id);e.textContent='';if(v instanceof Node)e.appendChild(v);else e.textContent=v}
 function msg(t,erro){const m=$('msg');m.textContent=t;m.className='msg'+(erro?' err':'')}
 
@@ -511,13 +538,18 @@ async function status(){
     relo={fonte:s.relogio.fonte,sync:s.relogio.sincronizado,up:s.relogio.uptime_ms,ep:s.relogio.epoch_ms,em:Date.now()};tick();
     set('cli',String(s.ap.clientes));
     const ap=s.ap;
-    set('apEst',ap.ligado?pill('Ligada · sem Wi-Fi de casa','p-wait nc'):pill('Desligada','p-off nc'));
+    set('apEst',ap.ligado?pill('Ligada','p-ok nc'):pill('Desligada','p-off nc'));
+    janelaFim=Date.now()+(s.janela_s||0)*1000;tickJanela();
+    if(s.firmware)set('fw',s.firmware);
+    if(s.envio){const v=s.envio;
+      set('envio',!v.configurado?pill('Desligado (sem chave no firmware)','p-off'):v.pendentes>0?pill(v.pendentes+' pendente(s)','p-wait'):pill('Em dia','p-ok'));
+      const c=v.ultimo_codigo,ok=c>=200&&c<300;
+      set('envioUlt',v.ultima_tentativa?(ok?'OK':(c<0?'sem conexão':'HTTP '+c))+' · '+v.ultima_tentativa+(v.ultimo_sucesso&&!ok?' (último OK '+v.ultimo_sucesso+')':''):'nenhum ainda');}
     $('btnEsquecer').hidden=!s.sta.ssid;
-    NOME=s.nome+'.local';AP=s.ap.ssid;
-    set('host',NOME);
+    NOME=s.nome;AP=s.ap.ssid;
     document.querySelectorAll('.apNome').forEach(e=>e.textContent=AP);
     document.querySelectorAll('.hostNome').forEach(e=>e.textContent=NOME);
-    $('rodape').textContent=(s.sta.ip?NOME+' · '+s.sta.ip:s.ap.ssid+' · '+s.ap.ip)+' · MAC '+s.mac;
+    $('rodape').textContent=s.ap.ssid+' · '+s.ap.ip+' · MAC '+s.mac;
   }catch(_){}
 }
 
@@ -547,7 +579,7 @@ function render(){
           const res=await fetch('/api/conectar',{method:'POST',body:new URLSearchParams({ssid:r.ssid,senha:p.value})});
           const j=await res.json();
           if(!res.ok){msg(j.erro||'Erro ao salvar.',true);ok.disabled=false;ok.textContent='Conectar';return}
-          aberta=null;render();msg('Conectando em '+r.ssid+'. Assim que conectar, a '+AP+' desliga e a página passa a abrir em '+NOME+', com o celular no Wi-Fi de casa.');
+          aberta=null;render();msg('Conectando em '+r.ssid+'. A partir de agora a estação envia por essa rede a cada 5 min; a '+AP+' continua no ar até o fim dos 10 minutos.');
         }catch(_){msg('A rede '+AP+' caiu durante a troca de canal. Conecte o celular nela de novo e confira o status.')}
       };
       li.appendChild(f);setTimeout(()=>{if(!r.aberta)p.focus()},0);

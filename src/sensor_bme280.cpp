@@ -115,6 +115,12 @@ void cuidar() {
   }
 }
 
+// Ciclo de 5 min: procura o sensor (se preciso) e faz uma medição forçada agora.
+void lerAgora() {
+  if (estado != OK) procurar();
+  if (estado == OK) ler();
+}
+
 const Leitura &ultima() { return leitura; }
 
 static String num(float v, int casas) { return isnan(v) ? "null" : String(v, casas); }
